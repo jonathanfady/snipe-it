@@ -5,7 +5,6 @@
 @push('js')
 <script src="{{ asset(mix('js/dist/bootstrap-table.js')) }}"></script>
 <script nonce="{{ csrf_token() }}">
-
     $(function () {
 
         var stickyHeaderOffsetY = 0;
@@ -532,6 +531,12 @@
         }
     }
 
+    function assetCurrentCompanyObjFilterFormatter(value, row) {
+        if ((row) && (row.current_company)) {
+            return '<a href="{{ url('/') }}/hardware/?current_company_id=' + row.current_company.id + '"> ' + row.current_company.name + '</a>';
+        }
+    }
+
     function usersCompanyObjFilterFormatter(value, row) {
         if (value) {
             return '<a href="{{ url('/') }}/users/?company_id=' + row.id + '"> ' + value + '</a>';
@@ -628,5 +633,5 @@
     });
 
 </script>
-    
+
 @endpush

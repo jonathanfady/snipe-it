@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Presenters;
 
 use App\Models\CustomField;
@@ -18,7 +19,7 @@ class AssetAuditPresenter extends Presenter
     public static function dataTableLayout()
     {
         $layout = [
-             [
+            [
                 "field" => "id",
                 "searchable" => false,
                 "sortable" => true,
@@ -151,14 +152,14 @@ class AssetAuditPresenter extends Presenter
                 "sortable" => true,
                 "visible" => false,
                 "title" => trans('admin/hardware/form.warranty')
-            ],[
+            ], [
                 "field" => "warranty_expires",
                 "searchable" => false,
                 "sortable" => false,
                 "visible" => false,
                 "title" => trans('admin/hardware/form.warranty_expires'),
                 "formatter" => "dateDisplayFormatter"
-            ],[
+            ], [
                 "field" => "notes",
                 "searchable" => true,
                 "sortable" => true,
@@ -172,7 +173,7 @@ class AssetAuditPresenter extends Presenter
                 "visible" => false,
                 "title" => trans('general.checkouts_count')
 
-            ],[
+            ], [
                 "field" => "checkin_counter",
                 "searchable" => false,
                 "sortable" => true,
@@ -244,15 +245,14 @@ class AssetAuditPresenter extends Presenter
 
         foreach ($fields as $field) {
             $layout[] = [
-                "field" => 'custom_fields.'.$field->convertUnicodeDbSlug(),
+                "field" => 'custom_fields.' . $field->convertUnicodeDbSlug(),
                 "searchable" => true,
                 "sortable" => true,
                 "visible" => false,
                 "switchable" => true,
-                "title" => ($field->field_encrypted=='1') ?'<i class="fa fa-lock"></i> '.e($field->name) : e($field->name),
+                "title" => ($field->field_encrypted == '1') ? '<i class="fa fa-lock"></i> ' . e($field->name) : e($field->name),
                 "formatter" => "customFieldsFormatter"
             ];
-
         }
 
 
@@ -267,7 +267,4 @@ class AssetAuditPresenter extends Presenter
 
         return json_encode($layout);
     }
-
-
-
 }

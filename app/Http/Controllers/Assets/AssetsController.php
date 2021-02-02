@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Http\Controllers\Assets;
 
 use App\Helpers\Helper;
@@ -39,8 +40,8 @@ use View;
  */
 class AssetsController extends Controller
 {
-    protected $qrCodeDimensions = array( 'height' => 3.5, 'width' => 3.5);
-    protected $barCodeDimensions = array( 'height' => 2, 'width' => 22);
+    protected $qrCodeDimensions = array('height' => 3.5, 'width' => 3.5);
+    protected $barCodeDimensions = array('height' => 2, 'width' => 22);
 
 
     public function __construct()
@@ -128,6 +129,7 @@ class AssetsController extends Controller
             }
 
             $asset->company_id              = Company::getIdForCurrentUser($request->input('company_id'));
+            $asset->current_company_id      = Company::getIdForCurrentUser($request->input('current_company_id'));
             $asset->model_id                = $request->input('model_id');
             $asset->order_number            = $request->input('order_number');
             $asset->notes                   = $request->input('notes');
@@ -148,7 +150,7 @@ class AssetsController extends Controller
                 $asset->next_audit_date         = Carbon::now()->addMonths($settings->audit_interval)->toDateString();
             }
 
-            if ($asset->assigned_to=='') {
+            if ($asset->assigned_to == '') {
                 $asset->location_id = $request->input('rtd_location_id', null);
             }
 
@@ -163,7 +165,7 @@ class AssetsController extends Controller
 
             if (($model) && ($model->fieldset)) {
                 foreach ($model->fieldset->fields as $field) {
-                    if ($field->field_encrypted=='1') {
+                    if ($field->field_encrypted == '1') {
                         if (Gate::allows('admin')) {
                             $asset->{$field->convertUnicodeDbSlug()} = \Crypt::encrypt($request->input($field->convertUnicodeDbSlug()));
                         }
@@ -192,10 +194,7 @@ class AssetsController extends Controller
                 }
 
                 $success = true;
-
-
             }
-
         }
 
         if ($success) {
@@ -205,7 +204,6 @@ class AssetsController extends Controller
         }
 
         return redirect()->back()->withInput()->withErrors($asset->getErrors());
-
     }
 
     /**
@@ -254,7 +252,7 @@ class AssetsController extends Controller
             if ($asset->location) {
                 $use_currency = $asset->location->currency;
             } else {
-                if ($settings->default_currency!='') {
+                if ($settings->default_currency != '') {
                     $use_currency = $settings->default_currency;
                 } else {
                     $use_currency = trans('general.currency');
@@ -303,19 +301,18 @@ class AssetsController extends Controller
         $asset->requestable = $request->filled('requestable');
         $asset->rtd_location_id = $request->input('rtd_location_id', null);
 
-        if ($asset->assigned_to=='') {
+        if ($asset->assigned_to == '') {
             $asset->location_id = $request->input('rtd_location_id', null);
         }
 
 
         if ($request->filled('image_delete')) {
             try {
-                unlink(public_path().'/uploads/assets/'.$asset->image);
+                unlink(public_path() . '/uploads/assets/' . $asset->image);
                 $asset->image = '';
             } catch (\Exception $e) {
                 \Log::info($e);
             }
-
         }
 
 
@@ -325,6 +322,7 @@ class AssetsController extends Controller
         $asset->name         = $request->input('name');
         $asset->serial       = $serial[1];
         $asset->company_id   = Company::getIdForCurrentUser($request->input('company_id'));
+        $asset->current_company_id   = Company::getIdForCurrentUser($request->input('current_company_id'));
         $asset->model_id     = $request->input('model_id');
         $asset->order_number = $request->input('order_number');
         $asset->asset_tag    = $asset_tag[1];
@@ -340,7 +338,7 @@ class AssetsController extends Controller
         $model = AssetModel::find($request->get('model_id'));
         if (($model) && ($model->fieldset)) {
             foreach ($model->fieldset->fields as $field) {
-                if ($field->field_encrypted=='1') {
+                if ($field->field_encrypted == '1') {
                     if (Gate::allows('admin')) {
                         $asset->{$field->convertUnicodeDbSlug()} = \Crypt::encrypt(e($request->input($field->convertUnicodeDbSlug())));
                     }
@@ -382,8 +380,8 @@ class AssetsController extends Controller
             ->update(array('assigned_to' => null));
 
         if ($asset->image) {
-            try  {
-                Storage::disk('public')->delete('assets'.'/'.$asset->image);
+            try {
+                Storage::disk('public')->delete('assets' . '/' . $asset->image);
             } catch (\Exception $e) {
                 \Log::debug($e);
             }
@@ -405,7 +403,7 @@ class AssetsController extends Controller
      */
     public function getAssetByTag(Request $request)
     {
-        $topsearch = ($request->get('topsearch')=="true");
+        $topsearch = ($request->get('topsearch') == "true");
 
         if (!$asset = Asset::where('asset_tag', '=', $request->get('assetTag'))->first()) {
             return redirect()->route('hardware.index')->with('error', trans('admin/hardware/message.does_not_exist'));
@@ -429,7 +427,7 @@ class AssetsController extends Controller
             $asset = Asset::withTrashed()->find($assetId);
             if ($asset) {
                 $size = Helper::barcodeDimensions($settings->barcode_type);
-                $qr_file = public_path().'/uploads/barcodes/qr-'.str_slug($asset->asset_tag).'-'.str_slug($asset->id).'.png';
+                $qr_file = public_path() . '/uploads/barcodes/qr-' . str_slug($asset->asset_tag) . '-' . str_slug($asset->id) . '.png';
 
                 if (isset($asset->id, $asset->asset_tag)) {
                     if (file_exists($qr_file)) {
@@ -437,7 +435,7 @@ class AssetsController extends Controller
                         return response()->file($qr_file, $header);
                     } else {
                         $barcode = new \Com\Tecnick\Barcode\Barcode();
-                        $barcode_obj =  $barcode->getBarcodeObj($settings->barcode_type, route('hardware.show', $asset->id), $size['height'], $size['width'], 'black', array(-2, -2, -2, -2));
+                        $barcode_obj =  $barcode->getBarcodeObj($settings->barcode_type, view('hardware/audit')->with('asset', $asset)->with('settings', $settings)->with('locations_list'), $size['height'], $size['width'], 'black', array(-2, -2, -2, -2));
                         file_put_contents($qr_file, $barcode_obj->getPngData());
                         return response($barcode_obj->getPngData())->header('Content-type', 'image/png');
                     }
@@ -460,7 +458,7 @@ class AssetsController extends Controller
     {
         $settings = Setting::getSettings();
         $asset = Asset::find($assetId);
-        $barcode_file = public_path().'/uploads/barcodes/'.str_slug($settings->alt_barcode).'-'.str_slug($asset->asset_tag).'.png';
+        $barcode_file = public_path() . '/uploads/barcodes/' . str_slug($settings->alt_barcode) . '-' . str_slug($asset->asset_tag) . '.png';
 
         if (isset($asset->id, $asset->asset_tag)) {
             if (file_exists($barcode_file)) {
@@ -471,7 +469,7 @@ class AssetsController extends Controller
                 $barcode_width = ($settings->labels_width - $settings->labels_display_sgutter) * 96.000000000001;
 
                 $barcode = new \Com\Tecnick\Barcode\Barcode();
-                $barcode_obj = $barcode->getBarcodeObj($settings->alt_barcode,$asset->asset_tag,($barcode_width < 300 ? $barcode_width : 300),50);
+                $barcode_obj = $barcode->getBarcodeObj($settings->alt_barcode, $asset->asset_tag, ($barcode_width < 300 ? $barcode_width : 300), 50);
 
                 file_put_contents($barcode_file, $barcode_obj->getPngData());
                 return response($barcode_obj->getPngData())->header('Content-type', 'image/png');
@@ -590,30 +588,30 @@ class AssetsController extends Controller
                     $item[$asset_tag][$batch_counter]['asset_id'] = $asset->id;
                     $base_username = User::generateFormattedNameFromFullName(Setting::getSettings()->username_format, $item[$asset_tag][$batch_counter]['name']);
                     $user = User::where('username', '=', $base_username['username']);
-                    $user_query = ' on username '.$base_username['username'];
-                    if ($request->input('match_firstnamelastname')=='1') {
+                    $user_query = ' on username ' . $base_username['username'];
+                    if ($request->input('match_firstnamelastname') == '1') {
                         $firstnamedotlastname = User::generateFormattedNameFromFullName('firstname.lastname', $item[$asset_tag][$batch_counter]['name']);
                         $item[$asset_tag][$batch_counter]['username'][] = $firstnamedotlastname['username'];
                         $user->orWhere('username', '=', $firstnamedotlastname['username']);
-                        $user_query .= ', or on username '.$firstnamedotlastname['username'];
+                        $user_query .= ', or on username ' . $firstnamedotlastname['username'];
                     }
-                    if ($request->input('match_flastname')=='1') {
+                    if ($request->input('match_flastname') == '1') {
                         $flastname = User::generateFormattedNameFromFullName('filastname', $item[$asset_tag][$batch_counter]['name']);
                         $item[$asset_tag][$batch_counter]['username'][] = $flastname['username'];
                         $user->orWhere('username', '=', $flastname['username']);
-                        $user_query .= ', or on username '.$flastname['username'];
+                        $user_query .= ', or on username ' . $flastname['username'];
                     }
-                    if ($request->input('match_firstname')=='1') {
+                    if ($request->input('match_firstname') == '1') {
                         $firstname = User::generateFormattedNameFromFullName('firstname', $item[$asset_tag][$batch_counter]['name']);
                         $item[$asset_tag][$batch_counter]['username'][] = $firstname['username'];
                         $user->orWhere('username', '=', $firstname['username']);
-                        $user_query .= ', or on username '.$firstname['username'];
+                        $user_query .= ', or on username ' . $firstname['username'];
                     }
-                    if ($request->input('match_email')=='1') {
-                        if ($item[$asset_tag][$batch_counter]['email']=='') {
+                    if ($request->input('match_email') == '1') {
+                        if ($item[$asset_tag][$batch_counter]['email'] == '') {
                             $item[$asset_tag][$batch_counter]['username'][] = $user_email = User::generateEmailFromFullName($item[$asset_tag][$batch_counter]['name']);
                             $user->orWhere('username', '=', $user_email);
-                            $user_query .= ', or on username '.$user_email;
+                            $user_query .= ', or on username ' . $user_email;
                         }
                     }
                     // A matching user was found
@@ -624,7 +622,7 @@ class AssetsController extends Controller
                             'item_id' => $asset->id,
                             'item_type' => Asset::class,
                             'user_id' =>  Auth::user()->id,
-                            'note' => 'Checkout imported by '.Auth::user()->present()->fullName().' from history importer',
+                            'note' => 'Checkout imported by ' . Auth::user()->present()->fullName() . ' from history importer',
                             'target_id' => $item[$asset_tag][$batch_counter]['user_id'],
                             'target_type' => User::class,
                             'created_at' =>  $item[$asset_tag][$batch_counter]['checkout_date'],
@@ -632,7 +630,7 @@ class AssetsController extends Controller
                         ));
                         $asset->assigned_to = $user->id;
                         if ($asset->save()) {
-                            $status['success'][]['asset'][$asset_tag]['msg'] = 'Asset successfully matched for '.Helper::array_smart_fetch($row, "name").$user_query.' on '.$item[$asset_tag][$batch_counter]['checkout_date'];
+                            $status['success'][]['asset'][$asset_tag]['msg'] = 'Asset successfully matched for ' . Helper::array_smart_fetch($row, "name") . $user_query . ' on ' . $item[$asset_tag][$batch_counter]['checkout_date'];
                         } else {
                             $status['error'][]['asset'][$asset_tag]['msg'] = 'Asset and user was matched but could not be saved.';
                         }
@@ -652,7 +650,7 @@ class AssetsController extends Controller
             for ($x = 0; $x < $total_in_batch; $x++) {
                 $next = $x + 1;
                 // Only do this if a matching user was found
-                if ((array_key_exists('checkedout_to', $asset_batch[$x])) && ($asset_batch[$x]['checkedout_to']!='')) {
+                if ((array_key_exists('checkedout_to', $asset_batch[$x])) && ($asset_batch[$x]['checkedout_to'] != '')) {
                     if (($total_in_batch > 1) && ($x < $total_in_batch) && (array_key_exists($next, $asset_batch))) {
                         $checkin_date = Carbon::parse($asset_batch[$next]['checkin_date'])->format('Y-m-d H:i:s');
                         $asset_batch[$x]['real_checkin'] = $checkin_date;
@@ -764,7 +762,7 @@ class AssetsController extends Controller
 
         // Check to see if they checked the box to update the physical location,
         // not just note it in the audit notes
-        if ($request->input('update_location')=='1') {
+        if ($request->input('update_location') == '1') {
             \Log::debug('update location in audit');
             $asset->location_id = $request->input('location_id');
         }
@@ -778,7 +776,7 @@ class AssetsController extends Controller
                 if (!Storage::exists($path)) Storage::makeDirectory($path, 775);
                 $upload = $image = $request->file('image');
                 $ext = $image->getClientOriginalExtension();
-                $file_name = 'audit-'.str_random(18).'.'.$ext;
+                $file_name = 'audit-' . str_random(18) . '.' . $ext;
                 Storage::putFileAs($path, $upload, $file_name);
             }
 
@@ -800,5 +798,4 @@ class AssetsController extends Controller
 
         return view('hardware/requested', compact('requestedItems'));
     }
-
 }

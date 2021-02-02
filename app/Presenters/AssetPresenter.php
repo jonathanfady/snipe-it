@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Presenters;
 
 use App\Models\CustomField;
@@ -36,6 +37,14 @@ class AssetPresenter extends Presenter
                 "title" => trans('general.company'),
                 "visible" => false,
                 "formatter" => 'assetCompanyObjFilterFormatter'
+            ], [
+                "field" => "current_company",
+                "searchable" => true,
+                "sortable" => true,
+                "switchable" => true,
+                "title" => trans('admin/hardware/form.current_company'),
+                "visible" => false,
+                "formatter" => 'assetCurrentCompanyObjFilterFormatter'
             ], [
                 "field" => "name",
                 "searchable" => true,
@@ -106,7 +115,7 @@ class AssetPresenter extends Presenter
                 "title" => trans('admin/users/table.employee_num'),
                 "visible" => false,
                 "formatter" => "employeeNumFormatter"
-            ],[
+            ], [
                 "field" => "location",
                 "searchable" => true,
                 "sortable" => true,
@@ -127,7 +136,7 @@ class AssetPresenter extends Presenter
                 "title" => trans('general.manufacturer'),
                 "visible" => false,
                 "formatter" => "manufacturersLinkObjFormatter"
-            ],[
+            ], [
                 "field" => "supplier",
                 "searchable" => true,
                 "sortable" => true,
@@ -168,19 +177,19 @@ class AssetPresenter extends Presenter
                 "sortable" => true,
                 "visible" => false,
                 "title" => trans('admin/hardware/form.warranty')
-            ],[
+            ], [
                 "field" => "warranty_expires",
                 "searchable" => false,
                 "sortable" => false,
                 "visible" => false,
                 "title" => trans('admin/hardware/form.warranty_expires'),
                 "formatter" => "dateDisplayFormatter"
-            ],[
+            ], [
                 "field" => "notes",
                 "searchable" => true,
                 "sortable" => true,
                 "visible" => false,
-                "title" => trans('general.notes'),
+                "title" => trans('admin/hardware/form.notes'),
 
             ], [
                 "field" => "checkout_counter",
@@ -189,7 +198,7 @@ class AssetPresenter extends Presenter
                 "visible" => false,
                 "title" => trans('general.checkouts_count')
 
-            ],[
+            ], [
                 "field" => "checkin_counter",
                 "searchable" => false,
                 "sortable" => true,
@@ -265,17 +274,16 @@ class AssetPresenter extends Presenter
         // name can break the listings page. - snipe
         foreach ($fields as $field) {
             $layout[] = [
-                "field" => 'custom_fields.'.$field->convertUnicodeDbSlug(),
+                "field" => 'custom_fields.' . $field->convertUnicodeDbSlug(),
                 "searchable" => true,
                 "sortable" => true,
                 "switchable" => true,
                 "title" => $field->name,
-                "formatter"=> 'customFieldsFormatter',
+                "formatter" => 'customFieldsFormatter',
                 "escape" => true,
-                "class" => ($field->field_encrypted=='1') ? 'css-padlock' : '',
+                "class" => ($field->field_encrypted == '1') ? 'css-padlock' : '',
                 "visible" => true,
             ];
-
         }
 
         $layout[] = [
@@ -283,7 +291,7 @@ class AssetPresenter extends Presenter
             "searchable" => false,
             "sortable" => false,
             "switchable" => true,
-            "title" => trans('general.checkin').'/'.trans('general.checkout'),
+            "title" => trans('general.checkin') . '/' . trans('general.checkout'),
             "visible" => true,
             "formatter" => "hardwareInOutFormatter",
         ];
@@ -335,7 +343,7 @@ class AssetPresenter extends Presenter
         }
         $url = config('app.url');
         if (!empty($imagePath)) {
-            $imagePath = '<img src="'.$url.'/uploads/assets/'.$imagePath.' height="50" width="50" alt="'.$imageAlt.'">';
+            $imagePath = '<img src="' . $url . '/uploads/assets/' . $imagePath . ' height="50" width="50" alt="' . $imageAlt . '">';
         }
         return $imagePath;
     }
@@ -353,7 +361,7 @@ class AssetPresenter extends Presenter
             $imagePath = $this->model->image;
         }
         if (!empty($imagePath)) {
-            return config('app.url').'/uploads/assets/'.$imagePath;
+            return config('app.url') . '/uploads/assets/' . $imagePath;
         }
         return $imagePath;
     }
@@ -385,12 +393,12 @@ class AssetPresenter extends Presenter
 
         // Asset tag
         if ($this->asset_tag) {
-            $str .= ' ('.$this->model->asset_tag.')';
+            $str .= ' (' . $this->model->asset_tag . ')';
         }
 
         // Asset Model name
         if ($this->model->model) {
-            $str .= ' - '.$this->model->model->name;
+            $str .= ' - ' . $this->model->model->name;
         }
         return $str;
     }
@@ -401,12 +409,11 @@ class AssetPresenter extends Presenter
     public function eol_date()
     {
 
-        if (( $this->purchase_date ) && ( $this->model->model ) && ($this->model->model->eol) ) {
+        if (($this->purchase_date) && ($this->model->model) && ($this->model->model->eol)) {
             $date = date_create($this->purchase_date);
             date_add($date, date_interval_create_from_date_string($this->model->model->eol . ' months'));
             return date_format($date, 'Y-m-d');
         }
-
     }
 
     /**
@@ -469,7 +476,8 @@ class AssetPresenter extends Presenter
      * (if not deployed:)
      * Another Status Label
      */
-    public function fullStatusText() {
+    public function fullStatusText()
+    {
         // Make sure the status is valid
         if ($this->assetstatus) {
 
@@ -478,7 +486,7 @@ class AssetPresenter extends Presenter
 
                 // If it's assigned and not set to the default "ready to deploy" status
                 if ($this->assetstatus->name != trans('general.ready_to_deploy')) {
-                    return trans('general.deployed'). ' (' . $this->model->assetstatus->name.')';
+                    return trans('general.deployed') . ' (' . $this->model->assetstatus->name . ')';
                 }
 
                 // If it's assigned to the default "ready to deploy" status, just

@@ -35,7 +35,7 @@ class BulkAssetsController extends Controller
         $asset_ids = array_keys($request->input('ids'));
 
         if ($request->filled('bulk_actions')) {
-            switch($request->input('bulk_actions')) {
+            switch ($request->input('bulk_actions')) {
                 case 'labels':
                     return view('hardware/labels')
                         ->with('assets', Asset::find($asset_ids))
@@ -71,7 +71,7 @@ class BulkAssetsController extends Controller
 
         \Log::debug($request->input('ids'));
 
-        if(!$request->filled('ids') || count($request->input('ids')) <= 0) {
+        if (!$request->filled('ids') || count($request->input('ids')) <= 0) {
             return redirect()->route("hardware.index")->with('warning', trans('No assets selected, so nothing was updated.'));
         }
 
@@ -86,6 +86,7 @@ class BulkAssetsController extends Controller
             || ($request->filled('rtd_location_id'))
             || ($request->filled('requestable'))
             || ($request->filled('company_id'))
+            || ($request->filled('current_company_id'))
             || ($request->filled('status_id'))
             || ($request->filled('model_id'))
         ) {
@@ -107,8 +108,15 @@ class BulkAssetsController extends Controller
 
                 if ($request->filled('company_id')) {
                     $this->update_array['company_id'] =  $request->input('company_id');
-                    if ($request->input('company_id')=="clear") {
+                    if ($request->input('company_id') == "clear") {
                         $this->update_array['company_id'] = null;
+                    }
+                }
+
+                if ($request->filled('current_company_id')) {
+                    $this->update_array['current_company_id'] =  $request->input('current_company_id');
+                    if ($request->input('current_company_id') == "clear") {
+                        $this->update_array['current_company_id'] = null;
                     }
                 }
 
@@ -124,10 +132,9 @@ class BulkAssetsController extends Controller
                     ->update($this->update_array);
             } // endforeach
             return redirect()->route("hardware.index")->with('success', trans('admin/hardware/message.update.success'));
-        // no values given, nothing to update
+            // no values given, nothing to update
         }
         return redirect()->route("hardware.index")->with('warning', trans('admin/hardware/message.update.nothing_updated'));
-
     }
 
     /**
@@ -143,7 +150,7 @@ class BulkAssetsController extends Controller
      */
     protected function conditionallyAddItem($field)
     {
-        if(request()->filled($field)) {
+        if (request()->filled($field)) {
             $this->update_array[$field] = request()->input($field);
         }
         return $this;
@@ -208,15 +215,15 @@ class BulkAssetsController extends Controller
 
             $asset_ids = array_filter($request->get('selected_assets'));
 
-            if(request('checkout_to_type') =='asset') {
+            if (request('checkout_to_type') == 'asset') {
                 foreach ($asset_ids as $asset_id) {
-                    if ($target->id == $asset_id)  {
+                    if ($target->id == $asset_id) {
                         return redirect()->back()->with('error', 'You cannot check an asset out to itself.');
                     }
                 }
             }
             $checkout_at = date("Y-m-d H:i:s");
-            if (($request->filled('checkout_at')) && ($request->get('checkout_at')!= date("Y-m-d"))) {
+            if (($request->filled('checkout_at')) && ($request->get('checkout_at') != date("Y-m-d"))) {
                 $checkout_at = e($request->get('checkout_at'));
             }
 
@@ -234,7 +241,7 @@ class BulkAssetsController extends Controller
                     $this->authorize('checkout', $asset);
                     $error = $asset->checkOut($target, $admin, $checkout_at, $expected_checkin, e($request->get('note')), null);
 
-                    if ($target->location_id!='') {
+                    if ($target->location_id != '') {
                         $asset->location_id = $target->location_id;
                         $asset->unsetEventDispatcher();
                         $asset->save();
@@ -247,7 +254,7 @@ class BulkAssetsController extends Controller
             });
 
             if (!$errors) {
-              // Redirect to the new asset page
+                // Redirect to the new asset page
                 return redirect()->to("hardware")->with('success', trans('admin/hardware/message.checkout.success'));
             }
             // Redirect to the asset management page with error
