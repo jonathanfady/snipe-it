@@ -21,38 +21,38 @@
     <label for="asset_tag" class="col-md-3 control-label">{{ trans('admin/hardware/form.tag') }}</label>
 
     <!-- we are editing an existing asset -->
-    @if ($item->id)
-    <div class="col-md-7 col-sm-12{{  (\App\Helpers\Helper::checkIfRequired($item, 'asset_tag')) ? ' required' : '' }}">
+    {{-- @if ($item->id) --}}
+    <div class="col-md-7 col-sm-12 @if(\App\Helpers\Helper::checkIfRequired($item, 'asset_tag')) required @endif">
         <input class="form-control" type="text" name="asset_tags[1]" id="asset_tag"
-            value="{{ Request::old('asset_tag', $item->asset_tag) }}" data-validation="required">
+            value="{{ old('asset_tags') ? old('asset_tags')[1] : $item->asset_tag }}"
+            @if(\App\Helpers\Helper::checkIfRequired($item, 'asset_tag' )) data-validation="required" @endif>
         {!! $errors->first('asset_tags', '<span class="alert-msg"><i class="fa fa-times"></i> :message</span>') !!}
         {!! $errors->first('asset_tag', '<span class="alert-msg"><i class="fa fa-times"></i> :message</span>') !!}
     </div>
-    @else
+    {{-- @else
     <!-- we are creating a new asset - let people use more than one asset tag -->
     <div class="col-md-7 col-sm-12{{  (\App\Helpers\Helper::checkIfRequired($item, 'asset_tag')) ? ' required' : '' }}">
-        <input class="form-control" type="text" name="asset_tags[1]" id="asset_tag"
-            value="{{ Request::old('asset_tag', \App\Models\Asset::autoincrement_asset()) }}"
-            data-validation="required">
-        {!! $errors->first('asset_tags', '<span class="alert-msg"><i class="fa fa-times"></i> :message</span>') !!}
-        {!! $errors->first('asset_tag', '<span class="alert-msg"><i class="fa fa-times"></i> :message</span>') !!}
-    </div>
-    <div class="col-md-2 col-sm-12">
-        <button class="add_field_button btn btn-default btn-sm">
-            <i class="fa fa-plus"></i>
-        </button>
-    </div>
-    @endif
+    <input class="form-control" type="text" name="asset_tags[1]" id="asset_tag"
+        value="{{ Request::old('asset_tag', \App\Models\Asset::autoincrement_asset()) }}" data-validation="required">
+    {!! $errors->first('asset_tags', '<span class="alert-msg"><i class="fa fa-times"></i> :message</span>') !!}
+    {!! $errors->first('asset_tag', '<span class="alert-msg"><i class="fa fa-times"></i> :message</span>') !!}
+</div>
+<div class="col-md-2 col-sm-12">
+    <button class="add_field_button btn btn-default btn-sm">
+        <i class="fa fa-plus"></i>
+    </button>
+</div>
+@endif --}}
 </div>
 @include ('partials.forms.edit.serial', ['fieldname'=> 'serials[1]', 'translated_serial' =>
 trans('admin/hardware/form.serial')])
 
-<div class="input_fields_wrap">
-</div>
+{{-- <div class="input_fields_wrap">
+</div> --}}
 
 
 @include ('partials.forms.edit.model-select', ['translated_name' => trans('admin/hardware/form.model'), 'fieldname' =>
-'model_id', 'field_req' => true])
+'model_id'])
 
 
 <div id='custom_fields_content'>
@@ -70,21 +70,21 @@ trans('admin/hardware/form.serial')])
     @endif
 </div>
 
-@include ('partials.forms.edit.status', [ 'required' => 'true'])
+@include ('partials.forms.edit.status')
 
-@if (!$item->id)
+{{-- @if (!$item->id) --}}
 {{-- @include ('partials.forms.checkout-selector', ['user_select' => 'true','asset_select' => 'true', 'location_select' =>
 'true', 'style' => 'display:none;']) --}}
 
 @include ('partials.forms.edit.user-select', ['translated_name' => trans('admin/hardware/form.checkout_to'), 'fieldname'
-=> 'assigned_user', 'required' => 'false'])
+=> 'assigned_user', 'required' => 'true'])
 
 {{-- @include ('partials.forms.edit.asset-select', ['translated_name' => trans('admin/hardware/form.checkout_to'),
 'fieldname' => 'assigned_asset', 'style' => 'display:none;', 'required' => 'false'])
 
 @include ('partials.forms.edit.location-select', ['translated_name' => trans('admin/hardware/form.checkout_to'),
 'fieldname' => 'assigned_location', 'style' => 'display:none;', 'required' => 'false']) --}}
-@endif
+{{-- @endif --}}
 
 @include ('partials.forms.edit.name', ['translated_name' => trans('admin/hardware/form.name')])
 @include ('partials.forms.edit.purchase_date')

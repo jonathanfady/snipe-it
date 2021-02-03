@@ -90,24 +90,26 @@ class Asset extends Depreciable
     ];
 
     protected $rules = [
-        'name'            => 'max:255|nullable',
+        'name'            => 'required|max:255|nullable',
         'model_id'        => 'required|integer|exists:models,id',
         'status_id'       => 'required|integer|exists:status_labels,id',
-        'company_id'      => 'integer|nullable',
+        'company_id'      => 'required|integer|nullable',
         'current_company_id' => 'integer|nullable',
         'warranty_months' => 'numeric|nullable|digits_between:0,240',
         'physical'        => 'numeric|max:1|nullable',
         'checkout_date'   => 'date|max:10|min:10|nullable',
         'checkin_date'    => 'date|max:10|min:10|nullable',
-        'supplier_id'     => 'exists:suppliers,id|numeric|nullable',
+        'supplier_id'     => 'required|exists:suppliers,id|numeric|nullable',
         'location_id'     => 'exists:locations,id|nullable',
         'rtd_location_id' => 'exists:locations,id|nullable',
         'asset_tag'       => 'required|min:1|max:255|unique_undeleted',
-        'status'          => 'integer',
-        'serial'          => 'unique_serial|nullable',
-        'purchase_cost'   => 'numeric|nullable',
+        'status_id'       => 'required|integer',
+        'serial'          => 'required|unique_serial|nullable',
+        'purchase_cost'   => 'required|numeric|nullable',
         'next_audit_date' => 'date|nullable',
         'last_audit_date' => 'date|nullable',
+        'purchase_date'   => 'required|date|nullable',
+        'order_number'    => 'required|nullable',
     ];
 
     /**

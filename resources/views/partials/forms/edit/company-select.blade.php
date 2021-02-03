@@ -3,9 +3,10 @@
 <!-- full company support is enabled and this user isn't a superadmin -->
 <div class="form-group">
     {{ Form::label($fieldname, $translated_name, array('class' => 'col-md-3 control-label')) }}
-    <div class="col-md-6">
+    <div class="col-md-6 @if(isset($item) && \App\Helpers\Helper::checkIfRequired($item, $fieldname)) required @endif">
         <select class="js-data-ajax" data-endpoint="companies" data-placeholder="{{ trans('general.select_company') }}"
-            name="{{ $fieldname }}" style="width: 100%" aria-label="{{ $fieldname }}">
+            name="{{ $fieldname }}" style="width: 100%" aria-label="{{ $fieldname }}" @if(isset($item) &&
+            \App\Helpers\Helper::checkIfRequired($item, $fieldname)) data-validation='required' @endif>
             @if ($company_id = old($fieldname, (isset($item)) ? $item->{$fieldname} : ''))
             <option value="{{ $company_id }}" selected="selected" role="option" aria-selected="true" role="option">
                 {{ (\App\Models\Company::find($company_id)) ? \App\Models\Company::find($company_id)->name : '' }}
@@ -21,11 +22,13 @@
 <!-- full company support is enabled or this user is a superadmin -->
 <div id="{{ $fieldname }}" class="form-group{{ $errors->has($fieldname) ? ' has-error' : '' }}">
     {{ Form::label($fieldname, $translated_name, array('class' => 'col-md-3 control-label')) }}
-    <div class="col-md-6">
-        <select class="js-data-ajax" data-endpoint="companies" data-placeholder="{{ trans('general.select_company') }}"
-            name="{{ $fieldname }}" style="width: 100%">
+    <div class="col-md-6
+    @if(isset($item) && \App\Helpers\Helper::checkIfRequired($item, $fieldname)) required @endif">
+        <select class=" js-data-ajax" data-endpoint="companies" data-placeholder="{{ trans('general.select_company') }}"
+            name="{{ $fieldname }}" style="width: 100%" @if(isset($item) && \App\Helpers\Helper::checkIfRequired($item,
+            $fieldname)) data-validation='required' @endif>
             @if ($company_id = Request::old($fieldname, (isset($item)) ? $item->{$fieldname} : ''))
-            <option value="{{ $company_id }}" selected="selected">
+            <option value=" {{ $company_id }}" selected="selected">
                 {{ (\App\Models\Company::find($company_id)) ? \App\Models\Company::find($company_id)->name : '' }}
             </option>
             @else
