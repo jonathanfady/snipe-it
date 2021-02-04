@@ -37,40 +37,37 @@ class SaveUserRequest extends FormRequest
             'manager_id' => "nullable|exists:users,id"
         ];
 
-        switch($this->method())
-        {
+        switch ($this->method()) {
 
-            // Brand new user
-            case 'POST':
-            {
-                $rules['first_name'] = 'required|string|min:1';
-                $rules['username'] = 'required_unless:ldap_import,1|string|min:1';
-                if ($this->request->get('ldap_import') == false)
-                {
-                    $rules['password'] = Setting::passwordComplexityRulesSaving('store').'|confirmed';
+                // Brand new user
+            case 'POST': {
+                    $rules['first_name'] = 'required|string|min:1';
+                    $rules['last_name'] = 'required|string|min:1';
+                    // $rules['username'] = 'required_unless:ldap_import,1|string|min:1|nullable';
+                    // if ($this->request->get('ldap_import') == false) {
+                    //     $rules['password'] = Setting::passwordComplexityRulesSaving('store') . '|confirmed';
+                    // }
+                    break;
                 }
-                break;
-            }
 
-            // Save all fields
+                // Save all fields
             case 'PUT':
                 $rules['first_name'] = 'required|string|min:1';
-                $rules['username'] = 'required_unless:ldap_import,1|string|min:1';
-                $rules['password'] = Setting::passwordComplexityRulesSaving('update').'|confirmed';
+                $rules['last_name'] = 'required|string|min:1';
+                // $rules['username'] = 'required_unless:ldap_import,1|string|min:1';
+                // $rules['password'] = Setting::passwordComplexityRulesSaving('update') . '|confirmed';
                 break;
 
-            // Save only what's passed
-            case 'PATCH':
-            {
-                $rules['password'] = Setting::passwordComplexityRulesSaving('update');
-                break;
-            }
+                // Save only what's passed
+            case 'PATCH': {
+                    // $rules['password'] = Setting::passwordComplexityRulesSaving('update');
+                    break;
+                }
 
-            default:break;
+            default:
+                break;
         }
-        
+
         return $rules;
-
     }
-
 }
