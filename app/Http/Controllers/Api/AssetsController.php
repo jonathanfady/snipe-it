@@ -49,7 +49,6 @@ class AssetsController extends Controller
      */
     public function index(Request $request, $audit = null)
     {
-
         $this->authorize('index', Asset::class);
         $settings = Setting::getSettings();
 
@@ -75,6 +74,7 @@ class AssetsController extends Controller
             'checkout_counter',
             'checkin_counter',
             'requests_counter',
+            'focal_point'
         ];
 
         $filter = array();
@@ -99,7 +99,8 @@ class AssetsController extends Controller
                 'model.category',
                 'model.manufacturer',
                 'model.fieldset',
-                'supplier'
+                'supplier',
+                'focal_point'
             );
 
 
@@ -153,6 +154,10 @@ class AssetsController extends Controller
 
         if ($request->filled('depreciation_id')) {
             $assets->ByDepreciationId($request->input('depreciation_id'));
+        }
+
+        if ($request->filled('focal_point_id')) {
+            $assets->where('assets.focal_point_id', '=', $request->input('focal_point_id'));
         }
 
         $request->filled('order_number') ? $assets = $assets->where('assets.order_number', '=', e($request->get('order_number'))) : '';
@@ -303,6 +308,9 @@ class AssetsController extends Controller
             case 'assigned_to':
                 $assets->OrderAssigned($order);
                 break;
+            case 'focal_point':
+                $assets->OrderFocalPoint($order);
+                break;
             default:
                 $assets->orderBy($column_sort, $order);
                 break;
@@ -311,7 +319,6 @@ class AssetsController extends Controller
 
         $total = $assets->count();
         $assets = $assets->skip($offset)->take($limit)->get();
-        // dd($assets);
         return (new AssetsTransformer)->transformAssets($assets, $total);
     }
 
@@ -473,6 +480,7 @@ class AssetsController extends Controller
         $asset->requestable             = $request->get('requestable', 0);
         $asset->rtd_location_id         = $request->get('rtd_location_id', null);
         $asset->location_id             = $request->get('rtd_location_id', null);
+        $asset->focal_point_id          = $request->get('focal_point_id');
 
         if ($request->has('image_source') && $request->input('image_source') != "") {
             $saved_image_path = Helper::processUploadedImage(
@@ -712,7 +720,7 @@ class AssetsController extends Controller
 
         $checkout_at = request('checkout_at', date("Y-m-d H:i:s"));
         $expected_checkin = request('expected_checkin', null);
-        $note = request('note', null);
+        $note = request('notes', null);
         $asset_name = request('name', null);
 
         // Set the location ID to the RTD location id if there is one
@@ -775,7 +783,7 @@ class AssetsController extends Controller
         }
 
         if ($asset->save()) {
-            $asset->logCheckin($target, e($request->input('note')));
+            $asset->logCheckin($target, e($request->input('notes')));
             return response()->json(Helper::formatStandardApiResponse('success', ['asset' => e($asset->asset_tag)], trans('admin/hardware/message.checkin.success')));
         }
 
@@ -793,8 +801,6 @@ class AssetsController extends Controller
      */
     public function audit(Request $request)
     {
-
-
         $this->authorize('audit', Asset::class);
         $rules = array(
             'asset_tag' => 'required',
@@ -810,7 +816,7 @@ class AssetsController extends Controller
         $settings = Setting::getSettings();
         $dt = Carbon::now()->addMonths($settings->audit_interval)->toDateString();
 
-        $asset = Asset::where('asset_tag', '=', $request->input('asset_tag'))->first();
+        $asset = Asset::findOrFail($request->input('asset_tag'));
 
 
         if ($asset) {
@@ -830,17 +836,21 @@ class AssetsController extends Controller
 
             $asset->last_audit_date = date('Y-m-d h:i:s');
 
+            if ($request->filled('focal_point_id')) {
+                $asset->focal_point_id = $request->input('focal_point_id');
+            }
+
             if ($asset->save()) {
-                $log = $asset->logAudit(request('note'), request('location_id'));
+                $log = $asset->logAudit(request('notes'), request('location_id'));
                 return response()->json(Helper::formatStandardApiResponse('success', [
                     'asset_tag' => e($asset->asset_tag),
-                    'note' => e($request->input('note')),
+                    'note' => e($request->input('notes')),
                     'next_audit_date' => Helper::getFormattedDateObject($asset->next_audit_date)
                 ], trans('admin/hardware/message.audit.success')));
             }
         }
 
-        return response()->json(Helper::formatStandardApiResponse('error', ['asset_tag' => e($request->input('asset_tag'))], 'Asset with tag ' . $request->input('asset_tag') . ' not found'));
+        return response()->json(Helper::formatStandardApiResponse('error', ['asset_tag' => e($request->input('asset_tag'))], 'Asset ' . $request->input('asset_tag') . ' not found'));
     }
 
 

@@ -32,7 +32,7 @@
             <div class="box-body">
                 {{csrf_field()}}
                 @if ($asset->model->name)
-                <!-- Asset name -->
+                <!-- Asset Model Name -->
                 <div class="form-group {{ $errors->has('name') ? 'error' : '' }}">
                     {{ Form::label('name', trans('admin/hardware/form.model'), array('class' => 'col-md-3 control-label')) }}
                     <div class="col-md-8">
@@ -48,6 +48,11 @@
                         <p class="form-control-static">{{ $asset->name }}</p>
                     </div>
                 </div>
+
+                <!-- Focal Point -->
+                @include ('partials.forms.edit.user-select', ['translated_name' =>
+                trans('admin/hardware/form.focal_point'),
+                'fieldname' => 'focal_point_id', 'required' => 'false'])
 
                 <!-- Locations -->
                 @include ('partials.forms.edit.location-select', ['translated_name' => trans('general.location'),
@@ -92,13 +97,12 @@
                 </div>
 
 
-                <!-- Note -->
-                <div class="form-group {{ $errors->has('note') ? 'error' : '' }}">
-                    {{ Form::label('note', trans('admin/hardware/form.notes'), array('class' => 'col-md-3 control-label')) }}
+                <!-- Notes -->
+                <div class="form-group {{ $errors->has('notes') ? 'error' : '' }}">
+                    {{ Form::label('notes', trans('admin/hardware/form.notes'), array('class' => 'col-md-3 control-label')) }}
                     <div class="col-md-9">
-                        <input type="text" class="form-control" id="note" name="note"
-                            value="{{ old('note', $asset->note) }}" />
-                        {!! $errors->first('note', '<span class="alert-msg" aria-hidden="true"><i class="fa fa-times"
+                        <textarea class="col-md-6 form-control" id="notes" name="notes">{{ old('notes') }}</textarea>
+                        {!! $errors->first('notes', '<span class="alert-msg" aria-hidden="true"><i class="fa fa-times"
                                 aria-hidden="true"></i> :message</span>') !!}
                     </div>
                 </div>

@@ -254,6 +254,13 @@ class AssetPresenter extends Presenter
                 "visible" => false,
                 "title" => trans('general.next_audit_date'),
                 "formatter" => "dateDisplayFormatter"
+            ], [
+                "field" => "focal_point",
+                "searchable" => true,
+                "sortable" => true,
+                "visible" => true,
+                "title" => trans('admin/hardware/form.focal_point'),
+                "formatter" => "focalPointLinkFormatter"
             ],
         ];
 

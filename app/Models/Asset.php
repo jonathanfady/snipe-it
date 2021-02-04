@@ -87,6 +87,7 @@ class Asset extends Depreciable
         'location_id'    => 'integer',
         'rtd_company_id' => 'integer',
         'supplier_id'    => 'integer',
+        'focal_point_id' => 'integer',
     ];
 
     protected $rules = [
@@ -110,6 +111,7 @@ class Asset extends Depreciable
         'last_audit_date' => 'date|nullable',
         'purchase_date'   => 'required|date|nullable',
         'order_number'    => 'required|nullable',
+        'focal_point_id'  => 'required|integer|nullable',
     ];
 
     /**
@@ -139,6 +141,7 @@ class Asset extends Depreciable
         'requestable',
         'last_checkout',
         'expected_checkin',
+        'focal_point_id',
     ];
 
     use Searchable;
@@ -178,6 +181,7 @@ class Asset extends Depreciable
         'model'              => ['name', 'model_number'],
         'model.category'     => ['name'],
         'model.manufacturer' => ['name'],
+        'focal_point'        => ['name'],
     ];
 
 
@@ -243,7 +247,7 @@ class Asset extends Depreciable
     }
 
     /**
-     * Establishes the asset -> company relationship
+     * Establishes the asset -> current_company relationship
      *
      * @author [A. Gianotto] [<snipe@snipe.net>]
      * @since [v3.0]
@@ -252,6 +256,18 @@ class Asset extends Depreciable
     public function current_company()
     {
         return $this->belongsTo('\App\Models\Company', 'current_company_id');
+    }
+
+    /**
+     * Establishes the asset -> focal_point relationship
+     *
+     * @author [A. Gianotto] [<snipe@snipe.net>]
+     * @since [v3.0]
+     * @return \Illuminate\Database\Eloquent\Relations\Relation
+     */
+    public function focal_point()
+    {
+        return $this->belongsTo('\App\Models\User', 'focal_point_id');
     }
 
     /**
@@ -1421,6 +1437,14 @@ class Asset extends Depreciable
                         });
                     });
                 }
+
+                if ($fieldname == 'focal_point') {
+                    $query->where(function ($query) use ($search_val) {
+                        $query->whereHas('focal_point', function ($query) use ($search_val) {
+                            $query->where('users.name', 'LIKE', '%' . $search_val . '%');
+                        });
+                    });
+                }
             }
 
             /**
@@ -1447,6 +1471,7 @@ class Asset extends Depreciable
              */
             if (($fieldname != 'category') && ($fieldname != 'model_number') && ($fieldname != 'rtd_location') && ($fieldname != 'location') && ($fieldname != 'supplier')
                 && ($fieldname != 'status_label') && ($fieldname != 'model') && ($fieldname != 'company') && ($fieldname != 'current_company') && ($fieldname != 'manufacturer')
+                && ($fieldname != 'focal_point')
             ) {
                 $query->orWhere('assets.' . $fieldname, 'LIKE', '%' . $search_val . '%');
             }
@@ -1662,5 +1687,18 @@ class Asset extends Depreciable
     {
         return $query->join('models', 'assets.model_id', '=', 'models.id')
             ->join('depreciations', 'models.depreciation_id', '=', 'depreciations.id')->where('models.depreciation_id', '=', $search);
+    }
+
+    /**
+     * Query builder scope to order on focal point
+     *
+     * @param  \Illuminate\Database\Query\Builder  $query  Query builder instance
+     * @param  text                              $order       Order
+     *
+     * @return \Illuminate\Database\Query\Builder          Modified query builder
+     */
+    public function scopeOrderFocalPoint($query, $order)
+    {
+        return $query->leftJoin('users as user_sort', 'assets.focal_point_id', '=', 'user_sort.id')->orderBy('user_sort.last_name', $order);
     }
 }

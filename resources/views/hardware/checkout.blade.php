@@ -19,7 +19,8 @@
     <!-- left column -->
     <div class="col-md-7">
         <div class="box box-default">
-            <form class="form-horizontal" method="post" action="" autocomplete="off">
+            <form class="form-horizontal" method="post" action="{{ route('checkout/hardware', $asset->id) }}"
+                autocomplete="off">
                 <div class="box-header with-border">
                     <h2 class="box-title"> {{ trans('admin/hardware/form.tag') }} {{ $asset->asset_tag }}</h2>
                 </div>
@@ -54,7 +55,7 @@
 
                     @include ('partials.forms.edit.user-select', ['translated_name' =>
                     trans('admin/hardware/form.checkout_to'), 'fieldname'
-                    => 'assigned_user', 'required' => 'false'])
+                    => 'assigned_user', 'required' => 'true'])
 
                     <!-- We have to pass unselect here so that we don't default to the asset that's being checked out. We want that asset to be pre-selected everywhere else. -->
                     {{-- @include ('partials.forms.edit.asset-select', ['translated_name' => trans('general.asset'), 'fieldname' => 'assigned_asset', 'unselect' => 'true', 'style' => 'display:none;', 'required'=>'true']) --}}
@@ -94,12 +95,13 @@
                     </div>
 
                     <!-- Notes -->
-                    <div class="form-group {{ $errors->has('note') ? ' has-error' : '' }}">
-                        {{ Form::label('note', trans('admin/hardware/form.notes'), array('class' => 'col-md-3 control-label')) }}
-                        <div class="col-md-7 col-sm-12">
-                            <input class="form-control" type="text" name="note" id="note"
-                                value="{{ old('note', $asset->note) }}" />
-                            {!! $errors->first('note', '<span class="alert-msg" aria-hidden="true"><i
+                    <div class="form-group {{ $errors->has('notes') ? ' has-error' : '' }}">
+                        <label for="notes"
+                            class="col-md-3 control-label">{{ trans('admin/hardware/form.notes') }}</label>
+                        <div class="col-md-7">
+                            <textarea class="col-md-6 form-control" id="notes"
+                                name="notes">{{ old('notes') }}</textarea>
+                            {!! $errors->first('notes', '<span class="alert-msg" aria-hidden="true"><i
                                     class="fa fa-times" aria-hidden="true"></i> :message</span>') !!}
                         </div>
                     </div>

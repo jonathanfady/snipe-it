@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Assets;
 use App\Helpers\Helper;
 use App\Http\Controllers\CheckInOutRequest;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\AssetCheckoutRequest;
 use App\Models\Asset;
 use App\Models\Setting;
 use Illuminate\Http\Request;
@@ -89,44 +90,47 @@ class BulkAssetsController extends Controller
             || ($request->filled('current_company_id'))
             || ($request->filled('status_id'))
             || ($request->filled('model_id'))
+            || ($request->filled('focal_point_id'))
         ) {
+
+            $this->update_array = [];
+
+            $this->conditionallyAddItem('purchase_date')
+                ->conditionallyAddItem('expected_checkin')
+                ->conditionallyAddItem('model_id')
+                ->conditionallyAddItem('order_number')
+                ->conditionallyAddItem('requestable')
+                ->conditionallyAddItem('status_id')
+                ->conditionallyAddItem('supplier_id')
+                ->conditionallyAddItem('warranty_months')
+                ->conditionallyAddItem('focal_point_id');
+
+            if ($request->filled('purchase_cost')) {
+                $this->update_array['purchase_cost'] =  Helper::ParseFloat($request->input('purchase_cost'));
+            }
+
+            if ($request->filled('company_id')) {
+                $this->update_array['company_id'] =  $request->input('company_id');
+                if ($request->input('company_id') == "clear") {
+                    $this->update_array['company_id'] = null;
+                }
+            }
+
+            if ($request->filled('current_company_id')) {
+                $this->update_array['current_company_id'] =  $request->input('current_company_id');
+                if ($request->input('current_company_id') == "clear") {
+                    $this->update_array['current_company_id'] = null;
+                }
+            }
+
+            if ($request->filled('rtd_location_id')) {
+                $this->update_array['rtd_location_id'] = $request->input('rtd_location_id');
+                if (($request->filled('update_real_loc')) && (($request->input('update_real_loc')) == '1')) {
+                    $this->update_array['location_id'] = $request->input('rtd_location_id');
+                }
+            }
+
             foreach ($assets as $assetId) {
-                $this->update_array = [];
-
-                $this->conditionallyAddItem('purchase_date')
-                    ->conditionallyAddItem('expected_checkin')
-                    ->conditionallyAddItem('model_id')
-                    ->conditionallyAddItem('order_number')
-                    ->conditionallyAddItem('requestable')
-                    ->conditionallyAddItem('status_id')
-                    ->conditionallyAddItem('supplier_id')
-                    ->conditionallyAddItem('warranty_months');
-
-                if ($request->filled('purchase_cost')) {
-                    $this->update_array['purchase_cost'] =  Helper::ParseFloat($request->input('purchase_cost'));
-                }
-
-                if ($request->filled('company_id')) {
-                    $this->update_array['company_id'] =  $request->input('company_id');
-                    if ($request->input('company_id') == "clear") {
-                        $this->update_array['company_id'] = null;
-                    }
-                }
-
-                if ($request->filled('current_company_id')) {
-                    $this->update_array['current_company_id'] =  $request->input('current_company_id');
-                    if ($request->input('current_company_id') == "clear") {
-                        $this->update_array['current_company_id'] = null;
-                    }
-                }
-
-                if ($request->filled('rtd_location_id')) {
-                    $this->update_array['rtd_location_id'] = $request->input('rtd_location_id');
-                    if (($request->filled('update_real_loc')) && (($request->input('update_real_loc')) == '1')) {
-                        $this->update_array['location_id'] = $request->input('rtd_location_id');
-                    }
-                }
-
                 DB::table('assets')
                     ->where('id', $assetId)
                     ->update($this->update_array);
@@ -202,15 +206,16 @@ class BulkAssetsController extends Controller
      * Process Multiple Checkout Request
      * @return View
      */
-    public function storeCheckout(Request $request)
+    public function storeCheckout(AssetCheckoutRequest $request)
     {
+
         try {
             $admin = Auth::user();
 
             $target = $this->determineCheckoutTarget();
 
             if (!is_array($request->get('selected_assets'))) {
-                return redirect()->route('hardware/bulkcheckout')->withInput()->with('error', trans('admin/hardware/message.checkout.no_assets_selected'));
+                return redirect()->to('hardware/bulkcheckout')->withInput()->with('error', trans('admin/hardware/message.checkout.no_assets_selected'));
             }
 
             $asset_ids = array_filter($request->get('selected_assets'));
@@ -239,8 +244,7 @@ class BulkAssetsController extends Controller
                 foreach ($asset_ids as $asset_id) {
                     $asset = Asset::findOrFail($asset_id);
                     $this->authorize('checkout', $asset);
-                    $error = $asset->checkOut($target, $admin, $checkout_at, $expected_checkin, e($request->get('note')), null);
-
+                    $error = $asset->checkOut($target, $admin, $checkout_at, $expected_checkin, e($request->get('notes')), null);
                     if ($target->location_id != '') {
                         $asset->location_id = $target->location_id;
                         $asset->unsetEventDispatcher();
@@ -258,9 +262,9 @@ class BulkAssetsController extends Controller
                 return redirect()->to("hardware")->with('success', trans('admin/hardware/message.checkout.success'));
             }
             // Redirect to the asset management page with error
-            return redirect()->to("hardware/bulk-checkout")->with('error', trans('admin/hardware/message.checkout.error'))->withErrors($errors);
+            return redirect()->to("hardware/bulkcheckout")->with('error', trans('admin/hardware/message.checkout.error'))->withErrors($errors);
         } catch (ModelNotFoundException $e) {
-            return redirect()->to("hardware/bulk-checkout")->with('error', $e->getErrors());
+            return redirect()->to("hardware/bulkcheckout")->with('error', $e->getErrors());
         }
     }
 }

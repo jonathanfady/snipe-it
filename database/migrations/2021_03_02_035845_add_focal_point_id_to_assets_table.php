@@ -3,7 +3,7 @@
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class AddCurrentCompanyIdToAssetsTable extends Migration
+class AddFocalPointIdToAssetsTable extends Migration
 {
 
     /**
@@ -14,7 +14,7 @@ class AddCurrentCompanyIdToAssetsTable extends Migration
     public function up()
     {
         Schema::table('assets', function (Blueprint $table) {
-            $table->integer('current_company_id')->unsigned()->nullable();
+            $table->integer('focal_point_id')->unsigned()->nullable();
         });
     }
 
@@ -26,7 +26,7 @@ class AddCurrentCompanyIdToAssetsTable extends Migration
     public function down()
     {
         Schema::table('assets', function (Blueprint $table) {
-            $table->dropColumn('current_company_id');
+            $table->dropColumn('focal_point_id');
         });
     }
 }

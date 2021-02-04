@@ -145,6 +145,7 @@ class AssetsController extends Controller
             $asset->supplier_id             = request('supplier_id', 0);
             $asset->requestable             = request('requestable', 0);
             $asset->rtd_location_id         = request('rtd_location_id', null);
+            $asset->focal_point_id          = $request->input('focal_point_id');
 
             if (!empty($settings->audit_interval)) {
                 $asset->next_audit_date         = Carbon::now()->addMonths($settings->audit_interval)->toDateString();
@@ -317,7 +318,7 @@ class AssetsController extends Controller
 
 
         // Update the asset data
-        $asset_tag           =  $request->input('asset_tags');
+        $asset_tag           = $request->input('asset_tags');
         $serial              = $request->input('serials');
         $asset->name         = $request->input('name');
         $asset->serial       = $serial[1];
@@ -328,6 +329,7 @@ class AssetsController extends Controller
         $asset->asset_tag    = $asset_tag[1];
         $asset->notes        = $request->input('notes');
         $asset->physical     = '1';
+        $asset->focal_point_id = $request->input('focal_point_id');
 
         $asset = $request->handleImages($asset);
 
@@ -435,7 +437,7 @@ class AssetsController extends Controller
                         return response()->file($qr_file, $header);
                     } else {
                         $barcode = new \Com\Tecnick\Barcode\Barcode();
-                        $barcode_obj =  $barcode->getBarcodeObj($settings->barcode_type, view('hardware/audit')->with('asset', $asset)->with('settings', $settings)->with('locations_list'), $size['height'], $size['width'], 'black', array(-2, -2, -2, -2));
+                        $barcode_obj =  $barcode->getBarcodeObj($settings->barcode_type, route('asset.audit.create', $asset->id), $size['height'], $size['width'], 'black', array(-2, -2, -2, -2));
                         file_put_contents($qr_file, $barcode_obj->getPngData());
                         return response($barcode_obj->getPngData())->header('Content-type', 'image/png');
                     }
@@ -708,8 +710,9 @@ class AssetsController extends Controller
 
     public function quickScan()
     {
+        $settings = Setting::getSettings();
         $this->authorize('audit', Asset::class);
-        $dt = Carbon::now()->addMonths(12)->toDateString();
+        $dt = Carbon::now()->addMonths($settings->audit_interval)->toDateString();
         return view('hardware/quickscan')->with('next_audit_date', $dt);
     }
 
@@ -767,6 +770,8 @@ class AssetsController extends Controller
             $asset->location_id = $request->input('location_id');
         }
 
+        if ($request->filled('focal_point_id'))
+            $asset->focal_point_id = $request->input('focal_point_id');
 
         if ($asset->save()) {
             $file_name = '';
@@ -781,7 +786,7 @@ class AssetsController extends Controller
             }
 
 
-            $asset->logAudit($request->input('note'), $request->input('location_id'), $file_name);
+            $asset->logAudit($request->input('notes'), $request->input('location_id'), $file_name);
             return redirect()->to("hardware")->with('success', trans('admin/hardware/message.audit.success'));
         }
     }

@@ -22,10 +22,10 @@ class AssetCheckoutRequest extends Request
     public function rules()
     {
         $rules = [
-            "assigned_user"         => 'required_without_all:assigned_asset,assigned_location',
-            "assigned_asset"        => 'required_without_all:assigned_user,assigned_location',
-            "assigned_location"     => 'required_without_all:assigned_user,assigned_asset',
-            "checkout_to_type"      => 'required|in:asset,location,user'
+            "assigned_user"         => 'required',
+            // "assigned_asset"        => 'required_without_all:assigned_user,assigned_location',
+            // "assigned_location"     => 'required_without_all:assigned_user,assigned_asset',
+            // "checkout_to_type"      => 'required|in:asset,location,user'
         ];
 
 

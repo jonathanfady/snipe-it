@@ -110,7 +110,7 @@ class AssetCheckinController extends Controller
 
         // Was the asset updated?
         if ($asset->save()) {
-            event(new CheckoutableCheckedIn($asset, $target, Auth::user(), $request->input('note'), $checkin_at));
+            event(new CheckoutableCheckedIn($asset, $target, Auth::user(), $request->input('notes'), $checkin_at));
 
             if ((isset($user)) && ($backto == 'user')) {
                 return redirect()->route("users.show", $user->id)->with('success', trans('admin/hardware/message.checkin.success'));

@@ -3,10 +3,11 @@
 
     {{ Form::label($fieldname, $translated_name, array('class' => 'col-md-3 control-label')) }}
 
-    <div class="col-md-7 @if(\App\Helpers\Helper::checkIfRequired($item, $fieldname)) required @endif">
+    <div class="col-md-7 @if(isset($item) && \App\Helpers\Helper::checkIfRequired($item, $fieldname)) required @endif">
         <select class="js-data-ajax" data-endpoint="models" data-placeholder="{{ trans('general.select_model') }}"
             name="{{ $fieldname }}" style="width: 100%" id="model_select_id" aria-label="{{ $fieldname }}"
-            @if(\App\Helpers\Helper::checkIfRequired($item, $fieldname)) data-validation="required" @endif>
+            @if(isset($item) && \App\Helpers\Helper::checkIfRequired($item, $fieldname)) data-validation="required"
+            @endif>
             @if ($model_id = old($fieldname, ($item->{$fieldname} ?? request($fieldname) ?? '')))
             <option value="{{ $model_id }}" selected="selected">
                 {{ (\App\Models\AssetModel::find($model_id)) ? \App\Models\AssetModel::find($model_id)->name : '' }}

@@ -72,12 +72,15 @@ trans('admin/hardware/form.serial')])
 
 @include ('partials.forms.edit.status')
 
+@include ('partials.forms.edit.user-select', ['translated_name' => trans('admin/hardware/form.focal_point'), 'fieldname'
+=> 'focal_point_id', 'required' => 'true'])
+
 {{-- @if (!$item->id) --}}
 {{-- @include ('partials.forms.checkout-selector', ['user_select' => 'true','asset_select' => 'true', 'location_select' =>
 'true', 'style' => 'display:none;']) --}}
 
 @include ('partials.forms.edit.user-select', ['translated_name' => trans('admin/hardware/form.checkout_to'), 'fieldname'
-=> 'assigned_user', 'required' => 'true'])
+=> 'assigned_user', 'required' => 'false'])
 
 {{-- @include ('partials.forms.edit.asset-select', ['translated_name' => trans('admin/hardware/form.checkout_to'),
 'fieldname' => 'assigned_asset', 'style' => 'display:none;', 'required' => 'false'])
@@ -102,8 +105,8 @@ trans('admin/hardware/form.serial')])
 <!-- Notes -->
 <div class="form-group {{ $errors->has('notes') ? ' has-error' : '' }}">
     <label for="notes" class="col-md-3 control-label">{{ trans('admin/hardware/form.notes') }}</label>
-    <div class="col-md-7 col-sm-12">
-        <input class="form-control" type="text" name="notes" id="notes" value="{{ old('notes', $item->notes) }}" />
+    <div class="col-md-7">
+        <textarea class="col-md-6 form-control" id="notes" name="notes">{{ old('notes', $item->notes) }}</textarea>
         {!! $errors->first('notes', '<span class="alert-msg" aria-hidden="true"><i class="fa fa-times"
                 aria-hidden="true"></i> :message</span>') !!}
     </div>

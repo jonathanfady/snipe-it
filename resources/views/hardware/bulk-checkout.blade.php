@@ -21,17 +21,27 @@
     <div class="col-md-7">
         <div class="box box-default">
             <div class="box-header with-border">
-                <h2 class="box-title"> {{ trans('admin/hardware/form.tag') }} </h2>
+                <h2 class="box-title"> {{ trans('admin/hardware/general.bulk_checkout') }} </h2>
             </div>
             <div class="box-body">
-                <form class="form-horizontal" method="post" action="" autocomplete="off">
+                <form class="form-horizontal" method="post" action="{{ route('hardware/bulkcheckout') }}"
+                    autocomplete="off">
                     {{ csrf_field() }}
+
+                    <!-- Asset selector -->
+                    @include ('partials.forms.edit.asset-select', [
+                    'translated_name' => trans('general.assets'),
+                    'fieldname' => 'selected_assets[]',
+                    'multiple' => true,
+                    'asset_status_type' => 'RTD',
+                    'select_id' => 'assigned_assets_select',
+                    ])
 
                     <!-- Checkout selector -->
                     {{-- @include ('partials.forms.checkout-selector', ['user_select' => 'true','asset_select' => 'true', 'location_select' => 'true']) --}}
                     @include ('partials.forms.edit.user-select', ['translated_name' =>
                     trans('admin/hardware/form.checkout_to'), 'fieldname'
-                    => 'assigned_user', 'required' => 'false'])
+                    => 'assigned_user', 'required' => 'true'])
                     {{-- @include ('partials.forms.edit.asset-select', ['translated_name' => trans('general.asset'), 'fieldname' => 'assigned_asset', 'unselect' => 'true', 'style' => 'display:none;', 'required'=>'true'])
           @include ('partials.forms.edit.location-select', ['translated_name' => trans('general.location'), 'fieldname' => 'assigned_location', 'style' => 'display:none;', 'required'=>'true']) --}}
 
@@ -67,25 +77,16 @@
 
 
                     <!-- Notes -->
-                    <div class="form-group {{ $errors->has('note') ? ' has-error' : '' }}">
-                        <label for="note"
+                    <div class="form-group {{ $errors->has('notes') ? ' has-error' : '' }}">
+                        <label for="notes"
                             class="col-md-3 control-label">{{ trans('admin/hardware/form.notes') }}</label>
-                        <div class="col-md-7 col-sm-12">
-                            <input class="form-control" type="text" name="note" id="note" value="{{ old('note') }}" />
-                            {!! $errors->first('note', '<span class="alert-msg" aria-hidden="true"><i
+                        <div class="col-md-7">
+                            <textarea class="col-md-6 form-control" id="notes"
+                                name="notes">{{ old('notes') }}</textarea>
+                            {!! $errors->first('notes', '<span class="alert-msg" aria-hidden="true"><i
                                     class="fa fa-times" aria-hidden="true"></i> :message</span>') !!}
                         </div>
                     </div>
-
-                    @include ('partials.forms.edit.asset-select', [
-                    'translated_name' => trans('general.assets'),
-                    'fieldname' => 'selected_assets[]',
-                    'multiple' => true,
-                    'asset_status_type' => 'RTD',
-                    'select_id' => 'assigned_assets_select',
-                    ])
-
-
             </div>
             <!--./box-body-->
             <div class="box-footer">

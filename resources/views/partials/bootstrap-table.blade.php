@@ -264,6 +264,24 @@
 
     }
 
+    function focalPointLinkFormatter(value) {
+
+        var item_destination = '';
+        var item_icon;
+
+        if (value) {
+            item_destination = 'users';
+            item_icon = 'fa-user';
+
+            return '<nobr><a href="{{ url('/') }}/' + item_destination +'/' + value.id + '" data-tooltip="true" title="user"><i class="fa ' + item_icon + ' text-{{ $snipeSettings->skin!='' ? $snipeSettings->skin : 'blue' }} "></i> ' + value.name + '</a></nobr>';
+
+        } else {
+            return '';
+        }
+
+
+    }
+
     // This just prints out the item type in the activity report
     function itemTypeFormatter(value, row) {
 

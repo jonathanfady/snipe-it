@@ -27,21 +27,16 @@
             <div class="box-body">
                 {{csrf_field()}}
 
-                <!-- Next Audit -->
-                <div class="form-group {{ $errors->has('asset_tag') ? 'error' : '' }}">
-                    {{ Form::label('asset_tag', trans('general.asset_tag'), array('class' => 'col-md-3 control-label', 'id' => 'audit_tag')) }}
-                    <div class="col-md-9">
-                        <div class="input-group date col-md-5" data-date-format="yyyy-mm-dd">
-                            <input type="text" class="form-control" name="asset_tag" id="asset_tag"
-                                value="{{ Request::old('asset_tag') }}">
+                <!-- Asset selector -->
+                @include ('partials.forms.edit.asset-select', [
+                'translated_name' => trans('general.assets'),
+                'fieldname' => 'asset_tag',
+                ])
 
-                        </div>
-                        {!! $errors->first('asset_tag', '<span class="alert-msg" aria-hidden="true"><i
-                                class="fa fa-times" aria-hidden="true"></i> :message</span>') !!}
-                    </div>
-                </div>
-
-
+                <!-- Focal Point -->
+                @include ('partials.forms.edit.user-select', ['translated_name' =>
+                trans('admin/hardware/form.focal_point'),
+                'fieldname' => 'focal_point_id', 'required' => 'false'])
 
                 <!-- Locations -->
                 @include ('partials.forms.edit.location-select', ['translated_name' => trans('general.location'),
@@ -80,11 +75,11 @@
 
 
                 <!-- Notes -->
-                <div class="form-group {{ $errors->has('note') ? ' has-error' : '' }}">
-                    {{ Form::label('note', trans('admin/hardware/form.notes'), array('class' => 'col-md-3 control-label')) }}
+                <div class="form-group {{ $errors->has('notes') ? ' has-error' : '' }}">
+                    {{ Form::label('notes', trans('admin/hardware/form.notes'), array('class' => 'col-md-3 control-label')) }}
                     <div class="col-md-7 col-sm-12">
-                        <input class="form-control" type="text" name="note" id="note" value="{{ old('note') }}" />
-                        {!! $errors->first('note', '<span class="alert-msg" aria-hidden="true"><i class="fa fa-times"
+                        <textarea class="col-md-6 form-control" id="notes" name="notes">{{ old('notes') }}</textarea>
+                        {!! $errors->first('notes', '<span class="alert-msg" aria-hidden="true"><i class="fa fa-times"
                                 aria-hidden="true"></i> :message</span>') !!}
                     </div>
                 </div>
@@ -203,7 +198,7 @@
             $('#audit-counter').html(y);
         }
 
-        $("#audit_tag").focus();
+        // $("#audit_tag").focus();
 
 </script>
 @stop

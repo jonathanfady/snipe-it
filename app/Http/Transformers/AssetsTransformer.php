@@ -85,6 +85,10 @@ class AssetsTransformer
             'checkout_counter' => (int) $asset->checkout_counter,
             'requests_counter' => (int) $asset->requests_counter,
             'user_can_checkout' => (bool) $asset->availableForCheckout(),
+            'focal_point' => ($asset->focal_point) ? [
+                'id' => (int) $asset->focal_point->id,
+                'name' => e($asset->focal_point->getFullNameAttribute())
+            ] : null,
         ];
 
 
