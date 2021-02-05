@@ -29,12 +29,11 @@ class AssetImporter extends ItemImporter
 
                     if ($customField->field_encrypted == 1) {
                         $this->item['custom_fields'][$customField->db_column_name()] = \Crypt::encrypt($customFieldValue);
-                        $this->log('Custom Field '. $customField->name.': '.\Crypt::encrypt($customFieldValue));
+                        $this->log('Custom Field ' . $customField->name . ': ' . \Crypt::encrypt($customFieldValue));
                     } else {
                         $this->item['custom_fields'][$customField->db_column_name()] = $customFieldValue;
-                        $this->log('Custom Field '. $customField->name.': '.$customFieldValue);
+                        $this->log('Custom Field ' . $customField->name . ': ' . $customFieldValue);
                     }
-
                 } else {
                     // Clear out previous data.
                     $this->item['custom_fields'][$customField->db_column_name()] = null;
@@ -58,7 +57,7 @@ class AssetImporter extends ItemImporter
     {
         $editingAsset = false;
         $asset_tag = $this->findCsvMatch($row, "asset_tag");
-        $asset = Asset::where(['asset_tag'=> $asset_tag])->first();
+        $asset = Asset::where(['asset_tag' => $asset_tag])->first();
         if ($asset) {
             if (!$this->updating) {
                 $this->log('A matching Asset ' . $asset_tag . ' already exists');
@@ -72,10 +71,10 @@ class AssetImporter extends ItemImporter
             $asset = new Asset;
         }
 
-        $this->item['image'] = $this->findCsvMatch($row, "image");
-        $this->item['requestable'] = $this->fetchHumanBoolean($this->findCsvMatch($row, "requestable"));;
-        $asset->requestable =  $this->fetchHumanBoolean($this->findCsvMatch($row, "requestable"));
-        $this->item['warranty_months'] = intval($this->findCsvMatch($row, "warranty_months"));
+        // $this->item['image'] = $this->findCsvMatch($row, "image");
+        // $this->item['requestable'] = $this->fetchHumanBoolean($this->findCsvMatch($row, "requestable"));;
+        // $asset->requestable =  $this->fetchHumanBoolean($this->findCsvMatch($row, "requestable"));
+        // $this->item['warranty_months'] = intval($this->findCsvMatch($row, "warranty_months"));
         $this->item['model_id'] = $this->createOrFetchAssetModel($row);
 
         // If no status ID is found
@@ -88,7 +87,7 @@ class AssetImporter extends ItemImporter
 
         // We need to save the user if it exists so that we can checkout to user later.
         // Sanitizing the item will remove it.
-        if(array_key_exists('checkout_target', $this->item)) {
+        if (array_key_exists('checkout_target', $this->item)) {
             $target = $this->item['checkout_target'];
         }
         $item = $this->sanitizeItemForStoring($asset, $editingAsset);
@@ -120,11 +119,11 @@ class AssetImporter extends ItemImporter
             $this->log('Asset ' . $this->item["name"] . ' with serial number ' . $this->item['serial'] . ' was created');
 
             // If we have a target to checkout to, lets do so.
-            if(isset($target)) {
+            if (isset($target)) {
                 $asset->fresh()->checkOut($target);
             }
             return;
         }
-        $this->logError($asset, 'Asset "' . $this->item['name'].'"');
+        $this->logError($asset, 'Asset "' . $this->item['name'] . '"');
     }
 }

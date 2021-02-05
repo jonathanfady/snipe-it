@@ -1,5 +1,5 @@
 
-const { mix } = require('laravel-mix');
+const mix = require('laravel-mix');
 
 // This generates a file called app.css, which we use
 // later on to build all.css
@@ -161,7 +161,3 @@ mix.combine(
         ],
         './public/js/dist/all.js'
     ).version();
-
-
-
-

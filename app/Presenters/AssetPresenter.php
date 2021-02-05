@@ -70,7 +70,7 @@ class AssetPresenter extends Presenter
                 "searchable" => true,
                 "sortable" => true,
                 "title" => trans('general.category'),
-                "visible" => false,
+                "visible" => true,
                 "formatter" => "categoriesLinkObjFormatter"
             ], [
                 "field" => "model_number",
@@ -118,7 +118,7 @@ class AssetPresenter extends Presenter
                 "searchable" => true,
                 "sortable" => true,
                 "title" => trans('admin/hardware/form.name'),
-                "visible" => true,
+                "visible" => false,
                 "formatter" => "hardwareLinkFormatter"
             ], [
                 "field" => "purchase_date",
@@ -175,7 +175,7 @@ class AssetPresenter extends Presenter
                 "sortable" => true,
                 "switchable" => true,
                 "title" => trans('admin/hardware/form.current_company'),
-                "visible" => false,
+                "visible" => true,
                 "formatter" => 'assetCurrentCompanyObjFilterFormatter'
             ], [
                 "field" => "location",
@@ -191,6 +191,20 @@ class AssetPresenter extends Presenter
                 "title" => trans('admin/hardware/form.default_location'),
                 "visible" => false,
                 "formatter" => "deployedLocationFormatter"
+            ], [
+                "field" => "last_audit_date",
+                "searchable" => false,
+                "sortable" => true,
+                "visible" => true,
+                "title" => trans('general.last_audit'),
+                "formatter" => "dateDisplayFormatter"
+            ], [
+                "field" => "next_audit_date",
+                "searchable" => false,
+                "sortable" => true,
+                "visible" => false,
+                "title" => trans('general.next_audit_date'),
+                "formatter" => "dateDisplayFormatter"
             ], [
                 "field" => "qr_code",
                 "searchable" => false,
@@ -260,20 +274,6 @@ class AssetPresenter extends Presenter
                 "sortable" => true,
                 "visible" => false,
                 "title" => trans('admin/hardware/form.expected_checkin'),
-                "formatter" => "dateDisplayFormatter"
-            ], [
-                "field" => "last_audit_date",
-                "searchable" => false,
-                "sortable" => true,
-                "visible" => false,
-                "title" => trans('general.last_audit'),
-                "formatter" => "dateDisplayFormatter"
-            ], [
-                "field" => "next_audit_date",
-                "searchable" => false,
-                "sortable" => true,
-                "visible" => false,
-                "title" => trans('general.next_audit_date'),
                 "formatter" => "dateDisplayFormatter"
             ],
         ];

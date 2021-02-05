@@ -110,10 +110,10 @@
                     update: false,
                     importTypes: [
                         { id: 'asset', text: 'Assets' },
-                        { id: 'accessory', text: 'Accessories' },
-                        { id: 'consumable', text: 'Consumables' },
-                        { id: 'component', text: 'Components' },
-                        { id: 'license', text: 'Licenses' },
+                        // { id: 'accessory', text: 'Accessories' },
+                        // { id: 'consumable', text: 'Consumables' },
+                        // { id: 'component', text: 'Components' },
+                        // { id: 'license', text: 'Licenses' },
                         { id: 'user', text: 'Users' }
                     ],
                     statusText: null,
@@ -139,15 +139,26 @@
                         {id: 'department', text: 'Department' },
                     ],
                     assets: [
-                        {id: 'asset_tag', text: 'Asset Tag' },
-                        {id: 'asset_model', text: 'Model Name' },
-                        {id: 'checkout_class', text: 'Checkout Type' },
-                        {id: 'checkout_location', text: 'Checkout Location' },
-                        {id: 'image', text: 'Image Filename' },
-                        {id: 'model_number', text: 'Model Number' },
-                        {id: 'full_name', text: 'Full Name' },
+                        {id: 'company', text: 'Donor' },
+                        {id: 'asset_tag', text: 'Log Code' },
+                        {id: 'serial', text: 'Serial' },
+                        {id: 'asset_model', text: 'Model' },
+                        {id: 'manufacturer', text: 'Model Manufacturer' },
+                        {id: 'category', text: 'Model Category' },
+                        {id: 'model_category_type', text: 'Model Category Type' },
                         {id: 'status', text: 'Status' },
-                        {id: 'warranty_months', text: 'Warranty Months' },
+                        {id: 'focal_point', text: 'Focal Point' },
+                        {id: 'checkout_target', text: 'Checkout To' },
+                        {id: 'item_name', text: 'Asset Name' },
+                        {id: 'purchase_date', text: 'Invoice Date' },
+                        {id: 'supplier', text: 'Supplier' },
+                        {id: 'order_number', text: 'IOF Number' },
+                        {id: 'purchase_cost', text: 'Purchase Cost' },
+                        {id: 'current_company', text: 'Current Donor' },
+                        // {id: 'checkout_class', text: 'Checkout Type' },
+                        // {id: 'image', text: 'Image Filename' },
+                        // {id: 'full_name', text: 'Full Name' },
+                        // {id: 'warranty_months', text: 'Warranty Months' },
                     ],
                     consumables: [
                         {id: 'item_no', text: "Item Number"},
@@ -164,20 +175,22 @@
                         {id: 'seats', text: 'Seats' },
                     ],
                     users: [
-                        {id: 'employee_num', text: 'Employee Number' },
+                        // {id: 'employee_num', text: 'Employee Number' },
                         {id: 'first_name', text: 'First Name' },
-                        {id: 'jobtitle', text: 'Job Title' },
                         {id: 'last_name', text: 'Last Name' },
+                        {id: 'email', text: 'Email' },
+                        {id: 'jobtitle', text: 'Job Title' },
                         {id: 'phone_number', text: 'Phone Number' },
-                        {id: 'manager_first_name', text: 'Manager First Name' },
-                        {id: 'manager_last_name', text: 'Manager Last Name' },
+                        // {id: 'manager_first_name', text: 'Manager First Name' },
+                        // {id: 'manager_last_name', text: 'Manager Last Name' },
                         {id: 'department', text: 'Department' },
+                        {id: 'location', text: 'Location' },
+                        {id: 'notes', text: 'Notes' },
                         {id: 'activated', text: 'Activated' },
-                        {id: 'address', text: 'Address' },
-                        {id: 'city', text: 'City' },
-                        {id: 'state', text: 'State' },
-                        {id: 'country', text: 'Country' },
-
+                        // {id: 'address', text: 'Address' },
+                        // {id: 'city', text: 'City' },
+                        // {id: 'state', text: 'State' },
+                        // {id: 'country', text: 'Country' },
                     ],
                     customFields: this.customFields,
                 },
@@ -201,9 +214,9 @@
                 }
                 switch(this.options.importType) {
                     case 'asset':
-                        return this.columnOptions.general
-                            .concat(this.columnOptions.assets)
-                            .concat(this.columnOptions.customFields)
+                        return this.columnOptions.assets
+                            // .concat(this.columnOptions.assets)
+                            // .concat(this.columnOptions.customFields)
                             .sort(sorter);
 
                     case 'consumable':
@@ -213,7 +226,9 @@
                     case 'license':
                         return this.columnOptions.general.concat(this.columnOptions.licenses).sort(sorter);
                     case 'user':
-                        return this.columnOptions.general.concat(this.columnOptions.users).sort(sorter);
+                        return this.columnOptions.users
+                            // .concat(this.columnOptions.users)
+                            .sort(sorter);
                 }
                 return this.columnOptions.general;
             },

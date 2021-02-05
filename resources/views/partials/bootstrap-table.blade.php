@@ -136,25 +136,25 @@
                     case 'deployed':
                         text_color = 'blue';
                         icon_style = 'fa-circle';
-                        text_help = '<label class="label label-default">{{ trans('general.deployed') }}</label>';
+                        text = '<label class="label label-default">{{ trans('general.deployed') }}</label>';
                     break;
                     case 'deployable':
                         text_color = 'green';
                         icon_style = 'fa-circle';
-                        text_help = '';
+                        text = value.name;
                     break;
                     case 'pending':
                         text_color = 'orange';
                         icon_style = 'fa-circle';
-                        text_help = '';
+                        text = value.name;
                         break;
                     default:
                         text_color = 'red';
                         icon_style = 'fa-times';
-                        text_help = '';
+                        text = value.name;
                 }
 
-                return '<nobr><a href="{{ url('/') }}/' + destination + '/' + value.id + '" data-toggle="tooltip" title="'+ status_meta[value.status_meta] + '"> <i class="fa ' + icon_style + ' text-' + text_color + '"></i> ' + value.name + ' ' + text_help + ' </a> </nobr>';
+                return '<nobr><a href="{{ url('/') }}/' + destination + '/' + value.id + '" data-toggle="tooltip" title="'+ status_meta[value.status_meta] + '"> <i class="fa ' + icon_style + ' text-' + text_color + '"></i> ' + text + ' </a> </nobr>';
             } else if ((value) && (value.name)) {
 
                 // Add some overrides for any funny urls we have

@@ -27,7 +27,7 @@ return array(
     'manufacturer'        => 'Manufacturer',
     'model'                => 'Model',
     'months'            => 'months',
-    'name'                => 'Designation',
+    'name'                => 'Asset Name',
     'notes'                => 'Notes',
     'order'                => 'IOF Number',
     'qr'                => 'QR Code',

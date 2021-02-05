@@ -516,15 +516,25 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
             options: {
                 importType: this.file.import_type,
                 update: false,
-                importTypes: [{ id: 'asset', text: 'Assets' }, { id: 'accessory', text: 'Accessories' }, { id: 'consumable', text: 'Consumables' }, { id: 'component', text: 'Components' }, { id: 'license', text: 'Licenses' }, { id: 'user', text: 'Users' }],
+                importTypes: [{ id: 'asset', text: 'Assets' },
+                // { id: 'accessory', text: 'Accessories' },
+                // { id: 'consumable', text: 'Consumables' },
+                // { id: 'component', text: 'Components' },
+                // { id: 'license', text: 'Licenses' },
+                { id: 'user', text: 'Users' }],
                 statusText: null
             },
             columnOptions: {
                 general: [{ id: 'category', text: 'Category' }, { id: 'company', text: 'Company' }, { id: 'email', text: 'Email' }, { id: 'item_name', text: 'Item Name' }, { id: 'location', text: 'Location' }, { id: 'maintained', text: 'Maintained' }, { id: 'manufacturer', text: 'Manufacturer' }, { id: 'notes', text: 'Notes' }, { id: 'order_number', text: 'Order Number' }, { id: 'purchase_cost', text: 'Purchase Cost' }, { id: 'purchase_date', text: 'Purchase Date' }, { id: 'quantity', text: 'Quantity' }, { id: 'requestable', text: 'Requestable' }, { id: 'serial', text: 'Serial Number' }, { id: 'supplier', text: 'Supplier' }, { id: 'username', text: 'Username' }, { id: 'department', text: 'Department' }],
-                assets: [{ id: 'asset_tag', text: 'Asset Tag' }, { id: 'asset_model', text: 'Model Name' }, { id: 'checkout_class', text: 'Checkout Type' }, { id: 'checkout_location', text: 'Checkout Location' }, { id: 'image', text: 'Image Filename' }, { id: 'model_number', text: 'Model Number' }, { id: 'full_name', text: 'Full Name' }, { id: 'status', text: 'Status' }, { id: 'warranty_months', text: 'Warranty Months' }],
+                assets: [{ id: 'company', text: 'Donor' }, { id: 'asset_tag', text: 'Log Code' }, { id: 'serial', text: 'Serial' }, { id: 'asset_model', text: 'Model' }, { id: 'manufacturer', text: 'Model Manufacturer' }, { id: 'category', text: 'Model Category' }, { id: 'model_category_type', text: 'Model Category Type' }, { id: 'status', text: 'Status' }, { id: 'focal_point', text: 'Focal Point' }, { id: 'checkout_target', text: 'Checkout To' }, { id: 'item_name', text: 'Asset Name' }, { id: 'purchase_date', text: 'Invoice Date' }, { id: 'supplier', text: 'Supplier' }, { id: 'order_number', text: 'IOF Number' }, { id: 'purchase_cost', text: 'Purchase Cost' }, { id: 'current_company', text: 'Current Donor' }],
                 consumables: [{ id: 'item_no', text: "Item Number" }, { id: 'model_number', text: "Model Number" }],
                 licenses: [{ id: 'asset_tag', text: 'Assigned To Asset' }, { id: 'expiration_date', text: 'Expiration Date' }, { id: 'full_name', text: 'Full Name' }, { id: 'license_email', text: 'Licensed To Email' }, { id: 'license_name', text: 'Licensed To Name' }, { id: 'purchase_order', text: 'Purchase Order' }, { id: 'reassignable', text: 'Reassignable' }, { id: 'seats', text: 'Seats' }],
-                users: [{ id: 'employee_num', text: 'Employee Number' }, { id: 'first_name', text: 'First Name' }, { id: 'jobtitle', text: 'Job Title' }, { id: 'last_name', text: 'Last Name' }, { id: 'phone_number', text: 'Phone Number' }, { id: 'manager_first_name', text: 'Manager First Name' }, { id: 'manager_last_name', text: 'Manager Last Name' }, { id: 'department', text: 'Department' }, { id: 'activated', text: 'Activated' }, { id: 'address', text: 'Address' }, { id: 'city', text: 'City' }, { id: 'state', text: 'State' }, { id: 'country', text: 'Country' }],
+                users: [
+                // {id: 'employee_num', text: 'Employee Number' },
+                { id: 'first_name', text: 'First Name' }, { id: 'last_name', text: 'Last Name' }, { id: 'email', text: 'Email' }, { id: 'jobtitle', text: 'Job Title' }, { id: 'phone_number', text: 'Phone Number' },
+                // {id: 'manager_first_name', text: 'Manager First Name' },
+                // {id: 'manager_last_name', text: 'Manager Last Name' },
+                { id: 'department', text: 'Department' }, { id: 'location', text: 'Location' }, { id: 'notes', text: 'Notes' }, { id: 'activated', text: 'Activated' }],
                 customFields: this.customFields
             },
             columnMappings: this.file.field_map || {},
@@ -546,14 +556,18 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
             }
             switch (this.options.importType) {
                 case 'asset':
-                    return this.columnOptions.general.concat(this.columnOptions.assets).concat(this.columnOptions.customFields).sort(sorter);
+                    return this.columnOptions.assets
+                    // .concat(this.columnOptions.assets)
+                    // .concat(this.columnOptions.customFields)
+                    .sort(sorter);
 
                 case 'consumable':
                     return this.columnOptions.general.concat(this.columnOptions.consumables).sort(sorter);
                 case 'license':
                     return this.columnOptions.general.concat(this.columnOptions.licenses).sort(sorter);
                 case 'user':
-                    return this.columnOptions.general.concat(this.columnOptions.users).sort(sorter);
+                    // return this.columnOptions.general.concat(this.columnOptions.users).sort(sorter);
+                    return this.columnOptions.users.sort(sorter);
             }
             return this.columnOptions.general;
         },
@@ -44139,7 +44153,7 @@ var content = __webpack_require__("./node_modules/css-loader/index.js!./node_mod
 if(typeof content === 'string') content = [[module.i, content, '']];
 if(content.locals) module.exports = content.locals;
 // add the styles to the DOM
-var update = __webpack_require__("./node_modules/vue-style-loader/lib/addStylesClient.js")("cd2347fe", content, false, {});
+var update = __webpack_require__("./node_modules/vue-style-loader/lib/addStylesClient.js")("330c0b41", content, false, {});
 // Hot Module Replacement
 if(false) {
  // When the styles change, update the <style> tags
@@ -44166,7 +44180,7 @@ var content = __webpack_require__("./node_modules/css-loader/index.js!./node_mod
 if(typeof content === 'string') content = [[module.i, content, '']];
 if(content.locals) module.exports = content.locals;
 // add the styles to the DOM
-var update = __webpack_require__("./node_modules/vue-style-loader/lib/addStylesClient.js")("10846595", content, false, {});
+var update = __webpack_require__("./node_modules/vue-style-loader/lib/addStylesClient.js")("b29a7030", content, false, {});
 // Hot Module Replacement
 if(false) {
  // When the styles change, update the <style> tags
@@ -44193,7 +44207,7 @@ var content = __webpack_require__("./node_modules/css-loader/index.js!./node_mod
 if(typeof content === 'string') content = [[module.i, content, '']];
 if(content.locals) module.exports = content.locals;
 // add the styles to the DOM
-var update = __webpack_require__("./node_modules/vue-style-loader/lib/addStylesClient.js")("1b49d777", content, false, {});
+var update = __webpack_require__("./node_modules/vue-style-loader/lib/addStylesClient.js")("4e4041d2", content, false, {});
 // Hot Module Replacement
 if(false) {
  // When the styles change, update the <style> tags
@@ -44220,7 +44234,7 @@ var content = __webpack_require__("./node_modules/css-loader/index.js!./node_mod
 if(typeof content === 'string') content = [[module.i, content, '']];
 if(content.locals) module.exports = content.locals;
 // add the styles to the DOM
-var update = __webpack_require__("./node_modules/vue-style-loader/lib/addStylesClient.js")("2a28cc49", content, false, {});
+var update = __webpack_require__("./node_modules/vue-style-loader/lib/addStylesClient.js")("5f8b6a5c", content, false, {});
 // Hot Module Replacement
 if(false) {
  // When the styles change, update the <style> tags
@@ -44247,7 +44261,7 @@ var content = __webpack_require__("./node_modules/css-loader/index.js!./node_mod
 if(typeof content === 'string') content = [[module.i, content, '']];
 if(content.locals) module.exports = content.locals;
 // add the styles to the DOM
-var update = __webpack_require__("./node_modules/vue-style-loader/lib/addStylesClient.js")("7eed6a7c", content, false, {});
+var update = __webpack_require__("./node_modules/vue-style-loader/lib/addStylesClient.js")("45868b3c", content, false, {});
 // Hot Module Replacement
 if(false) {
  // When the styles change, update the <style> tags
@@ -44274,7 +44288,7 @@ var content = __webpack_require__("./node_modules/css-loader/index.js!./node_mod
 if(typeof content === 'string') content = [[module.i, content, '']];
 if(content.locals) module.exports = content.locals;
 // add the styles to the DOM
-var update = __webpack_require__("./node_modules/vue-style-loader/lib/addStylesClient.js")("4e7bd74e", content, false, {});
+var update = __webpack_require__("./node_modules/vue-style-loader/lib/addStylesClient.js")("cef3a5b4", content, false, {});
 // Hot Module Replacement
 if(false) {
  // When the styles change, update the <style> tags
@@ -44301,7 +44315,7 @@ var content = __webpack_require__("./node_modules/css-loader/index.js!./node_mod
 if(typeof content === 'string') content = [[module.i, content, '']];
 if(content.locals) module.exports = content.locals;
 // add the styles to the DOM
-var update = __webpack_require__("./node_modules/vue-style-loader/lib/addStylesClient.js")("6477c1c0", content, false, {});
+var update = __webpack_require__("./node_modules/vue-style-loader/lib/addStylesClient.js")("55709cd3", content, false, {});
 // Hot Module Replacement
 if(false) {
  // When the styles change, update the <style> tags
@@ -55871,10 +55885,14 @@ $(document).ready(function () {
 
 /* 
 HOW TO USE
- Create a Button looking like this:
- <a href='{{ route('modal.show', 'user') }}' data-toggle="modal"  data-target="#createModal" data-select='assigned_to' class="btn btn-sm btn-primary">New</a>
- If you don't have access to Blade commands (like {{ and }}, etc), you can hard-code a URL as the 'href'
- data-toggle="modal" - required for Bootstrap Modals
+
+Create a Button looking like this:
+
+<a href='{{ route('modal.show', 'user') }}' data-toggle="modal"  data-target="#createModal" data-select='assigned_to' class="btn btn-sm btn-primary">New</a>
+
+If you don't have access to Blade commands (like {{ and }}, etc), you can hard-code a URL as the 'href'
+
+data-toggle="modal" - required for Bootstrap Modals
 data-target="#createModal" - fixed ID for the modal, do not change
 data-select="assigned_to" - What is the *ID* of the select-dropdown that you're going to be adding to, if the modal-create was a success? Be on the lookout for duplicate ID's, it will confuse this library!
 class="btn btn-sm btn-primary" - makes it look button-ey, feel free to change :)

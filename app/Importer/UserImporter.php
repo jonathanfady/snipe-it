@@ -3,6 +3,7 @@
 namespace App\Importer;
 
 use App\Models\Department;
+use App\Models\Location;
 use App\Models\User;
 use App\Notifications\WelcomeNotification;
 
@@ -42,25 +43,35 @@ class UserImporter extends ItemImporter
     public function createUserIfNotExists(array $row)
     {
         // Pull the records from the CSV to determine their values
-        $this->item['username'] = $this->findCsvMatch($row, 'username');
+        // $this->item['username'] = $this->findCsvMatch($row, 'username');
         $this->item['first_name'] = $this->findCsvMatch($row, 'first_name');
         $this->item['last_name'] = $this->findCsvMatch($row, 'last_name');
         $this->item['email'] = $this->findCsvMatch($row, 'email');
         $this->item['phone'] = $this->findCsvMatch($row, 'phone_number');
         $this->item['jobtitle'] = $this->findCsvMatch($row, 'jobtitle');
-        $this->item['address'] = $this->findCsvMatch($row, 'address');
-        $this->item['city'] = $this->findCsvMatch($row, 'city');
-        $this->item['state'] = $this->findCsvMatch($row, 'state');
-        $this->item['country'] = $this->findCsvMatch($row, 'country');
-        $this->item['activated'] =  ($this->fetchHumanBoolean($this->findCsvMatch($row, 'activated')) == 1) ? '1' : 0;
-        $this->item['employee_num'] = $this->findCsvMatch($row, 'employee_num');
-        $this->item['department_id'] = $this->createOrFetchDepartment($this->findCsvMatch($row, 'department'));
-        $this->item['manager_id'] = $this->fetchManager($this->findCsvMatch($row, 'manager_first_name'), $this->findCsvMatch($row, 'manager_last_name'));
+        $this->item['notes'] = $this->findCsvMatch($row, 'notes');
+        // $this->item['address'] = $this->findCsvMatch($row, 'address');
+        // $this->item['city'] = $this->findCsvMatch($row, 'city');
+        // $this->item['state'] = $this->findCsvMatch($row, 'state');
+        // $this->item['country'] = $this->findCsvMatch($row, 'country');
+        $this->item['activated'] =  ($this->fetchHumanBoolean($this->findCsvMatch($row, 'activated')) == 1) ? 1 : 0;
+        // $this->item['employee_num'] = $this->findCsvMatch($row, 'employee_num');
+        // $this->item['department_id'] = $this->createOrFetchDepartment($this->findCsvMatch($row, 'department'));
+        // $this->item['manager_id'] = $this->fetchManager($this->findCsvMatch($row, 'manager_first_name'), $this->findCsvMatch($row, 'manager_last_name'));
 
         $user_department = $this->findCsvMatch($row, 'department');
         if ($this->shouldUpdateField($user_department)) {
             $this->item["department_id"] = $this->createOrFetchDepartment($user_department);
         }
+
+        $user_location = $this->findCsvMatch($row, 'location');
+        if ($this->shouldUpdateField($user_location)) {
+            $this->item["location_id"] = $this->createOrFetchLocation($user_location);
+        }
+
+        // Get username from email address
+        $this->item['username'] = $this->item['email'] ? explode('@', $this->item['email'])[0] : null;
+
         $user = User::where('username', $this->item['username'])->first();
         if ($user) {
             if (!$this->updating) {
@@ -89,7 +100,7 @@ class UserImporter extends ItemImporter
             // $user->logCreate('Imported using CSV Importer');
             $this->log("User " . $this->item["name"] . ' was created');
 
-            if(($user->email) && ($user->activated=='1')) {
+            if (($user->email) && ($user->activated == '1')) {
                 $data = [
                     'email' => $user->email,
                     'username' => $user->username,
@@ -111,7 +122,7 @@ class UserImporter extends ItemImporter
         return;
     }
 
-      /**
+    /**
      * Fetch an existing department, or create new if it doesn't exist
      *
      * @author Daniel Melzter
@@ -126,7 +137,7 @@ class UserImporter extends ItemImporter
             $this->log('A matching department ' . $department_name . ' already exists');
             return $department->id;
         }
-        $department = new department();
+        $department = new Department();
         $department->name = $department_name;
         $department->user_id = $this->user_id;
 
@@ -134,11 +145,38 @@ class UserImporter extends ItemImporter
             $this->log('department ' . $department_name . ' was created');
             return $department->id;
         }
-        $this->logError($department, 'Company');
+        $this->logError($department, 'Department');
         return null;
     }
 
-    public function sendWelcome($send = true) {
+    /**
+     * Fetch an existing location, or create new if it doesn't exist
+     *
+     * @author Daniel Melzter
+     * @since 5.0
+     * @param $location_name string
+     * @return int id of location created/found
+     */
+    public function createOrFetchLocation($location_name)
+    {
+        $location = Location::where(['name' => $location_name])->first();
+        if ($location) {
+            $this->log('A matching location ' . $location_name . ' already exists');
+            return $location->id;
+        }
+        $location = new Location();
+        $location->name = $location_name;
+
+        if ($location->save()) {
+            $this->log('location ' . $location_name . ' was created');
+            return $location->id;
+        }
+        $this->logError($location, 'Location');
+        return null;
+    }
+
+    public function sendWelcome($send = true)
+    {
         $this->send_welcome = $send;
     }
 }
