@@ -216,7 +216,7 @@ return [
     'total_accessories'        => 'total accessories',
     'total_consumables'        => 'total consumables',
     'type'                  => 'Type',
-    'undeployable'            => 'Un-deployable',
+    'undeployable'            => 'Undeployable',
     'unknown_admin'            => 'Unknown Admin',
     'username_format'        => 'Username Format',
     'update'                => 'Update',

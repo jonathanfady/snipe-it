@@ -814,6 +814,16 @@
 
                             @endif
                         </div> <!-- div.col-md-4 -->
+
+                        @if ($snipeSettings->alt_barcode_enabled=='1')
+                        <div class="col-md-4">
+                            <img src="{{ config('app.url') }}/hardware/{{ $asset->id }}/barcode"
+                                class="img-thumbnail pull-right"
+                                style="height: 100px; width: 100px; margin-right: 10px;"
+                                alt="Bar code for {{ $asset->getDisplayNameAttribute() }}">
+                        </div> <!-- div.col-md-4 -->
+                        @endif
+
                     </div><!-- /row -->
                 </div><!-- /.tab-pane asset details -->
 

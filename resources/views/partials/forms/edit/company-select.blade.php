@@ -16,6 +16,15 @@
             @endif
         </select>
     </div>
+
+    <div class="col-md-1 col-sm-1 text-left">
+        @can('create', \App\Models\Company::class)
+        @if ((!isset($hide_new)) || ($hide_new!='true'))
+        <a href='{{ route('modal.show', 'company') }}' data-toggle="modal" data-target="#createModal"
+            data-select='company_select' class="btn btn-sm btn-primary">New</a>
+        @endif
+        @endcan
+    </div>
 </div>
 
 @else
@@ -36,6 +45,16 @@
             @endif
         </select>
     </div>
+
+    <div class="col-md-1 col-sm-1 text-left">
+        @can('create', \App\Models\Company::class)
+        @if ((!isset($hide_new)) || ($hide_new!='true'))
+        <a href='{{ route('modal.show', 'company') }}' data-toggle="modal" data-target="#createModal"
+            data-select='company_select' class="btn btn-sm btn-primary">New</a>
+        @endif
+        @endcan
+    </div>
+
     {!! $errors->first($fieldname, '<div class="col-md-8 col-md-offset-3"><span class="alert-msg"><i
                 class="fa fa-times"></i> :message</span></div>') !!}
 

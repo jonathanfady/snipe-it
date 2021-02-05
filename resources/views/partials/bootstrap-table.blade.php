@@ -593,6 +593,13 @@
         }
     }
 
+    function barcodeFormatter(value) {
+        if (value) {
+
+            return '<a href="' + value.name + '" data-toggle="lightbox" data-type="image"><img src="' + value.name + '" style="max-height: {{ $snipeSettings->thumbnail_max_h }}px; width: auto;" class="img-responsive"></a>';
+        }
+    }
+
     function fileUploadFormatter(value) {
         if ((value) && (value.url) && (value.inlineable)) {
             return '<a href="' + value.url + '" data-toggle="lightbox" data-type="image"><img src="' + value.url + '" style="max-height: {{ $snipeSettings->thumbnail_max_h }}px; width: auto;" class="img-responsive"></a>';

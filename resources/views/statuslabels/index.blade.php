@@ -116,22 +116,29 @@
               case 'deployed':
                   text_color = 'blue';
                   icon_style = 'fa-circle';
+                  typename = "{{ trans('general.deployed') }}";
                   break;
               case 'deployable':
                   text_color = 'green';
                   icon_style = 'fa-circle';
+                  typename = "{{ trans('admin/statuslabels/table.deployable') }}";
                   break;
               case 'pending':
                   text_color = 'orange';
                   icon_style = 'fa-circle';
+                  typename = "{{ trans('admin/statuslabels/table.pending') }}";
+                  break;
+              case 'undeployable':
+                  text_color = 'red';
+                  icon_style = 'fa-times';
+                  typename = "{{ trans('admin/statuslabels/table.undeployable') }}";
                   break;
               default:
                   text_color = 'red';
                   icon_style = 'fa-times';
+                  typename = "{{ trans('admin/statuslabels/table.archived') }}";
           }
 
-          var typename_lower = value.type;
-          var typename = typename_lower.charAt(0).toUpperCase() + typename_lower.slice(1);
           return '<i class="fa ' + icon_style + ' text-' + text_color + '"></i> ' + typename;
 
 

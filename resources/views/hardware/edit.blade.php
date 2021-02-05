@@ -114,7 +114,7 @@ trans('admin/hardware/form.serial')])
 
 <!-- Current Company -->
 @include ('partials.forms.edit.company-select', ['translated_name' => trans('admin/hardware/form.current_company'),
-'fieldname' => 'current_company_id'])
+'fieldname' => 'current_company_id', 'hide_new' => 'true'])
 
 @include ('partials.forms.edit.location-select', ['translated_name' => trans('admin/hardware/form.default_location'),
 'fieldname' => 'rtd_location_id'])

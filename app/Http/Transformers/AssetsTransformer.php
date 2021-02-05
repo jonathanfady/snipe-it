@@ -4,6 +4,7 @@ namespace App\Http\Transformers;
 
 use App\Helpers\Helper;
 use App\Models\Asset;
+use App\Models\Setting;
 use Gate;
 use Illuminate\Database\Eloquent\Collection;
 
@@ -88,6 +89,12 @@ class AssetsTransformer
             'focal_point' => ($asset->focal_point) ? [
                 'id' => (int) $asset->focal_point->id,
                 'name' => e($asset->focal_point->getFullNameAttribute())
+            ] : null,
+            'qr_code' => (Setting::getSettings()->qr_code == '1') ?  [
+                'name' => e(config('app.url') . '/hardware/' . $asset->id . '/qr_code')
+            ] : null,
+            'barcode' => (Setting::getSettings()->alt_barcode_enabled == '1') ? [
+                'name' => e(config('app.url') . '/hardware/' . $asset->id . '/barcode')
             ] : null,
         ];
 
