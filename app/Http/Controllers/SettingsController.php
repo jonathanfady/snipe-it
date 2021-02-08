@@ -179,7 +179,7 @@ class SettingsController extends Controller
         $settings->auto_increment_assets           = $request->input('auto_increment_assets', 0);
         $settings->auto_increment_prefix           = $request->input('auto_increment_prefix');
 
-        if ((! $user->isValid()) || (! $settings->isValid())) {
+        if ((!$user->isValid()) || (!$settings->isValid())) {
             return redirect()->back()->withInput()->withErrors($user->getErrors())->withErrors($settings->getErrors());
         } else {
             $user->save();
@@ -245,7 +245,7 @@ class SettingsController extends Controller
     public function getSetupMigrate()
     {
         Artisan::call('migrate', ['--force' => true]);
-        if ((! file_exists(storage_path() . '/oauth-private.key')) || (! file_exists(storage_path() . '/oauth-public.key'))) {
+        if ((!file_exists(storage_path() . '/oauth-private.key')) || (!file_exists(storage_path() . '/oauth-public.key'))) {
 
             Artisan::call('migrate', ['--path' => 'vendor/laravel/passport/database/migrations', '--force' => true]);
             Artisan::call('passport:install');
@@ -322,8 +322,7 @@ class SettingsController extends Controller
 
         $setting->modellist_displays = '';
 
-        if (($request->filled('show_in_model_list')) && (count($request->input('show_in_model_list')) > 0))
-        {
+        if (($request->filled('show_in_model_list')) && (count($request->input('show_in_model_list')) > 0)) {
             $setting->modellist_displays = implode(',', $request->input('show_in_model_list'));
         }
 
@@ -337,7 +336,7 @@ class SettingsController extends Controller
         $setting->username_format                 = $request->input('username_format');
         $setting->require_accept_signature        = $request->input('require_accept_signature');
         $setting->show_assigned_assets            = $request->input('show_assigned_assets', '0');
-        if (! config('app.lock_passwords')) {
+        if (!config('app.lock_passwords')) {
             $setting->login_note = $request->input('login_note');
         }
 
@@ -404,48 +403,47 @@ class SettingsController extends Controller
 
         // Only allow the site name and CSS to be changed if lock_passwords is false
         // Because public demos make people act like dicks
-        if (! config('app.lock_passwords')) {
+        if (!config('app.lock_passwords')) {
             $setting->site_name  = $request->input('site_name');
             $setting->custom_css = $request->input('custom_css');
         }
 
-        $setting = $request->handleImages($setting,600,'logo','', 'logo');
+        $setting = $request->handleImages($setting, 600, 'logo', '', 'logo');
 
 
         if ('1' == $request->input('clear_logo')) {
-                Storage::disk('public')->delete($setting->logo);
-                $setting->logo  = null;
-                $setting->brand = 1;
+            Storage::disk('public')->delete($setting->logo);
+            $setting->logo  = null;
+            $setting->brand = 1;
         }
 
 
-        $setting = $request->handleImages($setting,600,'email_logo','', 'email_logo');
+        $setting = $request->handleImages($setting, 600, 'email_logo', '', 'email_logo');
 
 
-       if ('1' == $request->input('clear_email_logo')) {
+        if ('1' == $request->input('clear_email_logo')) {
             Storage::disk('public')->delete($setting->email_logo);
             $setting->email_logo  = null;
             // If they are uploading an image, validate it and upload it
         }
 
 
-        $setting = $request->handleImages($setting,600,'label_logo','', 'label_logo');
+        $setting = $request->handleImages($setting, 600, 'label_logo', '', 'label_logo');
 
 
         if ('1' == $request->input('clear_label_logo')) {
             Storage::disk('public')->delete($setting->label_logo);
             $setting->label_logo  = null;
-
         }
 
 
         // If the user wants to clear the favicon...
-         if ($request->hasFile('favicon')) {
+        if ($request->hasFile('favicon')) {
             $favicon_image         = $favicon_upload = $request->file('favicon');
             $favicon_ext           = $favicon_image->getClientOriginalExtension();
             $setting->favicon      = $favicon_file_name = 'favicon-uploaded.' . $favicon_ext;
 
-            if (($favicon_image->getClientOriginalExtension()!='ico') && ($favicon_image->getClientOriginalExtension()!='svg')) {
+            if (($favicon_image->getClientOriginalExtension() != 'ico') && ($favicon_image->getClientOriginalExtension() != 'svg')) {
                 $favicon_upload = Image::make($favicon_image->getRealPath())->resize(null, 36, function ($constraint) {
                     $constraint->aspectRatio();
                     $constraint->upsize();
@@ -463,11 +461,11 @@ class SettingsController extends Controller
                 Storage::disk('public')->delete($favicon_file_name);
             }
         } elseif ('1' == $request->input('clear_favicon')) {
-             Storage::disk('public')->delete($setting->clear_favicon);
-             $setting->favicon  = null;
+            Storage::disk('public')->delete($setting->clear_favicon);
+            $setting->favicon  = null;
 
-             // If they are uploading an image, validate it and upload it
-         }
+            // If they are uploading an image, validate it and upload it
+        }
 
         if ($setting->save()) {
             return redirect()->route('settings.index')
@@ -508,7 +506,7 @@ class SettingsController extends Controller
         if (is_null($setting = Setting::getSettings())) {
             return redirect()->to('admin')->with('error', trans('admin/settings/message.update.error'));
         }
-        if (! config('app.lock_passwords')) {
+        if (!config('app.lock_passwords')) {
 
             if ('' == $request->input('two_factor_enabled')) {
                 $setting->two_factor_enabled = null;
@@ -571,7 +569,7 @@ class SettingsController extends Controller
             return redirect()->to('admin')->with('error', trans('admin/settings/message.update.error'));
         }
 
-        if (! config('app.lock_passwords')) {
+        if (!config('app.lock_passwords')) {
             $setting->locale = $request->input('locale', 'en');
         }
         $setting->default_currency    = $request->input('default_currency', '$');
@@ -681,7 +679,6 @@ class SettingsController extends Controller
             $setting->slack_endpoint = $request->input('slack_endpoint');
             $setting->slack_channel = $request->input('slack_channel');
             $setting->slack_botname = $request->input('slack_botname');
-
         }
 
         if ($setting->save()) {
@@ -917,7 +914,7 @@ class SettingsController extends Controller
             return redirect()->to('admin')->with('error', trans('admin/settings/message.update.error'));
         }
 
-        if (!config('app.lock_passwords')===true) {
+        if (!config('app.lock_passwords') === true) {
             $setting->ldap_enabled            = $request->input('ldap_enabled', '0');
             $setting->ldap_server             = $request->input('ldap_server');
             $setting->ldap_server_cert_ignore = $request->input('ldap_server_cert_ignore', false);
@@ -941,7 +938,6 @@ class SettingsController extends Controller
             $setting->ldap_tls               = $request->input('ldap_tls', '0');
             $setting->ldap_pw_sync           = $request->input('ldap_pw_sync', '0');
             $setting->custom_forgot_pass_url = $request->input('custom_forgot_pass_url');
-
         }
 
         if ($setting->save()) {
@@ -1029,10 +1025,7 @@ class SettingsController extends Controller
                         'filesize' => Setting::fileSizeConvert(Storage::size($backup_files[$f])),
                         'modified' => Storage::lastModified($backup_files[$f]),
                     ];
-
                 }
-
-
             }
         }
 
@@ -1053,12 +1046,12 @@ class SettingsController extends Controller
      */
     public function postBackups()
     {
-        if (! config('app.lock_passwords')) {
+        if (!config('app.lock_passwords')) {
             Artisan::call('backup:run');
             $output = Artisan::output();
 
             // Backup completed
-            if (! preg_match('/failed/', $output)) {
+            if (!preg_match('/failed/', $output)) {
                 return redirect()->route('settings.backups.index')
                     ->with('success', trans('admin/settings/message.backup.generated'));
             }
@@ -1089,7 +1082,7 @@ class SettingsController extends Controller
     {
         $path = 'app/backups';
 
-        if (! config('app.lock_passwords')) {
+        if (!config('app.lock_passwords')) {
             if (Storage::exists($path . '/' . $filename)) {
                 return Storage::download($path . '/' . $filename);
             } else {
@@ -1113,7 +1106,7 @@ class SettingsController extends Controller
      */
     public function deleteFile($filename = null)
     {
-        if (! config('app.lock_passwords')) {
+        if (!config('app.lock_passwords')) {
             $path = 'app/backups';
 
             if (Storage::exists($path . '/' . $filename)) {
@@ -1156,7 +1149,7 @@ class SettingsController extends Controller
      */
     public function postPurge(Request $request)
     {
-        if (! config('app.lock_passwords')) {
+        if (!config('app.lock_passwords')) {
             if ('DELETE' == $request->input('confirm_purge')) {
                 // Run a backup immediately before processing
                 Artisan::call('backup:run');

@@ -18,7 +18,7 @@ trait UniqueSerialTrait
     {
         if ($settings = Setting::getSettings()) {
             if ($settings->unique_serial == '1') {
-                return 'unique_undeleted:'.$this->table.','.$this->getKey();
+                return 'unique_undeleted:' . $this->table . ',' . $this->getKey();
             }
         }
     }

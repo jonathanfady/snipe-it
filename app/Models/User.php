@@ -503,38 +503,39 @@ class User extends SnipeModel implements AuthenticatableContract, AuthorizableCo
         if (strpos($users_name, ' ') === false) {
             $first_name = $users_name;
             $last_name = '';
-            $username  = $users_name;
+            // $username  = $users_name;
         } else {
 
             list($first_name, $last_name) = explode(" ", $users_name, 2);
 
-            // Assume filastname by default
-            $username = str_slug(substr($first_name, 0, 1) . $last_name);
+            // // Assume filastname by default
+            // $username = str_slug(substr($first_name, 0, 1) . $last_name);
 
-            if ($format == 'firstname.lastname') {
-                $username = str_slug($first_name) . '.' . str_slug($last_name);
-            } elseif ($format == 'lastnamefirstinitial') {
-                $username = str_slug($last_name . substr($first_name, 0, 1));
-            } elseif ($format == 'firstintial.lastname') {
-                $username = substr($first_name, 0, 1) . '.' . str_slug($last_name);
-            } elseif ($format == 'firstname_lastname') {
-                $username = str_slug($first_name) . '_' . str_slug($last_name);
-            } elseif ($format == 'firstname') {
-                $username = str_slug($first_name);
-            } elseif ($format == 'firstinitial.lastname') {
-                $username = str_slug(substr($first_name, 0, 1) . '.' . str_slug($last_name));
-            } elseif ($format == 'lastname_firstinitial') {
-                $username = str_slug($last_name) . '_' . str_slug(substr($first_name, 0, 1));
-            } elseif ($format == 'firstnamelastname') {
-                $username = str_slug($first_name) . str_slug($last_name);
-            } elseif ($format == 'firstnamelastinitial') {
-                $username = str_slug(($first_name . substr($last_name, 0, 1)));
-            }
+            // if ($format == 'firstname.lastname') {
+            //     $username = str_slug($first_name) . '.' . str_slug($last_name);
+            // } elseif ($format == 'lastnamefirstinitial') {
+            //     $username = str_slug($last_name . substr($first_name, 0, 1));
+            // } elseif ($format == 'firstintial.lastname') {
+            //     $username = substr($first_name, 0, 1) . '.' . str_slug($last_name);
+            // } elseif ($format == 'firstname_lastname') {
+            //     $username = str_slug($first_name) . '_' . str_slug($last_name);
+            // } elseif ($format == 'firstname') {
+            //     $username = str_slug($first_name);
+            // } elseif ($format == 'firstinitial.lastname') {
+            //     $username = str_slug(substr($first_name, 0, 1) . '.' . str_slug($last_name));
+            // } elseif ($format == 'lastname_firstinitial') {
+            //     $username = str_slug($last_name) . '_' . str_slug(substr($first_name, 0, 1));
+            // } elseif ($format == 'firstnamelastname') {
+            //     $username = str_slug($first_name) . str_slug($last_name);
+            // } elseif ($format == 'firstnamelastinitial') {
+            //     $username = str_slug(($first_name . substr($last_name, 0, 1)));
+            // }
         }
 
         $user['first_name'] = $first_name;
         $user['last_name'] = $last_name;
-        $user['username'] = strtolower($username);
+        // $user['username'] = strtolower($username);
+        $user['username'] = str_slug($first_name) . '.' . str_slug($last_name);
         return $user;
     }
 

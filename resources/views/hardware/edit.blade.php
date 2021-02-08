@@ -73,20 +73,20 @@ trans('admin/hardware/form.serial')])
 @include ('partials.forms.edit.status')
 
 @include ('partials.forms.edit.user-select', ['translated_name' => trans('admin/hardware/form.focal_point'), 'fieldname'
-=> 'focal_point_id', 'required' => 'true'])
+=> 'focal_point_id', 'activated_users' => 'true', 'required' => 'true'])
 
 {{-- @if (!$item->id) --}}
-{{-- @include ('partials.forms.checkout-selector', ['user_select' => 'true','asset_select' => 'true', 'location_select' =>
-'true', 'style' => 'display:none;']) --}}
+@include ('partials.forms.checkout-selector', ['user_select' => 'true', 'location_select' =>
+'true'])
 
 @include ('partials.forms.edit.user-select', ['translated_name' => trans('admin/hardware/form.checkout_to'), 'fieldname'
 => 'assigned_user', 'required' => 'false'])
 
 {{-- @include ('partials.forms.edit.asset-select', ['translated_name' => trans('admin/hardware/form.checkout_to'),
-'fieldname' => 'assigned_asset', 'style' => 'display:none;', 'required' => 'false'])
+'fieldname' => 'assigned_asset', 'style' => 'display:none;', 'required' => 'false']) --}}
 
 @include ('partials.forms.edit.location-select', ['translated_name' => trans('admin/hardware/form.checkout_to'),
-'fieldname' => 'assigned_location', 'style' => 'display:none;', 'required' => 'false']) --}}
+'fieldname' => 'assigned_location', 'style' => 'display:none;', 'required' => 'false'])
 {{-- @endif --}}
 
 @include ('partials.forms.edit.name', ['translated_name' => trans('admin/hardware/form.name')])

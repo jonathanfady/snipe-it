@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
@@ -50,16 +51,16 @@ class ObjectImportCommand extends Command
         $classString = "App\\Importer\\{$class}Importer";
         $importer = new $classString($filename);
         $importer->setCallbacks([$this, 'log'], [$this, 'progress'], [$this, 'errorCallback'])
-                 ->setUserId($this->option('user_id'))
-                 ->setUpdating($this->option('update'))
-                 ->setShouldNotify($this->option('send-welcome'))
-                 ->setUsernameFormat($this->option('username_format'));
+            ->setUserId($this->option('user_id'))
+            ->setUpdating($this->option('update'))
+            ->setShouldNotify($this->option('send-welcome'))
+            ->setUsernameFormat($this->option('username_format'));
 
 
         // This $logFile/useFiles() bit is currently broken, so commenting it out for now
         // $logFile = $this->option('logfile');
         // \Log::useFiles($logFile);
-        $this->comment('======= Importing Items from '.$filename.' =========');
+        $this->comment('======= Importing Items from ' . $filename . ' =========');
         $importer->import();
 
         $this->bar = null;
@@ -86,7 +87,7 @@ class ObjectImportCommand extends Command
         if (!$this->bar) {
             $this->bar = $this->output->createProgressBar($count);
         }
-        static $index =0;
+        static $index = 0;
         $index++;
         if ($index < $count) {
             $this->bar->advance();
@@ -108,7 +109,7 @@ class ObjectImportCommand extends Command
      * @since 3.0
      * @param string $string
      * @param string $level
-    */
+     */
     public function log($string, $level = 'info')
     {
         if ($level === 'warning') {
@@ -146,15 +147,14 @@ class ObjectImportCommand extends Command
     protected function getOptions()
     {
         return array(
-        array('email_format', null, InputOption::VALUE_REQUIRED, 'The format of the email addresses that should be generated. Options are firstname.lastname, firstname, filastname', null),
-        array('username_format', null, InputOption::VALUE_REQUIRED, 'The format of the username that should be generated. Options are firstname.lastname, firstname, filastname, email', null),
-        array('logfile', null, InputOption::VALUE_REQUIRED, 'The path to log output to.  storage/logs/importer.log by default', storage_path('logs/importer.log') ),
-        array('item-type', null, InputOption::VALUE_REQUIRED, 'Item Type To import.  Valid Options are Asset, Consumable, Accessory, License, or User', 'Asset'),
-        array('web-importer', null, InputOption::VALUE_NONE, 'Internal: packages output for use with the web importer'),
-        array('user_id', null, InputOption::VALUE_REQUIRED, 'ID of user creating items', 1),
-        array('update', null, InputOption::VALUE_NONE, 'If a matching item is found, update item information'),
-        array('send-welcome', null, InputOption::VALUE_NONE, 'Whether to send a welcome email to any new users that are created.'),
+            array('email_format', null, InputOption::VALUE_REQUIRED, 'The format of the email addresses that should be generated. Options are firstname.lastname, firstname, filastname', null),
+            array('username_format', null, InputOption::VALUE_REQUIRED, 'The format of the username that should be generated. Options are firstname.lastname, firstname, filastname, email', null),
+            array('logfile', null, InputOption::VALUE_REQUIRED, 'The path to log output to.  storage/logs/importer.log by default', storage_path('logs/importer.log')),
+            array('item-type', null, InputOption::VALUE_REQUIRED, 'Item Type To import.  Valid Options are Asset, Consumable, Accessory, License, or User', 'Asset'),
+            array('web-importer', null, InputOption::VALUE_NONE, 'Internal: packages output for use with the web importer'),
+            array('user_id', null, InputOption::VALUE_REQUIRED, 'ID of user creating items', 1),
+            array('update', null, InputOption::VALUE_NONE, 'If a matching item is found, update item information'),
+            array('send-welcome', null, InputOption::VALUE_NONE, 'Whether to send a welcome email to any new users that are created.'),
         );
-
     }
 }

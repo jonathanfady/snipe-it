@@ -111,7 +111,7 @@ class Asset extends Depreciable
         'last_audit_date' => 'date|nullable',
         'purchase_date'   => 'required|date|nullable',
         'order_number'    => 'required|nullable',
-        'focal_point_id'  => 'required|integer|nullable',
+        'focal_point_id'  => 'required|integer|exists:users,id',
     ];
 
     /**

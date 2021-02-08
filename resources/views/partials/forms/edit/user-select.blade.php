@@ -5,7 +5,8 @@
 
     <div class="col-md-6{{  ((isset($required)) && ($required=='true')) ? ' required' : '' }}">
         <select class="js-data-ajax" data-endpoint="users" data-placeholder="{{ trans('general.select_user') }}"
-            name="{{ $fieldname }}" style="width: 100%" id="{{ $fieldname }}_select" aria-label="{{ $fieldname }}">
+            name="{{ $fieldname }}" style="width: 100%" id="{{ $fieldname }}_select" aria-label="{{ $fieldname }}" {!!
+            (isset($activated_users) && $activated_users=='true' ) ? 'data-user-activated="1"' : '' !!}>
             @if ($user_id = old($fieldname, (isset($item)) ? $item->{$fieldname} : ''))
             <option value="{{ $user_id }}" selected="selected" role="option" aria-selected="true" role="option">
                 {{ (\App\Models\User::find($user_id)) ? \App\Models\User::find($user_id)->present()->fullName : '' }}

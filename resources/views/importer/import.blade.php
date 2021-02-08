@@ -52,9 +52,8 @@
                                     <span>Select Import File...</span>
                                     <!-- The file input field used as target for the file upload widget -->
                                     <label for="files[]"><span class="sr-only">Select file</span></label>
-                                    <input id="fileupload" type="file"
-                                        accept=".csv, application/vnd.ms-excel, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-                                        name="files[]" data-url="{{ route('api.imports.index') }}" aria-label="files[]">
+                                    <input id="fileupload" type="file" accept=".csv" name="files[]"
+                                        data-url="{{ route('api.imports.index') }}" aria-label="files[]">
                                 </span>
                                 @endif
 

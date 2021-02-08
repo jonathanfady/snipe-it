@@ -4,6 +4,7 @@ namespace App\Importer;
 
 use App\Models\Asset;
 use App\Models\Statuslabel;
+use App\Models\User;
 
 class AssetImporter extends ItemImporter
 {
@@ -72,10 +73,14 @@ class AssetImporter extends ItemImporter
         }
 
         // $this->item['image'] = $this->findCsvMatch($row, "image");
-        // $this->item['requestable'] = $this->fetchHumanBoolean($this->findCsvMatch($row, "requestable"));;
+        $this->item['requestable'] = $this->fetchHumanBoolean($this->findCsvMatch($row, "requestable"));;
         // $asset->requestable =  $this->fetchHumanBoolean($this->findCsvMatch($row, "requestable"));
         // $this->item['warranty_months'] = intval($this->findCsvMatch($row, "warranty_months"));
         $this->item['model_id'] = $this->createOrFetchAssetModel($row);
+        if ($this->createOrFetchUser($this->findCsvMatch($row, "focal_point")))
+            $this->item['focal_point_id'] = $this->createOrFetchUser($this->findCsvMatch($row, "focal_point"))->id;
+        else
+            $this->item['focal_point_id'] = User::first()->id;
 
         // If no status ID is found
         if (!array_key_exists('status_id', $this->item) && !$editingAsset) {
@@ -111,7 +116,6 @@ class AssetImporter extends ItemImporter
                 $asset->{$custom_field} = $val;
             }
         }
-
         //FIXME: this disables model validation.  Need to find a way to avoid double-logs without breaking everything.
         // $asset->unsetEventDispatcher();
         if ($asset->save()) {
@@ -124,6 +128,7 @@ class AssetImporter extends ItemImporter
             }
             return;
         }
-        $this->logError($asset, 'Asset "' . $this->item['name'] . '"');
+        $this->log('Asset was not created');
+        return;
     }
 }

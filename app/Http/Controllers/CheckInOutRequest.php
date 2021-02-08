@@ -15,17 +15,16 @@ trait CheckInOutRequest
      */
     protected function determineCheckoutTarget()
     {
-        return User::findOrFail(request('assigned_user'));
-        // // This item is checked out to a location
-        // switch (request('checkout_to_type')) {
-        //     case 'location':
-        //         return Location::findOrFail(request('assigned_location'));
-        //     case 'asset':
-        //         return Asset::findOrFail(request('assigned_asset'));
-        //     case 'user':
-        //         return User::findOrFail(request('assigned_user'));
-        // }
-        // return null;
+        // This item is checked out to a location
+        switch (request('checkout_to_type')) {
+            case 'location':
+                return Location::findOrFail(request('assigned_location'));
+                // case 'asset':
+                //     return Asset::findOrFail(request('assigned_asset'));
+            case 'user':
+                return User::findOrFail(request('assigned_user'));
+        }
+        return null;
     }
 
     /**
@@ -36,22 +35,21 @@ trait CheckInOutRequest
      */
     protected function updateAssetLocation($asset, $target)
     {
-        $asset->location_id = $target->location_id;
-        // switch (request('checkout_to_type')) {
-        //     case 'location':
-        //         $asset->location_id = $target->id;
-        //         break;
-        //     case 'asset':
-        //         $asset->location_id = $target->rtd_location_id;
-        //         // Override with the asset's location_id if it has one
-        //         if ($target->location_id != '') {
-        //             $asset->location_id = $target->location_id;
-        //         }
-        //         break;
-        //     case 'user':
-        //         $asset->location_id = $target->location_id;
-        //         break;
-        // }
+        switch (request('checkout_to_type')) {
+            case 'location':
+                $asset->location_id = $target->id;
+                break;
+                // case 'asset':
+                //     $asset->location_id = $target->rtd_location_id;
+                //     // Override with the asset's location_id if it has one
+                //     if ($target->location_id != '') {
+                //         $asset->location_id = $target->location_id;
+                //     }
+                //     break;
+            case 'user':
+                $asset->location_id = $target->location_id;
+                break;
+        }
         return $asset;
     }
 }

@@ -36,7 +36,7 @@
                 <!-- Focal Point -->
                 @include ('partials.forms.edit.user-select', ['translated_name' =>
                 trans('admin/hardware/form.focal_point'),
-                'fieldname' => 'focal_point_id', 'required' => 'false'])
+                'fieldname' => 'focal_point_id', 'activated_users' => 'true', 'required' => 'false'])
 
                 <!-- Locations -->
                 @include ('partials.forms.edit.location-select', ['translated_name' => trans('general.location'),

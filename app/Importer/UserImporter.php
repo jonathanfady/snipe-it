@@ -117,8 +117,7 @@ class UserImporter extends ItemImporter
             $this->item = null;
             return;
         }
-
-        $this->logError($user, 'User');
+        $this->log('User was not created');
         return;
     }
 
@@ -145,7 +144,7 @@ class UserImporter extends ItemImporter
             $this->log('department ' . $department_name . ' was created');
             return $department->id;
         }
-        $this->logError($department, 'Department');
+        $this->log('Department was not created');
         return null;
     }
 
@@ -171,7 +170,7 @@ class UserImporter extends ItemImporter
             $this->log('location ' . $location_name . ' was created');
             return $location->id;
         }
-        $this->logError($location, 'Location');
+        $this->log('Location was not created');
         return null;
     }
 

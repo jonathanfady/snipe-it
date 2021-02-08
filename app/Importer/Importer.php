@@ -34,6 +34,7 @@ abstract class Importer
         'activated' => 'activated',
         'category' => 'category',
         'checkout_class' => 'checkout type', // Supports Location or User for assets.  Using checkout_class instead of checkout_type because type exists on asset already.
+        'checkout_user' => 'checkout user',
         'checkout_location' => 'checkout location',
         'company' => 'company',
         'item_name' => 'item name',
@@ -76,6 +77,9 @@ abstract class Importer
         'department' => 'department',
         'manager_first_name' => 'manager first name',
         'manager_last_name' => 'manager last name',
+        'current_company' => 'current company',
+        'last_audit_date' => 'last audit date',
+        'focal_point' => 'focal point',
     ];
     /**
      * Map of item fields->csv names
@@ -271,86 +275,93 @@ abstract class Importer
      *
      * @author Daniel Melzter
      * @since 3.0
-     * @param $row array
+     * @param $user_full_name string
      * @return User Model w/ matching name
      * @internal param array $user_array User details parsed from csv
      */
-    protected function createOrFetchUser($row)
+    protected function createOrFetchUser($user_full_name)
     {
         $user_array = [
-            'full_name' => $this->findCsvMatch($row, "full_name"),
-            'email'     => $this->findCsvMatch($row, "email"),
-            'manager_id' =>  '',
-            'department_id' =>  '',
-            'username'  => $this->findCsvMatch($row, "username"),
-            'activated'  => $this->fetchHumanBoolean($this->findCsvMatch($row, 'activated')),
+            'full_name' => $user_full_name,
+            // 'email'     => '',
+            // 'manager_id' =>  '',
+            // 'department_id' =>  '',
+            // 'username'  => '',
+            // 'activated'  => '',
         ];
 
         // Maybe we're lucky and the user already exists.
-        if ($user = User::where('username', $user_array['username'])->first()) {
-            $this->log('User ' . $user_array['username'] . ' already exists');
-            return $user;
-        }
+        // if ($user = User::where('username', $user_array['username'])->first()) {
+        //     $this->log('User ' . $user_array['username'] . ' already exists');
+        //     return $user;
+        // }
 
         // If the full name is empty, bail out--we need this to extract first name (at the very least)
+
         if (empty($user_array['full_name'])) {
             $this->log('Insufficient user data provided (Full name is required)- skipping user creation, just adding asset');
-            return false;
+            return null;
         }
 
         // Is the user actually an ID?
-        if ($user = $this->findUserByNumber($user_array['full_name'])) {
-            return $user;
-        }
-        $this->log('User does not appear to be an id with number: ' . $user_array['full_name'] . '.  Continuing through our processes');
+        // if ($user = $this->findUserByNumber($user_array['full_name'])) {
+        //     return $user;
+        // }
+        // $this->log('User does not appear to be an id with number: ' . $user_array['full_name'] . '.  Continuing through our processes');
 
         // Populate email if it does not exist.
-        if (empty($user_array['email'])) {
-            $user_array['email'] = User::generateEmailFromFullName($user_array['full_name']);
-        }
+        // if (empty($user_array['email'])) {
+        //     $user_array['email'] = User::generateEmailFromFullName($user_array['full_name']);
+        // }
 
         $user_formatted_array = User::generateFormattedNameFromFullName($user_array['full_name'], Setting::getSettings()->username_format);
         $user_array['first_name'] = $user_formatted_array['first_name'];
         $user_array['last_name'] = $user_formatted_array['last_name'];
 
-        if (empty($user_array['username'])) {
-            $user_array['username'] = $user_formatted_array['username'];
-            if ($this->usernameFormat == 'email') {
-                $user_array['username'] = $user_array['email'];
-            }
-        }
+        // if (empty($user_array['username'])) {
+        //     $user_array['username'] = $user_formatted_array['username'];
+        //     if ($this->usernameFormat == 'email') {
+        //         $user_array['username'] = $user_array['email'];
+        //     }
+        // }
 
         // Does this ever actually fire??
         // Check for a matching user after trying to guess username.
-        if ($user = User::where('username', $user_array['username'])->first()) {
-            $this->log('User ' . $user_array['username'] . ' already exists');
+        // if ($user = User::where('username', $user_array['username'])->first()) {
+        //     $this->log('User ' . $user_array['username'] . ' already exists');
+        //     return $user;
+        // }
+
+        // Try to find a user with matching first and last name
+        if ($user = User::where('first_name', $user_array['first_name'])->where('last_name', $user_array['last_name'])->first()) {
+            $this->log('User ' . $user->getFullNameAttribute() .  ' already exists');
             return $user;
         }
 
         // If at this point we have not found a username or first name, bail out in shame.
-        if (empty($user_array['username']) || empty($user_array['first_name'])) {
-            return false;
-        }
+        // if (empty($user_array['username']) || empty($user_array['first_name'])) {
+        //     return false;
+        // }
 
         // No Luck, let's create one.
         $user = new User;
         $user->first_name    = $user_array['first_name'];
         $user->last_name     = $user_array['last_name'];
-        $user->username      = $user_array['username'];
-        $user->email         = $user_array['email'];
-        $user->manager_id    = $user_array['manager_id'] ?? null;
-        $user->department_id = $user_array['department_id'] ?? null;
-        $user->activated     = 1;
-        $user->password      = $this->tempPassword;
+        // $user->username      = $user_array['username'];
+        // $user->email         = $user_array['email'];
+        // $user->manager_id    = $user_array['manager_id'] ?? null;
+        // $user->department_id = $user_array['department_id'] ?? null;
+        // $user->activated     = 1;
+        // $user->password      = $this->tempPassword;
 
         \Log::debug('Creating a user with the following attributes: ' . print_r($user_array, true));
 
         if ($user->save()) {
-            $this->log('User ' . $user_array['username'] . ' created');
+            $this->log('User ' .  $user->getFullNameAttribute() . ' created');
             return $user;
         }
-        $this->logError($user, 'User "' . $user_array['username'] . '" was not able to be created.');
-        return false;
+        $this->log('User was not created');
+        return null;
     }
 
     /**
@@ -487,9 +498,8 @@ abstract class Importer
                 $this->log('Department ' . $user_department_name . ' was created');
                 return $department->id;
             }
-            $this->logError($department, 'Department');
+            $this->log('Department was not created');
         }
-
         return null;
     }
 

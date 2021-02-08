@@ -48,6 +48,7 @@ class AccessoryImporter extends ItemImporter
             $this->log('Accessory ' . $this->item["name"] . ' was created');
             return;
         }
-        $this->logError($accessory, 'Accessory');
+        $this->log('Accessory was not created');
+        return;
     }
 }

@@ -32,8 +32,8 @@ class LicenseImporter extends ItemImporter
     {
         $editingLicense = false;
         $license = License::where('name', $this->item['name'])
-                    ->where('serial', $this->item['serial'])
-                    ->first();
+            ->where('serial', $this->item['serial'])
+            ->first();
         if ($license) {
             if (!$this->updating) {
                 $this->log('A matching License ' . $this->item['name'] . 'with serial ' . $this->item['serial'] . ' already exists');
@@ -87,6 +87,7 @@ class LicenseImporter extends ItemImporter
             }
             return;
         }
-        $this->logError($license, 'License "' . $this->item['name'].'"');
+        $this->log('License was not created');
+        return;
     }
 }

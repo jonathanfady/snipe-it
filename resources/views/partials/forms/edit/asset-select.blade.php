@@ -1,5 +1,5 @@
 <!-- Asset -->
-<div id="assigned_asset" class="form-group{{ $errors->has($fieldname) ? ' has-error' : '' }}" {!! (isset($style))
+<div id="assigned_asset_2" class="form-group{{ $errors->has($fieldname) ? ' has-error' : '' }}" {!! (isset($style))
     ? ' style="' .e($style).'"' : '' !!}>
     {{ Form::label($fieldname, $translated_name, array('class' => 'col-md-3 control-label')) }}
     <div class="col-md-7{{  ((isset($required) && ($required =='true'))) ?  ' required' : '' }}">

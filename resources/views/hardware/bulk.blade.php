@@ -126,6 +126,7 @@
                     <!-- Focal Point -->
                     @include ('partials.forms.edit.user-select', ['translated_name' =>
                     trans('admin/hardware/form.focal_point'),
+                    'activated_users' => 'true',
                     'fieldname' => 'focal_point_id'])
 
                     <!-- Order Number -->

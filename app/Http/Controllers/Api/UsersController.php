@@ -62,14 +62,14 @@ class UsersController extends Controller
             'users.zip',
             'users.ldap_import',
 
-        ])->with('manager', 'groups', 'userloc', 'company', 'department','assets','licenses','accessories','consumables')
-            ->withCount('assets as assets_count','licenses as licenses_count','accessories as accessories_count','consumables as consumables_count');
+        ])->with('manager', 'groups', 'userloc', 'company', 'department', 'assets', 'licenses', 'accessories', 'consumables')
+            ->withCount('assets as assets_count', 'licenses as licenses_count', 'accessories as accessories_count', 'consumables as consumables_count');
         $users = Company::scopeCompanyables($users);
 
 
-        if (($request->filled('deleted')) && ($request->input('deleted')=='true')) {
+        if (($request->filled('deleted')) && ($request->input('deleted') == 'true')) {
             $users = $users->onlyTrashed();
-        } elseif (($request->filled('all')) && ($request->input('all')=='true')) {
+        } elseif (($request->filled('all')) && ($request->input('all') == 'true')) {
             $users = $users->withTrashed();
         }
 
@@ -94,7 +94,7 @@ class UsersController extends Controller
         }
 
         if ($request->filled('department_id')) {
-            $users = $users->where('users.department_id','=',$request->input('department_id'));
+            $users = $users->where('users.department_id', '=', $request->input('department_id'));
         }
 
         if ($request->filled('search')) {
@@ -128,9 +128,9 @@ class UsersController extends Controller
             default:
                 $allowed_columns =
                     [
-                        'last_name','first_name','email','jobtitle','username','employee_num',
-                        'assets','accessories', 'consumables','licenses','groups','activated','created_at',
-                        'two_factor_enrolled','two_factor_optin','last_login', 'assets_count', 'licenses_count',
+                        'last_name', 'first_name', 'email', 'jobtitle', 'username', 'employee_num',
+                        'assets', 'accessories', 'consumables', 'licenses', 'groups', 'activated', 'created_at',
+                        'two_factor_enrolled', 'two_factor_optin', 'last_login', 'assets_count', 'licenses_count',
                         'consumables_count', 'accessories_count', 'phone', 'address', 'city', 'state',
                         'country', 'zip', 'id', 'ldap_import'
                     ];
@@ -169,14 +169,18 @@ class UsersController extends Controller
                 'users.avatar',
                 'users.email',
             ]
-            )->where('show_in_list', '=', '1');
+        )->where('show_in_list', '=', '1');
 
         $users = Company::scopeCompanyables($users);
 
+        if ($request->filled('userActivated') && $request->input('userActivated') === '1') {
+            $users = $users->where('activated', 1);
+        }
+
         if ($request->filled('search')) {
             $users = $users->SimpleNameSearch($request->get('search'))
-                ->orWhere('username', 'LIKE', '%'.$request->get('search').'%')
-                ->orWhere('employee_num', 'LIKE', '%'.$request->get('search').'%');
+                ->orWhere('username', 'LIKE', '%' . $request->get('search') . '%')
+                ->orWhere('employee_num', 'LIKE', '%' . $request->get('search') . '%');
         }
 
         $users = $users->orderBy('last_name', 'asc')->orderBy('first_name', 'asc');
@@ -184,17 +188,17 @@ class UsersController extends Controller
 
         foreach ($users as $user) {
             $name_str = '';
-            if ($user->last_name!='') {
-                $name_str .= e($user->last_name).', ';
+            if ($user->last_name != '') {
+                $name_str .= e($user->last_name) . ', ';
             }
             $name_str .= e($user->first_name);
 
-            if ($user->username!='') {
-                $name_str .= ' ('.e($user->username).')';
+            if ($user->username != '') {
+                $name_str .= ' (' . e($user->username) . ')';
             }
 
-            if ($user->employee_num!='') {
-                $name_str .= ' - #'.e($user->employee_num);
+            if ($user->employee_num != '') {
+                $name_str .= ' - #' . e($user->employee_num);
             }
 
             $user->use_text = $name_str;
@@ -202,7 +206,6 @@ class UsersController extends Controller
         }
 
         return (new SelectlistTransformer)->transformSelectlist($users);
-
     }
 
 
@@ -243,7 +246,7 @@ class UsersController extends Controller
             } else {
                 $user->groups()->sync(array());
             }
-            
+
             return response()->json(Helper::formatStandardApiResponse('success', (new UsersTransformer)->transformUser($user), trans('admin/users/message.success.create')));
         }
         return response()->json(Helper::formatStandardApiResponse('error', null, $user->getErrors()));
@@ -259,7 +262,7 @@ class UsersController extends Controller
     public function show($id)
     {
         $this->authorize('view', User::class);
-        $user = User::withCount('assets as assets_count','licenses as licenses_count','accessories as accessories_count','consumables as consumables_count')->findOrFail($id);
+        $user = User::withCount('assets as assets_count', 'licenses as licenses_count', 'accessories as accessories_count', 'consumables as consumables_count')->findOrFail($id);
         return (new UsersTransformer)->transformUser($user);
     }
 
@@ -330,8 +333,8 @@ class UsersController extends Controller
             // Check if the request has groups passed and has a value
             if ($request->filled('groups')) {
                 $user->groups()->sync($request->input('groups'));
-            // The groups field has been passed but it is null, so we should blank it out
-            } elseif ($request->has('groups'))  {
+                // The groups field has been passed but it is null, so we should blank it out
+            } elseif ($request->has('groups')) {
                 $user->groups()->sync(array());
             }
 
@@ -376,12 +379,12 @@ class UsersController extends Controller
         if ($user->delete()) {
 
             // Remove the user's avatar if they have one
-            if (Storage::disk('public')->exists('avatars/'.$user->avatar)) {
-                try  {
-                    Storage::disk('public')->delete('avatars/'.$user->avatar);
+            if (Storage::disk('public')->exists('avatars/' . $user->avatar)) {
+                try {
+                    Storage::disk('public')->delete('avatars/' . $user->avatar);
                 } catch (\Exception $e) {
                     \Log::debug($e);
-               }
+                }
             }
             return response()->json(Helper::formatStandardApiResponse('success', null,  trans('admin/users/message.success.delete')));
         }
@@ -465,7 +468,6 @@ class UsersController extends Controller
             }
         }
         return response()->json(['message' => 'No ID provided'], 500);
-
     }
 
     /**

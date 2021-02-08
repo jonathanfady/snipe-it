@@ -526,7 +526,11 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
             },
             columnOptions: {
                 general: [{ id: 'category', text: 'Category' }, { id: 'company', text: 'Company' }, { id: 'email', text: 'Email' }, { id: 'item_name', text: 'Item Name' }, { id: 'location', text: 'Location' }, { id: 'maintained', text: 'Maintained' }, { id: 'manufacturer', text: 'Manufacturer' }, { id: 'notes', text: 'Notes' }, { id: 'order_number', text: 'Order Number' }, { id: 'purchase_cost', text: 'Purchase Cost' }, { id: 'purchase_date', text: 'Purchase Date' }, { id: 'quantity', text: 'Quantity' }, { id: 'requestable', text: 'Requestable' }, { id: 'serial', text: 'Serial Number' }, { id: 'supplier', text: 'Supplier' }, { id: 'username', text: 'Username' }, { id: 'department', text: 'Department' }],
-                assets: [{ id: 'company', text: 'Donor' }, { id: 'asset_tag', text: 'Log Code' }, { id: 'serial', text: 'Serial' }, { id: 'asset_model', text: 'Model' }, { id: 'manufacturer', text: 'Model Manufacturer' }, { id: 'category', text: 'Model Category' }, { id: 'model_category_type', text: 'Model Category Type' }, { id: 'status', text: 'Status' }, { id: 'focal_point', text: 'Focal Point' }, { id: 'checkout_target', text: 'Checkout To' }, { id: 'item_name', text: 'Asset Name' }, { id: 'purchase_date', text: 'Invoice Date' }, { id: 'supplier', text: 'Supplier' }, { id: 'order_number', text: 'IOF Number' }, { id: 'purchase_cost', text: 'Purchase Cost' }, { id: 'current_company', text: 'Current Donor' }],
+                assets: [{ id: 'company', text: 'Donor' }, { id: 'asset_tag', text: 'Log Code' }, { id: 'serial', text: 'Serial' }, { id: 'model', text: 'Model' }, { id: 'manufacturer', text: 'Model Manufacturer' }, { id: 'category', text: 'Model Category' },
+                // {id: 'category_type', text: 'Model Category Type' },
+                { id: 'status', text: 'Status' }, { id: 'focal_point', text: 'Focal Point' },
+                // {id: 'checkout_class', text: 'Checkout Type' },
+                { id: 'checkout_user', text: 'Checkout To (User)' }, { id: 'checkout_location', text: 'Checkout To (Location)' }, { id: 'item_name', text: 'Asset Name' }, { id: 'purchase_date', text: 'Invoice Date' }, { id: 'supplier', text: 'Supplier' }, { id: 'order_number', text: 'IOF Number' }, { id: 'purchase_cost', text: 'Purchase Cost' }, { id: 'current_company', text: 'Current Donor' }, { id: 'location', text: 'Location' }, { id: 'last_audit_date', text: 'Last Audit Date' }, { id: 'notes', text: 'Notes' }],
                 consumables: [{ id: 'item_no', text: "Item Number" }, { id: 'model_number', text: "Model Number" }],
                 licenses: [{ id: 'asset_tag', text: 'Assigned To Asset' }, { id: 'expiration_date', text: 'Expiration Date' }, { id: 'full_name', text: 'Full Name' }, { id: 'license_email', text: 'Licensed To Email' }, { id: 'license_name', text: 'Licensed To Name' }, { id: 'purchase_order', text: 'Purchase Order' }, { id: 'reassignable', text: 'Reassignable' }, { id: 'seats', text: 'Seats' }],
                 users: [
@@ -566,8 +570,9 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
                 case 'license':
                     return this.columnOptions.general.concat(this.columnOptions.licenses).sort(sorter);
                 case 'user':
-                    // return this.columnOptions.general.concat(this.columnOptions.users).sort(sorter);
-                    return this.columnOptions.users.sort(sorter);
+                    return this.columnOptions.users
+                    // .concat(this.columnOptions.users)
+                    .sort(sorter);
             }
             return this.columnOptions.general;
         },
@@ -55583,7 +55588,8 @@ $(document).ready(function () {
                     var data = {
                         search: params.term,
                         page: params.page || 1,
-                        assetStatusType: link.data("asset-status-type")
+                        assetStatusType: link.data("asset-status-type"),
+                        userActivated: link.data("user-activated")
                     };
                     return data;
                 },
@@ -55617,7 +55623,7 @@ $(document).ready(function () {
 
         var select = element.data("select2");
 
-        // There's two different locations where the select2-generated input element can be. 
+        // There's two different locations where the select2-generated input element can be.
         searchElement = select.dropdown.$search || select.$container.find(".select2-search__field");
 
         var value = searchElement.val();
