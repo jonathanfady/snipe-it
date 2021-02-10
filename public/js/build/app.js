@@ -526,7 +526,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
             },
             columnOptions: {
                 general: [{ id: 'category', text: 'Category' }, { id: 'company', text: 'Company' }, { id: 'email', text: 'Email' }, { id: 'item_name', text: 'Item Name' }, { id: 'location', text: 'Location' }, { id: 'maintained', text: 'Maintained' }, { id: 'manufacturer', text: 'Manufacturer' }, { id: 'notes', text: 'Notes' }, { id: 'order_number', text: 'Order Number' }, { id: 'purchase_cost', text: 'Purchase Cost' }, { id: 'purchase_date', text: 'Purchase Date' }, { id: 'quantity', text: 'Quantity' }, { id: 'requestable', text: 'Requestable' }, { id: 'serial', text: 'Serial Number' }, { id: 'supplier', text: 'Supplier' }, { id: 'username', text: 'Username' }, { id: 'department', text: 'Department' }],
-                assets: [{ id: 'company', text: 'Donor' }, { id: 'asset_tag', text: 'Log Code' }, { id: 'serial', text: 'Serial' }, { id: 'model', text: 'Model' }, { id: 'manufacturer', text: 'Model Manufacturer' }, { id: 'category', text: 'Model Category' },
+                assets: [{ id: 'company', text: 'Donor' }, { id: 'asset_tag', text: 'Log Code' }, { id: 'serial', text: 'Serial' }, { id: 'model', text: 'Model' }, { id: 'manufacturer', text: 'Manufacturer' }, { id: 'category', text: 'Category' },
                 // {id: 'category_type', text: 'Model Category Type' },
                 { id: 'status', text: 'Status' }, { id: 'focal_point', text: 'Focal Point' },
                 // {id: 'checkout_class', text: 'Checkout Type' },
