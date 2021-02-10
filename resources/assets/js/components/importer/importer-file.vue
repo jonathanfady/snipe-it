@@ -42,11 +42,11 @@
                     </div>
                 </div><!-- /dynamic-form-row -->
 
-                <div class="alert col-md-8 col-md-offset-2" style="text-align:left"
+                <!-- <div class="alert col-md-8 col-md-offset-2" style="text-align:left"
                      :class="alertClass"
                      v-if="statusText">
                     {{ this.statusText }}
-                </div><!-- /alert -->
+                </div>/alert -->
         </div> <!-- /div row -->
 
         <div class="row">
@@ -98,7 +98,7 @@
 
 <script>
     export default {
-        props: ['file', 'customFields'],
+        props: ['file', 'customFields', 'resultsCount'],
         data() {
             return {
                 activeFile: this.file,
@@ -250,8 +250,7 @@
         },
         methods: {
             postSave() {
-                console.log('saving');
-                console.log(this.options.importType);
+                console.log('import ' + this.options.importType);
                 if(!this.options.importType) {
                     this.statusType='error';
                     this.statusText= "An import type is required... ";
@@ -259,31 +258,22 @@
                 }
                 this.statusType='pending';
                 this.statusText = "Processing...";
-                this.$http.post(route('api.imports.importFile', this.file.id), {
+                console.log('pending');
+                this.$http.post(route('api.imports.importFile', this.file.id),
+                {
                     'import-update': this.options.update,
                     'send-welcome': this.options.send_welcome,
                     'import-type': this.options.importType,
                     'run-backup': this.options.run_backup,
                     'column-mappings': this.columnMappings
-                }).then( ({body}) => {
-                    // Success
+                }).then((response) => {
                     this.statusType="success";
-                    this.statusText = "Success... Redirecting.";
-                    window.location.href = body.messages.redirect_url;
-                }, ({body}) => {
-                    // Failure
-                    if(body.status == 'import-errors') {
-                        window.eventHub.$emit('importErrors', body.messages);
-                        this.statusType='error';
-                        this.statusText = "Error";
-                    } else {
-                        this.$emit('alert', {
-                            message: body.messages,
-                            type: "danger",
-                            visible: true,
-                        })
-                    }
-                    this.displayImportModal=false;
+                    this.statusText = this.options.importType + ' successfully imported.';
+                }, (error) => {
+                    console.log('error');
+                    console.log(error);
+                    this.statusType="error";
+                    this.statusText = 'Error ' + error.status + ': ' + error.statusText;
                 });
             },
             populateSelect2ActiveItems() {

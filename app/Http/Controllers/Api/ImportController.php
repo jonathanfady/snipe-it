@@ -127,35 +127,36 @@ class ImportController extends Controller
             \Log::debug('NO BACKUP requested via importer');
         }
 
-        $errors = $request->import(Import::find($import_id));
-        $redirectTo = "hardware.index";
-        switch ($request->get('import-type')) {
-            case "asset":
-                $redirectTo = "hardware.index";
-                break;
-            case "accessory":
-                $redirectTo = "accessories.index";
-                break;
-            case "consumable":
-                $redirectTo = "consumables.index";
-                break;
-            case "component":
-                $redirectTo = "components.index";
-                break;
-            case "license":
-                $redirectTo = "licenses.index";
-                break;
-            case "user":
-                $redirectTo = "users.index";
-                break;
-        }
+        $request->import(Import::find($import_id));
+        // $redirectTo = "imports.index";
+        // switch ($request->get('import-type')) {
+        //     case "asset":
+        //         $redirectTo = "hardware.index";
+        //         break;
+        //     case "accessory":
+        //         $redirectTo = "accessories.index";
+        //         break;
+        //     case "consumable":
+        //         $redirectTo = "consumables.index";
+        //         break;
+        //     case "component":
+        //         $redirectTo = "components.index";
+        //         break;
+        //     case "license":
+        //         $redirectTo = "licenses.index";
+        //         break;
+        //     case "user":
+        //         $redirectTo = "users.index";
+        //         break;
+        // }
 
-        if ($errors) { //Failure
-            return response()->json(Helper::formatStandardApiResponse('import-errors', null, $errors), 500);
-        }
-        //Flash message before the redirect
-        Session::flash('success', trans('admin/hardware/message.import.success'));
-        return response()->json(Helper::formatStandardApiResponse('success', null, ['redirect_url' => route($redirectTo)]));
+        // if ($errors) { //Failure
+        //     return response()->json(Helper::formatStandardApiResponse('import-errors', null, $errors), 500);
+        // }
+        // //Flash message before the redirect
+        // Session::flash('success', trans('admin/hardware/message.import.success'));
+        // response()->json(Helper::formatStandardApiResponse('success', null, ['redirect_url' => route($redirectTo)]));
+        return back();
     }
 
     /**
