@@ -78,7 +78,7 @@
         </div>
         <div class="box box-danger">
             <div class="box-body">
-                <p><i class="fa fa-times text-red"></i> <strong>Undeployable</strong>:
+                <p><i class="fa fa-times text-gray"></i> <strong>Undeployable</strong>:
                     {{ trans('admin/statuslabels/message.help.undeployable') }}</p>
             </div>
         </div>
@@ -129,10 +129,11 @@
                   typename = "{{ trans('admin/statuslabels/table.pending') }}";
                   break;
               case 'undeployable':
-                  text_color = 'red';
+                  text_color = 'gray';
                   icon_style = 'fa-times';
                   typename = "{{ trans('admin/statuslabels/table.undeployable') }}";
                   break;
+              case 'archived':
               default:
                   text_color = 'red';
                   icon_style = 'fa-times';

@@ -98,6 +98,31 @@ class Statuslabel extends SnipeModel
     }
 
     /**
+     * Gets the status label color, baseds on the type
+     *
+     * @author A. Gianotto <snipe@snipe.net>
+     * @since [v1.0]
+     * @return string
+     */
+    public function getStatuslabelColor()
+    {
+        $type = $this->getStatuslabelType();
+
+        switch ($type) {
+            case 'deployable':
+                return "#00a65a"; //green dark
+            case 'pending':
+                return "#FF8C00"; //orange
+            case 'undeployable':
+                return "#d2d6de"; //gray
+            case 'archived':
+                return "#dd4b39"; //red
+            default:
+                return "#d2d6de"; //gray
+        }
+    }
+
+    /**
      * Query builder scope to for pending status types
      *
      * @return \Illuminate\Database\Query\Builder Modified query builder

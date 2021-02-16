@@ -129,7 +129,9 @@
                 var status_meta = {
                   'deployed': '{{ strtolower(trans('general.deployed')) }}',
                   'deployable': '{{ strtolower(trans('admin/hardware/general.deployable')) }}',
-                  'pending': '{{ strtolower(trans('general.pending')) }}'
+                  'pending': '{{ strtolower(trans('general.pending')) }}',
+                  'undeployable': '{{ strtolower(trans('general.undeployable')) }}',
+                  'archived': '{{ strtolower(trans('general.archived')) }}',
                 }
 
                 switch (value.status_meta) {
@@ -137,21 +139,28 @@
                         text_color = 'blue';
                         icon_style = 'fa-circle';
                         text = '<label class="label label-default">{{ trans('general.deployed') }}</label>';
-                    break;
+                        break;
                     case 'deployable':
                         text_color = 'green';
                         icon_style = 'fa-circle';
                         text = value.name;
-                    break;
+                        break;
                     case 'pending':
                         text_color = 'orange';
                         icon_style = 'fa-circle';
                         text = value.name;
                         break;
+                    case 'undeployable':
+                        text_color = 'gray';
+                        icon_style = 'fa-times';
+                        text = value.name;
+                        break;
+                    case 'archived':
                     default:
                         text_color = 'red';
                         icon_style = 'fa-times';
                         text = value.name;
+                        break;
                 }
 
                 return '<nobr><a href="{{ url('/') }}/' + destination + '/' + value.id + '" data-toggle="tooltip" title="'+ status_meta[value.status_meta] + '"> <i class="fa ' + icon_style + ' text-' + text_color + '"></i> ' + text + ' </a> </nobr>';

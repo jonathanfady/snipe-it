@@ -172,20 +172,13 @@ class StatuslabelsController extends Controller
 
         $labels = [];
         $points = [];
-        $default_color_count = 0;
 
         foreach ($statuslabels as $statuslabel) {
             if ($statuslabel->assets_count > 0) {
 
                 $labels[] = $statuslabel->name . ' (' . number_format($statuslabel->assets_count) . ')';
                 $points[] = $statuslabel->assets_count;
-
-                if ($statuslabel->color != '') {
-                    $colors_array[] = $statuslabel->color;
-                } else {
-                    $colors_array[] = Helper::defaultChartColors($default_color_count);
-                    $default_color_count++;
-                }
+                $colors_array[] = $statuslabel->getStatuslabelColor();
             }
         }
 
@@ -193,7 +186,6 @@ class StatuslabelsController extends Controller
         $labels[] = 'Deployed (' . number_format($deployed_assets_count) . ')';
         $points[] = $deployed_assets_count;
         $colors_array[] = '#0073b7'; //blue dark
-
 
         $result = [
             "labels" => $labels,

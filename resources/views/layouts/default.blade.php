@@ -550,7 +550,7 @@
                                 </li>
                                 <li{!! (Request::query('status')=='Undeployable' ? ' class="active"' : '' ) !!}><a
                                         href="{{ url('hardware?status=Undeployable') }}"><i
-                                            class="fa fa-times text-red"></i>
+                                            class="fa fa-times text-gray"></i>
                                         {{ trans('general.all') }}
                                         {{ trans('general.undeployable') }}
                                         ({{ (isset($total_undeployable_sidebar)) ? $total_undeployable_sidebar : '' }})
