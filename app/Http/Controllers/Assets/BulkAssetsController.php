@@ -3,9 +3,9 @@
 namespace App\Http\Controllers\Assets;
 
 use App\Helpers\Helper;
-use App\Http\Controllers\CheckInOutRequest;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\AssetCheckoutRequest;
+use App\Http\Traits\AssetCheckoutTrait;
 use App\Models\Asset;
 use App\Models\Setting;
 use Illuminate\Http\Request;
@@ -14,8 +14,7 @@ use Illuminate\Support\Facades\DB;
 
 class BulkAssetsController extends Controller
 {
-    use CheckInOutRequest;
-
+    use AssetCheckoutTrait;
     /**
      * Display the bulk edit page.
      *
@@ -208,63 +207,67 @@ class BulkAssetsController extends Controller
      */
     public function storeCheckout(AssetCheckoutRequest $request)
     {
+        // try {
+        $admin = Auth::user();
 
-        try {
-            $admin = Auth::user();
+        if (!is_array($request->get('selected_assets'))) {
+            return redirect()->to('hardware/bulkcheckout')->withInput()->with('error', trans('admin/hardware/message.checkout.no_assets_selected'));
+        }
 
-            $target = $this->determineCheckoutTarget();
+        $asset_ids = array_filter($request->get('selected_assets'));
 
-            if (!is_array($request->get('selected_assets'))) {
-                return redirect()->to('hardware/bulkcheckout')->withInput()->with('error', trans('admin/hardware/message.checkout.no_assets_selected'));
-            }
+        // if (request('checkout_to_type') == 'asset') {
+        //     foreach ($asset_ids as $asset_id) {
+        //         if ($target->id == $asset_id) {
+        //             return redirect()->back()->with('error', 'You cannot check an asset out to itself.');
+        //         }
+        //     }
+        // }
+        $checkout_at = date("Y-m-d H:i:s");
+        if (($request->filled('checkout_at')) && ($request->get('checkout_at') != date("Y-m-d"))) {
+            $checkout_at = e($request->get('checkout_at'));
+        }
 
-            $asset_ids = array_filter($request->get('selected_assets'));
+        $expected_checkin = '';
 
-            if (request('checkout_to_type') == 'asset') {
-                foreach ($asset_ids as $asset_id) {
-                    if ($target->id == $asset_id) {
-                        return redirect()->back()->with('error', 'You cannot check an asset out to itself.');
-                    }
+        if ($request->filled('expected_checkin')) {
+            $expected_checkin = e($request->get('expected_checkin'));
+        }
+
+        $errors = [];
+        $target = $this->determineCheckoutTarget();
+
+        if (isset($target)) {
+            $location = $this->determineCheckoutLocation($target);
+
+            // DB::transaction(function () use ($target, $admin, $checkout_at, $expected_checkin, $errors, $asset_ids, $request, $location) {
+
+            foreach ($asset_ids as $asset_id) {
+                $asset = Asset::findOrFail($asset_id);
+                $error = $asset->checkOut($target, $admin, $checkout_at, $expected_checkin, e($request->get('notes')), $location);
+                // if ($target->location_id != '') {
+                //     $asset->location_id = $target->location_id;
+                //     $asset->unsetEventDispatcher();
+                //     $asset->save();
+                // }
+
+                if (!$error) {
+                    $errors[] = $asset->getErrors();
                 }
             }
-            $checkout_at = date("Y-m-d H:i:s");
-            if (($request->filled('checkout_at')) && ($request->get('checkout_at') != date("Y-m-d"))) {
-                $checkout_at = e($request->get('checkout_at'));
-            }
-
-            $expected_checkin = '';
-
-            if ($request->filled('expected_checkin')) {
-                $expected_checkin = e($request->get('expected_checkin'));
-            }
-
-            $errors = [];
-            DB::transaction(function () use ($target, $admin, $checkout_at, $expected_checkin, $errors, $asset_ids, $request) {
-
-                foreach ($asset_ids as $asset_id) {
-                    $asset = Asset::findOrFail($asset_id);
-                    $this->authorize('checkout', $asset);
-                    $error = $asset->checkOut($target, $admin, $checkout_at, $expected_checkin, e($request->get('notes')), null);
-                    if ($target->location_id != '') {
-                        $asset->location_id = $target->location_id;
-                        $asset->unsetEventDispatcher();
-                        $asset->save();
-                    }
-
-                    if ($error) {
-                        array_merge_recursive($errors, $asset->getErrors()->toArray());
-                    }
-                }
-            });
-
-            if (!$errors) {
+            // });
+            // dd($target, $location, $asset_ids, $error, $errors, !$errors, empty($errors), isset($errors));
+            if (empty($errors)) {
                 // Redirect to the new asset page
                 return redirect()->to("hardware")->with('success', trans('admin/hardware/message.checkout.success'));
             }
-            // Redirect to the asset management page with error
             return redirect()->to("hardware/bulkcheckout")->with('error', trans('admin/hardware/message.checkout.error'))->withErrors($errors);
-        } catch (ModelNotFoundException $e) {
-            return redirect()->to("hardware/bulkcheckout")->with('error', $e->getErrors());
         }
+
+        // Redirect to the asset management page with error
+        return redirect()->to("hardware/bulkcheckout")->with('error', trans('admin/hardware/message.checkout.error'))->withErrors(['message' => "Checkout Target not found"]);
+        // } catch (ModelNotFoundException $e) {
+        //     return redirect()->to("hardware/bulkcheckout")->with('error', $e->getErrors());
+        // }
     }
 }

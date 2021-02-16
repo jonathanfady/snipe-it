@@ -1,9 +1,8 @@
 <script nonce="{{ csrf_token() }}">
-
     // create the assigned assets listing box for the right side of the screen
     $(function() {
-        $('#assigned_user').on("change",function () {
-            var userid = $('#assigned_user option:selected').val();
+        $('#assigned_to_user').on("change",function () {
+            var userid = $('#assigned_to_user option:selected').val();
 
             if(userid=='') {
                 console.warn('no user selected');

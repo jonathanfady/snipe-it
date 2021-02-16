@@ -22,61 +22,42 @@
 
             {{ Form::open([
                   'method' => 'POST',
-                  'route' => ['asset.audit.store', $asset->id],
+                  'route' => ['asset.audit.store', $item->id],
                   'files' => true,
                   'class' => 'form-horizontal' ]) }}
 
             <div class="box-header with-border">
-                <h2 class="box-title"> {{ trans('admin/hardware/form.tag') }} {{ $asset->asset_tag }}</h2>
+                <h2 class="box-title"> {{ trans('admin/hardware/form.tag') }} {{ $item->asset_tag }}</h2>
             </div>
             <div class="box-body">
                 {{csrf_field()}}
-                @if ($asset->model->name)
+                @if ($item->model->name)
                 <!-- Asset Model Name -->
                 <div class="form-group {{ $errors->has('name') ? 'error' : '' }}">
                     {{ Form::label('name', trans('admin/hardware/form.model'), array('class' => 'col-md-3 control-label')) }}
                     <div class="col-md-8">
-                        <p class="form-control-static">{{ $asset->model->name }}</p>
+                        <p class="form-control-static">{{ $item->model->name }}</p>
                     </div>
                 </div>
                 @endif
 
-                <!-- Asset Name -->
-                <div class="form-group {{ $errors->has('name') ? 'error' : '' }}">
-                    {{ Form::label('name', trans('admin/hardware/form.name'), array('class' => 'col-md-3 control-label')) }}
-                    <div class="col-md-8">
-                        <p class="form-control-static">{{ $asset->name }}</p>
-                    </div>
-                </div>
-
                 <!-- Focal Point -->
-                @include ('partials.forms.edit.user-select', ['translated_name' =>
-                trans('admin/hardware/form.focal_point'),
-                'fieldname' => 'focal_point_id',
-                'activated_users' => 'true',
-                'required' => 'false'])
+                @include ('partials.forms.edit.user-select', ['fieldname' => 'focal_point_id',
+                'translated_name' => trans('admin/hardware/form.focal_point'), 'activated_users_only' => 'true'])
 
-                <!-- Locations -->
-                @include ('partials.forms.edit.location-select', ['translated_name' => trans('general.location'),
-                'fieldname' => 'location_id'])
+                <!-- Status -->
+                @include ('partials.forms.edit.status')
 
-                <!-- Update location -->
-                <div class="form-group">
-                    <div class="col-sm-offset-3 col-md-9">
-                        <label>
-                            <input type="checkbox" value="1" name="update_location" class="minimal"
-                                {{ Request::old('update_location') == '1' ? ' checked="checked"' : '' }}> Update asset
-                            location
-                        </label>
+                <!-- Checkout to -->
+                @include ('partials.forms.checkout-selector', ['user_select' => 'true',
+                'location_select' => 'true'])
 
-                        @include ('partials.more-info', ['helpText' => trans('help.audit_help'), 'helpPosition' =>
-                        'right'])
+                @include ('partials.forms.edit.checkout-user')
+                @include ('partials.forms.edit.checkout-location')
 
-
-
-                    </div>
-                </div>
-
+                <!-- Location -->
+                @include ('partials.forms.edit.location-select', ['fieldname' => 'location_id',
+                'translated_name' => trans('general.location')])
 
                 <!-- Next Audit -->
                 @if (isset($settings))
@@ -100,10 +81,11 @@
 
 
                 <!-- Notes -->
-                <div class="form-group {{ $errors->has('notes') ? 'error' : '' }}">
-                    {{ Form::label('notes', trans('admin/hardware/form.notes'), array('class' => 'col-md-3 control-label')) }}
-                    <div class="col-md-9">
-                        <textarea class="col-md-6 form-control" id="notes" name="notes">{{ old('notes') }}</textarea>
+                <div class="form-group {{ $errors->has('notes') ? ' has-error' : '' }}">
+                    <label for="notes" class="col-md-3 control-label">{{ trans('admin/hardware/form.notes') }}</label>
+                    <div class="col-md-7">
+                        <textarea class="col-md-6 form-control" id="notes"
+                            name="notes">{{ old('notes', $item->notes) }}</textarea>
                         {!! $errors->first('notes', '<span class="alert-msg" aria-hidden="true"><i class="fa fa-times"
                                 aria-hidden="true"></i> :message</span>') !!}
                     </div>
@@ -111,12 +93,7 @@
 
 
                 <!-- Images -->
-                @include ('partials.forms.edit.image-upload')
-
-
-
-
-
+                {{-- @include ('partials.forms.edit.image-upload') --}}
 
             </div>
             <!--/.box-body-->

@@ -78,8 +78,8 @@
                     trans('admin/hardware/form.model'), 'fieldname' => 'model_id'])
 
                     <!-- Default Location -->
-                    @include ('partials.forms.edit.location-select', ['translated_name' =>
-                    trans('admin/hardware/form.default_location'), 'fieldname' => 'rtd_location_id'])
+                    @include ('partials.forms.edit.location-select', ['fieldname' => 'rtd_location_id',
+                    'translated_name' => trans('admin/hardware/form.default_location')])
 
                     <!-- Update actual location  -->
                     <div class="form-group">
@@ -124,10 +124,8 @@
                     @include ('partials.forms.edit.company-select', ['translated_name' => trans('general.company'),
                     'fieldname' => 'company_id'])
                     <!-- Focal Point -->
-                    @include ('partials.forms.edit.user-select', ['translated_name' =>
-                    trans('admin/hardware/form.focal_point'),
-                    'activated_users' => 'true',
-                    'fieldname' => 'focal_point_id'])
+                    @include ('partials.forms.edit.user-select', ['fieldname' => 'focal_point_id',
+                    'translated_name' => trans('admin/hardware/form.focal_point'), 'activated_users_only' => 'true'])
 
                     <!-- Order Number -->
                     <div class="form-group {{ $errors->has('order_number') ? ' has-error' : '' }}">

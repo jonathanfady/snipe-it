@@ -41,29 +41,29 @@ class ItemImportRequest extends FormRequest
         $importer = new $classString($filename);
         $import->field_map  = request('column-mappings');
         $import->save();
-        $fieldMappings=[];
+        $fieldMappings = [];
 
         if ($import->field_map) {
             foreach ($import->field_map as $field => $fieldValue) {
                 $errorMessage = null;
 
-                if(is_null($fieldValue)){
+                if (is_null($fieldValue)) {
                     $errorMessage = trans('validation.import_field_empty');
                     $this->errorCallback($import, $field, $errorMessage);
-                    
+
                     return $this->errors;
                 }
             }
             // We submit as csv field: column, but the importer is happier if we flip it here.
             $fieldMappings = array_change_key_case(array_flip($import->field_map), CASE_LOWER);
-                        // dd($fieldMappings);
+            // dd($fieldMappings);
         }
         $importer->setCallbacks([$this, 'log'], [$this, 'progress'], [$this, 'errorCallback'])
-                 ->setUserId(Auth::id())
-                 ->setUpdating($this->has('import-update'))
-                 ->setShouldNotify($this->has('send-welcome'))
-                 ->setUsernameFormat('firstname.lastname')
-                 ->setFieldMappings($fieldMappings);
+            ->setUserId(Auth::id())
+            ->setUpdating($this->has('import-update'))
+            ->setShouldNotify($this->has('send-welcome'))
+            ->setUsernameFormat('firstname.lastname')
+            ->setFieldMappings($fieldMappings);
         // $logFile = storage_path('logs/importer.log');
         // \Log::useFiles($logFile);
         $importer->import();
@@ -72,7 +72,7 @@ class ItemImportRequest extends FormRequest
 
     public function log($string)
     {
-         \Log::Info($string);
+        \Log::Info($string);
     }
 
     public function progress($count)

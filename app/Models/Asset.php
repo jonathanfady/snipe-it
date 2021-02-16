@@ -98,8 +98,8 @@ class Asset extends Depreciable
         'current_company_id' => 'integer|nullable',
         'warranty_months' => 'numeric|nullable|digits_between:0,240',
         'physical'        => 'numeric|max:1|nullable',
-        'checkout_date'   => 'date|max:10|min:10|nullable',
-        'checkin_date'    => 'date|max:10|min:10|nullable',
+        'checkout_date'   => 'date|date|nullable',
+        'checkin_date'    => 'date|date|nullable',
         'supplier_id'     => 'required|exists:suppliers,id|numeric|nullable',
         'location_id'     => 'exists:locations,id|nullable',
         'rtd_location_id' => 'exists:locations,id|nullable',
@@ -965,11 +965,12 @@ class Asset extends Depreciable
 
     public function scopePending($query)
     {
-        return $query->whereHas('assetstatus', function ($query) {
-            $query->where('deployable', '=', 0)
-                ->where('pending', '=', 1)
-                ->where('archived', '=', 0);
-        });
+        return $query->whereNull('assets.assigned_to')
+            ->whereHas('assetstatus', function ($query) {
+                $query->where('deployable', '=', 0)
+                    ->where('pending', '=', 1)
+                    ->where('archived', '=', 0);
+            });
     }
 
 
@@ -1031,11 +1032,12 @@ class Asset extends Depreciable
 
     public function scopeUndeployable($query)
     {
-        return $query->whereHas('assetstatus', function ($query) {
-            $query->where('deployable', '=', 0)
-                ->where('pending', '=', 0)
-                ->where('archived', '=', 0);
-        });
+        return $query->whereNull('assets.assigned_to')
+            ->whereHas('assetstatus', function ($query) {
+                $query->where('deployable', '=', 0)
+                    ->where('pending', '=', 0)
+                    ->where('archived', '=', 0);
+            });
     }
 
     /**
@@ -1144,11 +1146,12 @@ class Asset extends Depreciable
 
     public function scopeArchived($query)
     {
-        return $query->whereHas('assetstatus', function ($query) {
-            $query->where('deployable', '=', 0)
-                ->where('pending', '=', 0)
-                ->where('archived', '=', 1);
-        });
+        return $query->whereNull('assets.assigned_to')
+            ->whereHas('assetstatus', function ($query) {
+                $query->where('deployable', '=', 0)
+                    ->where('pending', '=', 0)
+                    ->where('archived', '=', 1);
+            });
     }
 
     /**
@@ -1161,7 +1164,7 @@ class Asset extends Depreciable
 
     public function scopeDeployed($query)
     {
-        return $query->where('assigned_to', '>', '0');
+        return $query->whereNotNull('assigned_to');
     }
 
     /**

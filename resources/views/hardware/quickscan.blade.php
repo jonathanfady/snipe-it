@@ -31,16 +31,16 @@
                 @include ('partials.forms.edit.asset-select', [
                 'translated_name' => trans('general.assets'),
                 'fieldname' => 'asset_tag',
+                'required' => 'true'
                 ])
 
                 <!-- Focal Point -->
-                @include ('partials.forms.edit.user-select', ['translated_name' =>
-                trans('admin/hardware/form.focal_point'),
-                'fieldname' => 'focal_point_id', 'activated_users' => 'true', 'required' => 'false'])
+                @include ('partials.forms.edit.user-select', ['fieldname' => 'focal_point_id',
+                'translated_name' => trans('admin/hardware/form.focal_point'), 'activated_users_only' => 'true'])
 
-                <!-- Locations -->
-                @include ('partials.forms.edit.location-select', ['translated_name' => trans('general.location'),
-                'fieldname' => 'location_id'])
+                <!-- Location -->
+                @include ('partials.forms.edit.location-select', ['fieldname' => 'location_id',
+                'translated_name' => trans('general.location')])
 
 
                 <!-- Update location -->

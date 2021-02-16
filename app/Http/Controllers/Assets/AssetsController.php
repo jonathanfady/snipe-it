@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Assets;
 use App\Helpers\Helper;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\ImageUploadRequest;
+use App\Http\Traits\AssetCheckoutTrait;
 use App\Models\Actionlog;
 use App\Models\Asset;
 use App\Models\AssetModel;
@@ -18,17 +19,10 @@ use Carbon\Carbon;
 use DB;
 use Gate;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Storage;
-use Input;
 use League\Csv\Reader;
-use League\Csv\Statement;
-use Paginator;
 use Redirect;
 use Response;
-use Slack;
-use Str;
-use TCPDF;
 use View;
 
 /**
@@ -40,6 +34,8 @@ use View;
  */
 class AssetsController extends Controller
 {
+    use AssetCheckoutTrait;
+
     protected $qrCodeDimensions = array('height' => 3.5, 'width' => 3.5);
     protected $barCodeDimensions = array('height' => 2, 'width' => 22);
 
@@ -80,9 +76,9 @@ class AssetsController extends Controller
     public function create(Request $request)
     {
         $this->authorize('create', Asset::class);
-        $view = View::make('hardware/edit')
-            ->with('statuslabel_list', Helper::statusLabelList())
+        $view = view('hardware/edit')
             ->with('item', new Asset)
+            ->with('statuslabel_list', Helper::statusLabelList())
             ->with('statuslabel_types', Helper::statusTypeList());
 
         if ($request->filled('model_id')) {
@@ -117,11 +113,11 @@ class AssetsController extends Controller
 
             $asset = new Asset();
             $asset->model()->associate(AssetModel::find($request->input('model_id')));
-            $asset->name                    = $request->input('name');
+            $asset->name = $request->input('name');
 
             // Check for a corresponding serial
             if (($serials) && (array_key_exists($a, $serials))) {
-                $asset->serial                  = $serials[$a];
+                $asset->serial = $serials[$a];
             }
 
             if (($asset_tags) && (array_key_exists($a, $asset_tags))) {
@@ -141,7 +137,7 @@ class AssetsController extends Controller
             $asset->warranty_months         = request('warranty_months', null);
             $asset->purchase_cost           = Helper::ParseFloat($request->get('purchase_cost'));
             $asset->purchase_date           = request('purchase_date', null);
-            $asset->assigned_to             = request('assigned_to', null);
+            // $asset->assigned_to             = request('assigned_to', null);
             $asset->supplier_id             = request('supplier_id', 0);
             $asset->requestable             = request('requestable', 0);
             $asset->rtd_location_id         = request('rtd_location_id', null);
@@ -151,9 +147,9 @@ class AssetsController extends Controller
                 $asset->next_audit_date         = Carbon::now()->addMonths($settings->audit_interval)->toDateString();
             }
 
-            if ($asset->assigned_to == '') {
-                $asset->location_id = $request->input('rtd_location_id', null);
-            }
+            // if ($asset->assigned_to == '') {
+            //     $asset->location_id = $request->input('rtd_location_id', null);
+            // }
 
             // Create the image (if one was chosen.)
             if ($request->has('image')) {
@@ -179,18 +175,20 @@ class AssetsController extends Controller
             // Validate the asset before saving
             if ($asset->isValid() && $asset->save()) {
 
-                if (request('assigned_user')) {
-                    $target = User::find(request('assigned_user'));
-                    $location = $target->location_id;
-                } elseif (request('assigned_asset')) {
-                    $target = Asset::find(request('assigned_asset'));
-                    $location = $target->location_id;
-                } elseif (request('assigned_location')) {
-                    $target = Location::find(request('assigned_location'));
-                    $location = $target->id;
-                }
+                // if (request('assigned_user')) {
+                //     $target = User::find(request('assigned_user'));
+                //     $location = $target->location_id;
+                // } elseif (request('assigned_asset')) {
+                //     $target = Asset::find(request('assigned_asset'));
+                //     $location = $target->location_id;
+                // } elseif (request('assigned_location')) {
+                //     $target = Location::find(request('assigned_location'));
+                //     $location = $target->id;
+                // }
+                $target = $this->determineCheckoutTarget();
 
                 if (isset($target)) {
+                    $location = $this->determineCheckoutLocation($target);
                     $asset->checkOut($target, Auth::user(), date('Y-m-d H:i:s'), $request->input('expected_checkin', null), 'Checked out on asset creation', e($request->get('name')), $location);
                 }
 
@@ -224,7 +222,10 @@ class AssetsController extends Controller
         //Handles company checks and permissions.
         $this->authorize($item);
 
-        return view('hardware/edit', compact('item'))
+        // dd($item);
+
+        return view('hardware/edit')
+            ->with('item', $item)
             ->with('statuslabel_list', Helper::statusLabelList())
             ->with('statuslabel_types', Helper::statusTypeList());
     }
@@ -302,10 +303,9 @@ class AssetsController extends Controller
         $asset->requestable = $request->filled('requestable');
         $asset->rtd_location_id = $request->input('rtd_location_id', null);
 
-        if ($asset->assigned_to == '') {
-            $asset->location_id = $request->input('rtd_location_id', null);
-        }
-
+        // if ($asset->assigned_to == '') {
+        //     $asset->location_id = $request->input('rtd_location_id', null);
+        // }
 
         if ($request->filled('image_delete')) {
             try {
@@ -352,6 +352,27 @@ class AssetsController extends Controller
 
 
         if ($asset->save()) {
+
+            // Checkout or Checkin ?
+            $target = $this->determineCheckoutTarget();
+            if (isset($target)) {
+                if (($asset->assignedType() != $request->input('checkout_to_type'))
+                    || ($asset->assigned_to != $target->id)
+                ) {
+                    // Checkout
+                    $location = $this->determineCheckoutLocation($target);
+                    $asset->checkOut($target, Auth::user(), date('Y-m-d H:i:s'), null, 'Checked out on asset update', $asset->name, $location);
+                }
+            } else {
+                // Checkin
+                $asset->expected_checkin = null;
+                $asset->last_checkout = null;
+                $asset->assigned_type = null;
+                $asset->assigned_to = null;
+                $asset->accepted = null;
+                $asset->save();
+            }
+
             return redirect()->route("hardware.show", $assetId)
                 ->with('success', trans('admin/hardware/message.update.success'));
         }
@@ -724,7 +745,7 @@ class AssetsController extends Controller
         $this->authorize('audit', Asset::class);
         $dt = Carbon::now()->addMonths($settings->audit_interval)->toDateString();
         $asset = Asset::findOrFail($id);
-        return view('hardware/audit')->with('asset', $asset)->with('next_audit_date', $dt)->with('locations_list');
+        return view('hardware/audit')->with('item', $asset)->with('statuslabel_list', Helper::statusLabelList())->with('next_audit_date', $dt)->with('locations_list');
     }
 
     public function dueForAudit()
@@ -773,16 +794,39 @@ class AssetsController extends Controller
         if ($request->filled('focal_point_id'))
             $asset->focal_point_id = $request->input('focal_point_id');
 
+        if ($request->filled('notes'))
+            $asset->notes = $request->input('notes');
+
         if ($asset->save()) {
             $file_name = '';
             // Upload an image, if attached
-            if ($request->hasFile('image')) {
-                $path = 'private_uploads/audits';
-                if (!Storage::exists($path)) Storage::makeDirectory($path, 775);
-                $upload = $image = $request->file('image');
-                $ext = $image->getClientOriginalExtension();
-                $file_name = 'audit-' . str_random(18) . '.' . $ext;
-                Storage::putFileAs($path, $upload, $file_name);
+            // if ($request->hasFile('image')) {
+            //     $path = 'private_uploads/audits';
+            //     if (!Storage::exists($path)) Storage::makeDirectory($path, 775);
+            //     $upload = $image = $request->file('image');
+            //     $ext = $image->getClientOriginalExtension();
+            //     $file_name = 'audit-' . str_random(18) . '.' . $ext;
+            //     Storage::putFileAs($path, $upload, $file_name);
+            // }
+
+            // Checkout or Checkin ?
+            $target = $this->determineCheckoutTarget();
+            if (isset($target)) {
+                if (($asset->assignedType() != $request->input('checkout_to_type'))
+                    || ($asset->assigned_to != $target->id)
+                ) {
+                    // Checkout
+                    $location = $this->determineCheckoutLocation($target);
+                    $asset->checkOut($target, Auth::user(), date('Y-m-d H:i:s'), null, 'Checked out on asset audit', $asset->name, $location);
+                }
+            } else {
+                // Checkin
+                $asset->expected_checkin = null;
+                $asset->last_checkout = null;
+                $asset->assigned_type = null;
+                $asset->assigned_to = null;
+                $asset->accepted = null;
+                $asset->save();
             }
 
 

@@ -5,8 +5,8 @@ namespace App\Http\Controllers\Assets;
 use App\Events\CheckoutableCheckedIn;
 use App\Helpers\Helper;
 use App\Http\Controllers\Controller;
-use App\Http\Requests\AssetCheckinRequest;
 use App\Models\Asset;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\View;
@@ -46,7 +46,7 @@ class AssetCheckinController extends Controller
      * @throws \Illuminate\Auth\Access\AuthorizationException
      * @since [v1.0]
      */
-    public function store(AssetCheckinRequest $request, $assetId = null, $backto = null)
+    public function store(Request $request, $assetId = null, $backto = null)
     {
         // Check if the asset exists
         if (is_null($asset = Asset::find($assetId))) {

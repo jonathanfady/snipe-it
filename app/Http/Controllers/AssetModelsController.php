@@ -1,17 +1,15 @@
 <?php
+
 namespace App\Http\Controllers;
 
 use App\Helpers\Helper;
 use App\Http\Requests\ImageUploadRequest;
 use App\Models\AssetModel;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Input;
 use Illuminate\Support\Facades\View;
 use Redirect;
 use Request;
 use Storage;
-
-use Symfony\Component\HttpFoundation\JsonResponse;
 
 /**
  * This class controls all actions related to asset models for
@@ -81,13 +79,13 @@ class AssetModelsController extends Controller
         $model->user_id             = Auth::id();
         $model->requestable         = Request::has('requestable');
 
-        if ($request->input('custom_fieldset')!='') {
+        if ($request->input('custom_fieldset') != '') {
             $model->fieldset_id = e($request->input('custom_fieldset'));
         }
 
         $model = $request->handleImages($model);
 
-            // Was it created?
+        // Was it created?
         if ($model->save()) {
             if ($this->shouldAddDefaultValues($request->input())) {
                 $this->assignCustomFieldsDefaultValues($model, $request->input('default_values'));
@@ -113,13 +111,12 @@ class AssetModelsController extends Controller
         $this->authorize('update', AssetModel::class);
         if ($item = AssetModel::find($modelId)) {
             $category_type = 'asset';
-            $view = View::make('models/edit', compact('item','category_type'));
+            $view = View::make('models/edit', compact('item', 'category_type'));
             $view->with('depreciation_list', Helper::depreciationList());
             return $view;
         }
 
         return redirect()->route('models.index')->with('error', trans('admin/models/message.does_not_exist'));
-
     }
 
 
@@ -158,7 +155,7 @@ class AssetModelsController extends Controller
 
         $this->removeCustomFieldsDefaultValues($model);
 
-        if ($request->input('custom_fieldset')=='') {
+        if ($request->input('custom_fieldset') == '') {
             $model->fieldset_id = null;
         } else {
             $model->fieldset_id = $request->input('custom_fieldset');
@@ -199,8 +196,8 @@ class AssetModelsController extends Controller
         }
 
         if ($model->image) {
-            try  {
-                Storage::disk('public')->delete('models/'.$model->image);
+            try {
+                Storage::disk('public')->delete('models/' . $model->image);
             } catch (\Exception $e) {
                 \Log::info($e);
             }
@@ -234,7 +231,6 @@ class AssetModelsController extends Controller
             return redirect()->route('models.index')->with('success', trans('admin/models/message.restore.success'));
         }
         return redirect()->back()->with('error', trans('admin/models/message.not_found'));
-
     }
 
 
@@ -260,13 +256,13 @@ class AssetModelsController extends Controller
     }
 
     /**
-    * Get the clone page to clone a model
-    *
-    * @author [A. Gianotto] [<snipe@snipe.net>]
-    * @since [v1.0]
-    * @param int $modelId
-    * @return View
-    */
+     * Get the clone page to clone a model
+     *
+     * @author [A. Gianotto] [<snipe@snipe.net>]
+     * @since [v1.0]
+     * @param int $modelId
+     * @return View
+     */
     public function getClone($modelId = null)
     {
         // Check if the model exists
@@ -286,13 +282,13 @@ class AssetModelsController extends Controller
 
 
     /**
-    * Get the custom fields form
-    *
-    * @author [B. Wetherington] [<uberbrady@gmail.com>]
-    * @since [v2.0]
-    * @param int $modelId
-    * @return View
-    */
+     * Get the custom fields form
+     *
+     * @author [B. Wetherington] [<uberbrady@gmail.com>]
+     * @since [v2.0]
+     * @param int $modelId
+     * @return View
+     */
     public function getCustomFields($modelId)
     {
         return view("models.custom_fields_form")->with("model", AssetModel::find($modelId));
@@ -320,7 +316,7 @@ class AssetModelsController extends Controller
             $models = AssetModel::whereIn('id', $models_raw_array)->withCount('assets as assets_count')->orderBy('assets_count', 'ASC')->get();
 
             // If deleting....
-            if ($request->input('bulk_actions')=='delete') {
+            if ($request->input('bulk_actions') == 'delete') {
                 $valid_count = 0;
                 foreach ($models as $model) {
                     if ($model->assets_count == 0) {
@@ -329,7 +325,7 @@ class AssetModelsController extends Controller
                 }
                 return view('models/bulk-delete', compact('models'))->with('valid_count', $valid_count);
 
-            // Otherwise display the bulk edit screen
+                // Otherwise display the bulk edit screen
             } else {
 
                 $nochange = ['NC' => 'No Change'];
@@ -340,12 +336,10 @@ class AssetModelsController extends Controller
                     ->with('fieldset_list', $fieldset_list)
                     ->with('depreciation_list', $depreciation_list);
             }
-
         }
 
         return redirect()->route('models.index')
             ->with('error', 'You must select at least one model to edit.');
-
     }
 
 
@@ -364,21 +358,21 @@ class AssetModelsController extends Controller
         $update_array = array();
 
 
-        if (($request->filled('manufacturer_id') && ($request->input('manufacturer_id')!='NC'))) {
+        if (($request->filled('manufacturer_id') && ($request->input('manufacturer_id') != 'NC'))) {
             $update_array['manufacturer_id'] = $request->input('manufacturer_id');
         }
-        if (($request->filled('category_id') && ($request->input('category_id')!='NC'))) {
+        if (($request->filled('category_id') && ($request->input('category_id') != 'NC'))) {
             $update_array['category_id'] = $request->input('category_id');
         }
-        if ($request->input('fieldset_id')!='NC') {
+        if ($request->input('fieldset_id') != 'NC') {
             $update_array['fieldset_id'] = $request->input('fieldset_id');
         }
-        if ($request->input('depreciation_id')!='NC') {
+        if ($request->input('depreciation_id') != 'NC') {
             $update_array['depreciation_id'] = $request->input('depreciation_id');
         }
 
 
-        
+
         if (count($update_array) > 0) {
             AssetModel::whereIn('id', $models_raw_array)->update($update_array);
             return redirect()->route('models.index')
@@ -387,7 +381,6 @@ class AssetModelsController extends Controller
 
         return redirect()->route('models.index')
             ->with('warning', trans('admin/models/message.bulkedit.error'));
-
     }
 
     /**
@@ -426,16 +419,15 @@ class AssetModelsController extends Controller
 
             if ($del_error_count == 0) {
                 return redirect()->route('models.index')
-                    ->with('success', trans('admin/models/message.bulkdelete.success',['success_count'=> $del_count] ));
+                    ->with('success', trans('admin/models/message.bulkdelete.success', ['success_count' => $del_count]));
             }
 
             return redirect()->route('models.index')
-                ->with('warning', trans('admin/models/message.bulkdelete.success_partial', ['fail_count'=>$del_error_count, 'success_count'=> $del_count]));
+                ->with('warning', trans('admin/models/message.bulkdelete.success_partial', ['fail_count' => $del_error_count, 'success_count' => $del_count]));
         }
 
         return redirect()->route('models.index')
             ->with('error', trans('admin/models/message.bulkdelete.error'));
-
     }
 
     /**

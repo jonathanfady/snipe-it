@@ -39,13 +39,10 @@
 
                     <!-- Checkout selector -->
                     @include ('partials.forms.checkout-selector', ['user_select' => 'true', 'location_select' =>
-                    'true'])
-                    @include ('partials.forms.edit.user-select', ['translated_name' =>
-                    trans('admin/hardware/form.checkout_to'), 'fieldname'
-                    => 'assigned_user', 'required' => 'true'])
+                    'true', 'required' => 'true'])
+                    @include ('partials.forms.edit.checkout-user', ['required' => 'true'])
                     {{-- @include ('partials.forms.edit.asset-select', ['translated_name' => trans('general.asset'), 'fieldname' => 'assigned_asset', 'unselect' => 'true', 'style' => 'display:none;', 'required'=>'true']) --}}
-                    @include ('partials.forms.edit.location-select', ['translated_name' => trans('general.location'),
-                    'fieldname' => 'assigned_location', 'style' => 'display:none;', 'required'=>'true'])
+                    @include ('partials.forms.edit.checkout-location', ['required'=>'true'])
 
                     <!-- Checkout/Checkin Date -->
                     <div class="form-group {{ $errors->has('checkout_at') ? 'error' : '' }}">

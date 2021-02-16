@@ -22,7 +22,7 @@ class StatuslabelsController extends Controller
     public function index(Request $request)
     {
         $this->authorize('view', Statuslabel::class);
-        $allowed_columns = ['id','name','created_at', 'assets_count','color','default_label'];
+        $allowed_columns = ['id', 'name', 'created_at', 'assets_count', 'color', 'default_label'];
 
         $statuslabels = Statuslabel::withCount('assets as assets_count');
 
@@ -58,10 +58,10 @@ class StatuslabelsController extends Controller
     public function store(Request $request)
     {
         $this->authorize('create', Statuslabel::class);
-        $request->except('deployable', 'pending','archived');
+        $request->except('deployable', 'pending', 'archived');
 
         if (!$request->filled('type')) {
-            return response()->json(Helper::formatStandardApiResponse('error', null, ["type" => ["Status label type is required."]]),500);
+            return response()->json(Helper::formatStandardApiResponse('error', null, ["type" => ["Status label type is required."]]), 500);
         }
 
         $statuslabel = new Statuslabel;
@@ -76,7 +76,6 @@ class StatuslabelsController extends Controller
             return response()->json(Helper::formatStandardApiResponse('success', $statuslabel, trans('admin/statuslabels/message.create.success')));
         }
         return response()->json(Helper::formatStandardApiResponse('error', null, $statuslabel->getErrors()));
-
     }
 
     /**
@@ -108,8 +107,8 @@ class StatuslabelsController extends Controller
     {
         $this->authorize('update', Statuslabel::class);
         $statuslabel = Statuslabel::findOrFail($id);
-        
-        $request->except('deployable', 'pending','archived');
+
+        $request->except('deployable', 'pending', 'archived');
 
         if (!$request->filled('type')) {
             return response()->json(Helper::formatStandardApiResponse('error', null, 'Status label type is required.'));
@@ -150,12 +149,11 @@ class StatuslabelsController extends Controller
         }
 
         return response()->json(Helper::formatStandardApiResponse('error', null, trans('admin/statuslabels/message.assoc_assets')));
-
     }
 
 
 
-     /**
+    /**
      * Show a count of assets by status label for pie chart
      *
      * @author [A. Gianotto] [<snipe@snipe.net>]
@@ -167,22 +165,22 @@ class StatuslabelsController extends Controller
     {
         $this->authorize('view', Statuslabel::class);
 
-        $statuslabels = Statuslabel::with('assets')
-            ->groupBy('id')
-            ->withCount('assets as assets_count')
+
+        $statuslabels = Statuslabel::with('undeployed_assets')
+            ->withCount('undeployed_assets as assets_count')
             ->get();
 
-        $labels=[];
-        $points=[];
+        $labels = [];
+        $points = [];
         $default_color_count = 0;
 
         foreach ($statuslabels as $statuslabel) {
             if ($statuslabel->assets_count > 0) {
 
-                $labels[]=$statuslabel->name. ' ('.number_format($statuslabel->assets_count).')';
-                $points[]=$statuslabel->assets_count;
+                $labels[] = $statuslabel->name . ' (' . number_format($statuslabel->assets_count) . ')';
+                $points[] = $statuslabel->assets_count;
 
-                if ($statuslabel->color!='') {
+                if ($statuslabel->color != '') {
                     $colors_array[] = $statuslabel->color;
                 } else {
                     $colors_array[] = Helper::defaultChartColors($default_color_count);
@@ -191,9 +189,15 @@ class StatuslabelsController extends Controller
             }
         }
 
-        $result= [
+        $deployed_assets_count = Asset::Deployed()->count();
+        $labels[] = 'Deployed (' . number_format($deployed_assets_count) . ')';
+        $points[] = $deployed_assets_count;
+        $colors_array[] = '#0073b7'; //blue dark
+
+
+        $result = [
             "labels" => $labels,
-            "datasets" => [ [
+            "datasets" => [[
                 "data" => $points,
                 "backgroundColor" => $colors_array,
                 "hoverBackgroundColor" =>  $colors_array
@@ -214,7 +218,7 @@ class StatuslabelsController extends Controller
     {
         $this->authorize('view', Statuslabel::class);
         $this->authorize('index', Asset::class);
-        $assets = Asset::where('status_id','=',$id)->with('assignedTo');
+        $assets = Asset::where('status_id', '=', $id)->with('assignedTo');
 
         $allowed_columns = [
             'id',
@@ -246,9 +250,10 @@ class StatuslabelsController extends Controller
      * @since [v4.0]
      * @return Bool
      */
-    public function checkIfDeployable($id) {
+    public function checkIfDeployable($id)
+    {
         $statuslabel = Statuslabel::findOrFail($id);
-        if ($statuslabel->getStatuslabelType()=='deployable') {
+        if ($statuslabel->getStatuslabelType() == 'deployable') {
             return '1';
         }
 

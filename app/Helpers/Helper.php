@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Helpers;
 
 use App\Models\Accessory;
@@ -12,6 +13,7 @@ use App\Models\Statuslabel;
 use Crypt;
 use Image;
 use Illuminate\Contracts\Encryption\DecryptException;
+use Illuminate\Support\Facades\Auth;
 
 class Helper
 {
@@ -334,7 +336,6 @@ class Helper
 
 
         return $colors[$index];
-
     }
 
     /**
@@ -345,7 +346,8 @@ class Helper
      *
      * @return  string
      */
-    public static function adjustBrightness($hexCode, $adjustPercent) {
+    public static function adjustBrightness($hexCode, $adjustPercent)
+    {
         $hexCode = ltrim($hexCode, '#');
 
         if (strlen($hexCode) == 3) {
@@ -354,7 +356,7 @@ class Helper
 
         $hexCode = array_map('hexdec', str_split($hexCode, 2));
 
-        foreach ($hexCode as & $color) {
+        foreach ($hexCode as &$color) {
             $adjustableLimit = $adjustPercent < 0 ? $color : 255 - $color;
             $adjustAmount = ceil($adjustableLimit * $adjustPercent);
 
@@ -423,7 +425,11 @@ class Helper
      */
     public static function statusLabelList()
     {
-        $statuslabel_list = array('' => trans('general.select_statuslabel')) + Statuslabel::orderBy('default_label', 'desc')->orderBy('name','asc')->orderBy('deployable','desc')
+        if (Auth::user()->isAdmin())
+            $statuslabel_list = array('' => trans('general.select_statuslabel')) + Statuslabel::orderBy('default_label', 'desc')->orderBy('name', 'asc')->orderBy('deployable', 'desc')
+                ->pluck('name', 'id')->toArray();
+        else
+            $statuslabel_list = array('' => trans('general.select_statuslabel')) + Statuslabel::where('archived', '=', 0)->orderBy('default_label', 'desc')->orderBy('name', 'asc')->orderBy('deployable', 'desc')
                 ->pluck('name', 'id')->toArray();
         return $statuslabel_list;
     }
@@ -438,7 +444,7 @@ class Helper
     public static function statusTypeList()
     {
         $statuslabel_types =
-              array('' => trans('admin/hardware/form.select_statustype'))
+            array('' => trans('admin/hardware/form.select_statustype'))
             + array('deployable' => trans('admin/hardware/general.deployable'))
             + array('pending' => trans('admin/hardware/general.pending'))
             + array('undeployable' => trans('admin/hardware/general.undeployable'))
@@ -456,7 +462,7 @@ class Helper
     public static function depreciationList()
     {
         $depreciation_list = ['' => 'Do Not Depreciate'] + Depreciation::orderBy('name', 'asc')
-                ->pluck('name', 'id')->toArray();
+            ->pluck('name', 'id')->toArray();
         return $depreciation_list;
     }
 
@@ -581,11 +587,9 @@ class Helper
                 $items_array[$all_count]['type'] = 'consumables';
                 $items_array[$all_count]['percent'] = $percent;
                 $items_array[$all_count]['remaining'] = $avail;
-                $items_array[$all_count]['min_amt']=$consumable->min_amt;
+                $items_array[$all_count]['min_amt'] = $consumable->min_amt;
                 $all_count++;
             }
-
-
         }
 
         foreach ($accessories as $accessory) {
@@ -603,10 +607,9 @@ class Helper
                 $items_array[$all_count]['type'] = 'accessories';
                 $items_array[$all_count]['percent'] = $percent;
                 $items_array[$all_count]['remaining'] = $avail;
-                $items_array[$all_count]['min_amt']=$accessory->min_amt;
+                $items_array[$all_count]['min_amt'] = $accessory->min_amt;
                 $all_count++;
             }
-
         }
 
         foreach ($components as $component) {
@@ -623,17 +626,14 @@ class Helper
                 $items_array[$all_count]['type'] = 'components';
                 $items_array[$all_count]['percent'] = $percent;
                 $items_array[$all_count]['remaining'] = $avail;
-                $items_array[$all_count]['min_amt']=$component->min_amt;
+                $items_array[$all_count]['min_amt'] = $component->min_amt;
                 $all_count++;
             }
-
         }
 
 
 
         return $items_array;
-
-
     }
 
 
@@ -651,7 +651,7 @@ class Helper
         $filetype = @finfo_file($finfo, $file);
         finfo_close($finfo);
 
-        if (($filetype=="image/jpeg") || ($filetype=="image/jpg")   || ($filetype=="image/png") || ($filetype=="image/bmp") || ($filetype=="image/gif")) {
+        if (($filetype == "image/jpeg") || ($filetype == "image/jpg")   || ($filetype == "image/png") || ($filetype == "image/bmp") || ($filetype == "image/gif")) {
             return $filetype;
         }
 
@@ -698,11 +698,7 @@ class Helper
                         $permissions_arr[$permission_name] = '0';
                     }
                 }
-
-
             }
-
-
         }
 
         return $permissions_arr;
@@ -730,7 +726,6 @@ class Helper
                 } else {
                     return true;
                 }
-
             }
         }
     }
@@ -749,7 +744,7 @@ class Helper
     public static function array_smart_fetch(array $array, $key, $default = '')
     {
         array_change_key_case($array, CASE_LOWER);
-        return array_key_exists(strtolower($key), array_change_key_case($array)) ? e(trim($array[ $key ])) : $default;
+        return array_key_exists(strtolower($key), array_change_key_case($array)) ? e(trim($array[$key])) : $default;
     }
 
 
@@ -773,19 +768,17 @@ class Helper
             try {
                 Crypt::decrypt($string);
                 return Crypt::decrypt($string);
-
             } catch (DecryptException $e) {
-                return 'Error Decrypting: '.$e->getMessage();
+                return 'Error Decrypting: ' . $e->getMessage();
             }
-
         }
         return $string;
-
     }
 
 
 
-    public static function formatStandardApiResponse($status, $payload = null, $messages = null) {
+    public static function formatStandardApiResponse($status, $payload = null, $messages = null)
+    {
 
         $array['status'] = $status;
         $array['messages'] = $messages;
@@ -800,14 +793,16 @@ class Helper
     /*
     Possible solution for unicode fieldnames
     */
-    public static function make_slug($string) {
+    public static function make_slug($string)
+    {
         return preg_replace('/\s+/u', '_', trim($string));
     }
 
 
-    public static function getFormattedDateObject($date, $type = 'datetime', $array = true) {
+    public static function getFormattedDateObject($date, $type = 'datetime', $array = true)
+    {
 
-        if ($date=='') {
+        if ($date == '') {
             return null;
         }
 
@@ -816,7 +811,7 @@ class Helper
 
         if ($type == 'datetime') {
             $dt['datetime'] = $tmp_date->format('Y-m-d H:i:s');
-            $dt['formatted'] = $tmp_date->format($settings->date_display_format .' '. $settings->time_display_format);
+            $dt['formatted'] = $tmp_date->format($settings->date_display_format . ' ' . $settings->time_display_format);
         } else {
             $dt['date'] = $tmp_date->format('Y-m-d');
             $dt['formatted'] = $tmp_date->format($settings->date_display_format);
@@ -826,14 +821,14 @@ class Helper
             return $dt;
         }
         return $dt['formatted'];
-
     }
 
 
     // Nicked from Drupal :)
     // Returns a file size limit in bytes based on the PHP upload_max_filesize
     // and post_max_size
-    public static function file_upload_max_size() {
+    public static function file_upload_max_size()
+    {
         static $max_size = -1;
 
         if ($max_size < 0) {
@@ -855,7 +850,8 @@ class Helper
         return $max_size;
     }
 
-    public static function file_upload_max_size_readable() {
+    public static function file_upload_max_size_readable()
+    {
         static $max_size = -1;
 
         if ($max_size < 0) {
@@ -875,22 +871,23 @@ class Helper
         return $max_size;
     }
 
-    public static function parse_size($size) {
+    public static function parse_size($size)
+    {
         $unit = preg_replace('/[^bkmgtpezy]/i', '', $size); // Remove the non-unit characters from the size.
         $size = preg_replace('/[^0-9\.]/', '', $size); // Remove the non-numeric characters from the size.
         if ($unit) {
             // Find the position of the unit in the ordered string which is the power of magnitude to multiply a kilobyte by.
             return round($size * pow(1024, stripos('bkmgtpezy', $unit[0])));
-        }
-        else {
+        } else {
             return round($size);
         }
     }
 
 
-    public static function filetype_icon($filename) {
+    public static function filetype_icon($filename)
+    {
 
-        $extension = substr(strrchr($filename,'.'),1);
+        $extension = substr(strrchr($filename, '.'), 1);
 
         $allowedExtensionMap = [
             // Images
@@ -922,9 +919,10 @@ class Helper
         return "fa fa-file-o";
     }
 
-    public static function show_file_inline($filename) {
+    public static function show_file_inline($filename)
+    {
 
-        $extension = substr(strrchr($filename,'.'),1);
+        $extension = substr(strrchr($filename, '.'), 1);
 
         if ($extension) {
             switch ($extension) {
@@ -969,8 +967,8 @@ class Helper
         $chars = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
 
         $password = '';
-        for ( $i = 0; $i < 20; $i++ ) {
-            $password .= substr( $chars, random_int( 0, strlen( $chars ) - 1 ), 1 );
+        for ($i = 0; $i < 20; $i++) {
+            $password .= substr($chars, random_int(0, strlen($chars) - 1), 1);
         }
         return $password;
     }
@@ -982,25 +980,26 @@ class Helper
      * @param string $save_path path to a folder where the image should be saved
      * @return string path to uploaded image or false if something went wrong
      */
-    public static function processUploadedImage(String $image_data, String $save_path) {
+    public static function processUploadedImage(String $image_data, String $save_path)
+    {
         if ($image_data != null && $save_path != null) {
             // After modification, the image is prefixed by mime info like the following:
             // data:image/jpeg;base64,; This causes the image library to be unhappy, so we need to remove it.
             $header = explode(';', $image_data, 2)[0];
             // Grab the image type from the header while we're at it.
-            $extension = substr($header, strpos($header, '/')+1);
+            $extension = substr($header, strpos($header, '/') + 1);
             // Start reading the image after the first comma, postceding the base64.
-            $image = substr($image_data, strpos($image_data, ',')+1);
+            $image = substr($image_data, strpos($image_data, ',') + 1);
 
-            $file_name = str_random(25).".".$extension;
+            $file_name = str_random(25) . "." . $extension;
 
-            $directory= public_path($save_path);
+            $directory = public_path($save_path);
             // Check if the uploads directory exists.  If not, try to create it.
             if (!file_exists($directory)) {
                 mkdir($directory, 0755, true);
             }
 
-            $path = public_path($save_path.$file_name);
+            $path = public_path($save_path . $file_name);
 
             try {
                 Image::make($image)->resize(500, 500, function ($constraint) {
@@ -1016,5 +1015,4 @@ class Helper
 
         return false;
     }
-
 }

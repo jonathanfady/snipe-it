@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Models;
 
 use App\Http\Traits\UniqueUndeletedTrait;
@@ -15,7 +16,7 @@ class Statuslabel extends SnipeModel
     protected $injectUniqueIdentifier = true;
     protected $dates = ['deleted_at'];
     protected $table = 'status_labels';
-    protected $hidden = ['user_id','deleted_at'];
+    protected $hidden = ['user_id', 'deleted_at'];
 
 
     protected $rules = array(
@@ -35,17 +36,17 @@ class Statuslabel extends SnipeModel
     ];
 
     use Searchable;
-    
+
     /**
      * The attributes that should be included when searching the model.
-     * 
+     *
      * @var array
      */
     protected $searchableAttributes = ['name'];
 
     /**
      * The relations and their attributes that should be included when searching the model.
-     * 
+     *
      * @var array
      */
     protected $searchableRelations = [];
@@ -61,6 +62,18 @@ class Statuslabel extends SnipeModel
     public function assets()
     {
         return $this->hasMany('\App\Models\Asset', 'status_id');
+    }
+
+    /**
+     * Establishes the status label -> undeployed assets relationship
+     *
+     * @author A. Gianotto <snipe@snipe.net>
+     * @since [v1.0]
+     * @return \Illuminate\Database\Eloquent\Relations\Relation
+     */
+    public function undeployed_assets()
+    {
+        return $this->assets()->whereNull('assigned_to');
     }
 
     /**
@@ -82,7 +95,6 @@ class Statuslabel extends SnipeModel
         }
 
         return 'deployable';
-
     }
 
     /**
@@ -93,8 +105,8 @@ class Statuslabel extends SnipeModel
     public function scopePending()
     {
         return $this->where('pending', '=', 1)
-                    ->where('archived', '=', 0)
-                    ->where('deployable', '=', 0);
+            ->where('archived', '=', 0)
+            ->where('deployable', '=', 0);
     }
 
     /**
@@ -139,12 +151,10 @@ class Statuslabel extends SnipeModel
             $statustype['pending'] = 1;
             $statustype['deployable'] = 0;
             $statustype['archived'] = 0;
-
         } elseif ($type == 'deployable') {
             $statustype['pending'] = 0;
             $statustype['deployable'] = 1;
             $statustype['archived'] = 0;
-
         } elseif ($type == 'archived') {
             $statustype['pending'] = 0;
             $statustype['deployable'] = 0;

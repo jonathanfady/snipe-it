@@ -365,35 +365,96 @@ $(document).ready(function () {
     $(function() {
         $('input[name=checkout_to_type]').on("change",function () {
             var assignto_type = $('input[name=checkout_to_type]:checked').val();
-            var userid = $('#assigned_user option:selected').val();
 
-            if (assignto_type == 'asset') {
+            // if (assignto_type == 'asset') {
+                // $('#current_assets_box').fadeOut();
+                // $('#assigned_asset').show();
+                // $('#assigned_to_user').hide();
+                // $('#assigned_to_location').hide();
+                // $('.notification-callout').fadeOut();
+
+            // } else
+            if (assignto_type == 'location') {
+                // $('#assigned_asset').hide();
+                $('#assigned_to_user').hide();
+                $('#assigned_to_location').show();
                 $('#current_assets_box').fadeOut();
-                $('#assigned_asset').show();
-                $('#assigned_user').hide();
-                $('#assigned_location').hide();
-                $('.notification-callout').fadeOut();
-
-            } else if (assignto_type == 'location') {
+                // $('.notification-callout').fadeOut();
+            } else if (assignto_type == 'user') {
+                // $('#assigned_asset').hide();
+                $('#assigned_to_user').show();
+                $('#assigned_to_location').hide();
+                $('#current_assets_box').fadeIn();
+                // $('.notification-callout').fadeIn();
+            } else {
+                $('#assigned_to_user').hide();
+                $('#assigned_to_location').hide();
                 $('#current_assets_box').fadeOut();
-                $('#assigned_asset').hide();
-                $('#assigned_user').hide();
-                $('#assigned_location').show();
-                $('.notification-callout').fadeOut();
-            } else  {
-
-                $('#assigned_asset').hide();
-                $('#assigned_user').show();
-                $('#assigned_location').hide();
-                if (userid) {
-                    $('#current_assets_box').fadeIn();
-                }
-                $('.notification-callout').fadeIn();
-
             }
         });
     });
 
+    function update_checkout_from_status (status_id) {
+        if (status_id != '') {
+            $(".status_spinner").css("display", "inline");
+            $.ajax({
+                url: Ziggy.baseUrl + "api/v1/statuslabels/" + status_id + "/deployable",
+                headers: {
+                    "X-Requested-With": 'XMLHttpRequest',
+                    "X-CSRF-TOKEN": $('meta[name="csrf-token"]').attr('content')
+                },
+                success: function (data) {
+                    $(".status_spinner").css("display", "none");
+                    $("#selected_status_status").fadeIn();
+
+                    if (data == true) {
+                        $("#assignto_selector").show();
+
+                        $("#selected_status_status").removeClass('text-danger');
+                        $("#selected_status_status").removeClass('text-warning');
+                        $("#selected_status_status").addClass('text-success');
+                        $("#selected_status_status").html('<i class="fa fa-check"></i> That status is deployable. This asset can be checked out.');
+
+                        var assignto_type = $('input[name=checkout_to_type]:checked').val();
+
+                        if (assignto_type == 'location') {
+                            $("#checkout_to_type_user").removeClass('active');
+                            $("#checkout_to_type_location").addClass('active');
+                            $('#assigned_to_user').hide();
+                            $('#assigned_to_location').show();
+                        } else if (assignto_type == 'user') {
+                            $("#checkout_to_type_user").addClass('active');
+                            $("#checkout_to_type_location").removeClass('active');
+                            $('#assigned_to_user').show();
+                            $('#assigned_to_location').hide();
+                        }
+                    } else {
+                        $("#assignto_selector").hide();
+                        $("#assigned_to_user").hide();
+                        $("#assigned_to_location").hide();
+                        $("#checkout_to_type_user").removeClass('active');
+                        $("#checkout_to_type_location").removeClass('active');
+                        $("#selected_status_status").removeClass('text-danger');
+                        $("#selected_status_status").removeClass('text-success');
+                        $("#selected_status_status").addClass('text-warning');
+                        $("#selected_status_status").html('<i class="fa fa-warning"></i> That asset status is not deployable. This asset cannot be checked out. ');
+                    }
+                }
+            });
+        }
+    }
+
+    $(function () {
+        if ($(".status_id").length > 0) {
+            //initialize assigned user/loc/asset based on statuslabel's statustype
+            update_checkout_from_status($(".status_id option:selected").val());
+
+            //whenever statuslabel changes, update assigned user/loc/asset
+            $(".status_id").on("change", function () {
+                update_checkout_from_status($(".status_id").val());
+            });
+        }
+    });
 
     // ------------------------------------------------
     // Deep linking for Bootstrap tabs
