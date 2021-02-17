@@ -19,6 +19,13 @@ class AssetCountForSidebar
     public function handle($request, Closure $next)
     {
         try {
+            $total_sidebar = Asset::count();
+            view()->share('total_sidebar', $total_sidebar);
+        } catch (\Exception $e) {
+            \Log::debug($e);
+        }
+
+        try {
             $total_rtd_sidebar = Asset::RTD()->count();
             view()->share('total_rtd_sidebar', $total_rtd_sidebar);
         } catch (\Exception $e) {
@@ -49,6 +56,13 @@ class AssetCountForSidebar
         try {
             $total_undeployable_sidebar = Asset::Undeployable()->count();
             view()->share('total_undeployable_sidebar', $total_undeployable_sidebar);
+        } catch (\Exception $e) {
+            \Log::debug($e);
+        }
+
+        try {
+            $total_requestable_sidebar = Asset::RequestableAssets()->count();
+            view()->share('total_requestable_sidebar', $total_requestable_sidebar);
         } catch (\Exception $e) {
             \Log::debug($e);
         }

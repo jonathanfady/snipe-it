@@ -510,7 +510,8 @@
                                 <li>
                                     <a href="{{ url('hardware') }}">
                                         <i class="fa fa-circle-o text-grey" aria-hidden="true"></i>
-                                        {{ trans('general.list_all') }}
+                                        {{ trans('general.all') }}
+                                        ({{ (isset($total_sidebar)) ? $total_sidebar : '' }})
                                     </a>
                                 </li>
 
@@ -527,7 +528,7 @@
                                 <li{!! (Request::query('status')=='Deployed' ? ' class="active"' : '' ) !!}>
                                     <a href="{{ url('hardware?status=Deployed') }}">
                                         <i class="fa fa-circle-o text-blue"></i>
-                                        {{ trans('general.all') }}
+                                        {{-- {{ trans('general.all') }} --}}
                                         {{ trans('general.deployed') }}
                                         ({{ (isset($total_deployed_sidebar)) ? $total_deployed_sidebar : '' }})
                                     </a>
@@ -535,7 +536,7 @@
                         <li{!! (Request::query('status')=='RTD' ? ' class="active"' : '' ) !!}>
                             <a href="{{ url('hardware?status=RTD') }}">
                                 <i class="fa fa-circle-o text-green"></i>
-                                {{ trans('general.all') }}
+                                {{-- {{ trans('general.all') }} --}}
                                 {{ trans('general.ready_to_deploy') }}
                                 ({{ (isset($total_rtd_sidebar)) ? $total_rtd_sidebar : '' }})
                             </a>
@@ -543,7 +544,7 @@
                             <li{!! (Request::query('status')=='Pending' ? ' class="active"' : '' ) !!}><a
                                     href="{{ url('hardware?status=Pending') }}"><i
                                         class="fa fa-circle-o text-orange"></i>
-                                    {{ trans('general.all') }}
+                                    {{-- {{ trans('general.all') }} --}}
                                     {{ trans('general.pending') }}
                                     ({{ (isset($total_pending_sidebar)) ? $total_pending_sidebar : '' }})
                                 </a>
@@ -551,7 +552,7 @@
                                 <li{!! (Request::query('status')=='Undeployable' ? ' class="active"' : '' ) !!}><a
                                         href="{{ url('hardware?status=Undeployable') }}"><i
                                             class="fa fa-times text-gray"></i>
-                                        {{ trans('general.all') }}
+                                        {{-- {{ trans('general.all') }} --}}
                                         {{ trans('general.undeployable') }}
                                         ({{ (isset($total_undeployable_sidebar)) ? $total_undeployable_sidebar : '' }})
                                     </a>
@@ -559,7 +560,7 @@
                                     <li{!! (Request::query('status')=='Archived' ? ' class="active"' : '' ) !!}><a
                                             href="{{ url('hardware?status=Archived') }}"><i
                                                 class="fa fa-times text-red"></i>
-                                            {{ trans('general.all') }}
+                                            {{-- {{ trans('general.all') }} --}}
                                             {{ trans('admin/hardware/general.archived') }}
                                             ({{ (isset($total_archived_sidebar)) ? $total_archived_sidebar : '' }})
                                         </a>
@@ -568,6 +569,7 @@
                                             <a href="{{ url('hardware?status=Requestable') }}"><i
                                                     class="fa fa-check text-blue"></i>
                                                 {{ trans('admin/hardware/general.requestable') }}
+                                                ({{ (isset($total_requestable_sidebar)) ? $total_requestable_sidebar : '' }})
                                             </a>
                                             </li>
 
