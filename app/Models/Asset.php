@@ -293,6 +293,20 @@ class Asset extends Depreciable
         return false;
     }
 
+    /**
+     * Determines if an asset is deployable.
+     *
+     * @author [A. Gianotto] [<snipe@snipe.net>]
+     * @since [v3.0]
+     * @return boolean
+     */
+    public function isDeployable()
+    {
+        if ($this->assetstatus && ($this->assetstatus->deployable == 1))
+            return true;
+
+        return false;
+    }
 
     /**
      * Checks the asset out to the target

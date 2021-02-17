@@ -355,7 +355,7 @@ class AssetsController extends Controller
 
             // Checkout or Checkin ?
             $target = $this->determineCheckoutTarget();
-            if (isset($target)) {
+            if ($asset->isDeployable() && isset($target)) {
                 if (($asset->assignedType() != $request->input('checkout_to_type'))
                     || ($asset->assigned_to != $target->id)
                 ) {
@@ -811,7 +811,7 @@ class AssetsController extends Controller
 
             // Checkout or Checkin ?
             $target = $this->determineCheckoutTarget();
-            if (isset($target)) {
+            if ($asset->isDeployable() && isset($target)) {
                 if (($asset->assignedType() != $request->input('checkout_to_type'))
                     || ($asset->assigned_to != $target->id)
                 ) {
