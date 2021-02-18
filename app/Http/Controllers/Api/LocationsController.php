@@ -24,9 +24,10 @@ class LocationsController extends Controller
     {
         $this->authorize('view', Location::class);
         $allowed_columns = [
-            'id','name','address','address2','city','state','country','zip','created_at',
-            'updated_at','manager_id','image',
-            'assigned_assets_count','users_count','assets_count','currency','ldap_ou'];
+            'id', 'name', 'address', 'address2', 'city', 'state', 'country', 'zip', 'created_at',
+            'updated_at', 'manager_id', 'image',
+            'assigned_assets_count', 'users_count', 'assets_count', 'currency', 'ldap_ou'
+        ];
 
         $locations = Location::with('parent', 'manager', 'children')->select([
             'locations.id',
@@ -79,6 +80,24 @@ class LocationsController extends Controller
         $locations = $locations->skip($offset)->take($limit)->get();
         return (new LocationsTransformer)->transformLocations($locations, $total);
     }
+
+    /**
+     * Display a listing of the location children.
+     *
+     * @author [A. Gianotto] [<snipe@snipe.net>]
+     * @since [v4.0]
+     * @return \Illuminate\Http\Response
+     */
+    // public function children(Request $request, $id)
+    // {
+    //     $locations = Location::find($id)->children();
+
+    //     $total = $locations->count();
+
+    //     $locations = $locations->get();
+
+    //     return (new LocationsTransformer)->transformLocations($locations, $total);
+    // }
 
 
     /**
@@ -180,9 +199,9 @@ class LocationsController extends Controller
     {
         $this->authorize('delete', Location::class);
         $location = Location::findOrFail($id);
-        if(!$location->isDeletable()) {
+        if (!$location->isDeletable()) {
             return response()
-                    ->json(Helper::formatStandardApiResponse('error', null,  trans('admin/companies/message.assoc_users')));
+                ->json(Helper::formatStandardApiResponse('error', null,  trans('admin/companies/message.assoc_users')));
         }
         $this->authorize('delete', $location);
         $location->delete();
@@ -234,7 +253,7 @@ class LocationsController extends Controller
         }
 
         if ($request->filled('search')) {
-            $locations = $locations->where('locations.name', 'LIKE', '%'.$request->input('search').'%');
+            $locations = $locations->where('locations.name', 'LIKE', '%' . $request->input('search') . '%');
         }
 
         $locations = $locations->orderBy('name', 'ASC')->get();
@@ -253,15 +272,11 @@ class LocationsController extends Controller
         } else {
             $location_options = Location::indenter($locations_with_children);
             $locations_formatted = new Collection($location_options);
-
         }
 
         $paginated_results =  new LengthAwarePaginator($locations_formatted->forPage($page, 500), $locations_formatted->count(), 500, $page, []);
 
         //return [];
         return (new SelectlistTransformer)->transformSelectlist($paginated_results);
-
     }
-
-
 }

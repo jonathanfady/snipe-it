@@ -53,6 +53,16 @@ class LocationPresenter extends Presenter
             ],
 
             [
+                "field" => "children",
+                "searchable" => false,
+                "sortable" => false,
+                "switchable" => true,
+                "title" => trans('general.children'),
+                "visible" => true,
+                'formatter' => 'childrenLinkFormatter'
+            ],
+
+            [
                 "field" => "assets_count",
                 "searchable" => false,
                 "sortable" => true,
@@ -199,8 +209,9 @@ class LocationPresenter extends Presenter
     {
         return '<i class="fa fa-map-marker" aria-hidden="true"></i>';
     }
-    
-    public function fullName() {
+
+    public function fullName()
+    {
         return $this->name;
     }
 }

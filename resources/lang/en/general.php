@@ -244,5 +244,6 @@ return [
     'i_decline'             => 'I decline',
     'sign_tos'              => 'Sign below to indicate that you agree to the terms of service:',
     'clear_signature'       => 'Clear Signature',
-    'generate_pdf'          => 'Generate PDF'
+    'generate_pdf'          => 'Generate PDF',
+    'children'              => 'Children',
 ];
