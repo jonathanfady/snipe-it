@@ -503,8 +503,8 @@
                         @can('index', \App\Models\Asset::class)
                         <li class="treeview{{ (Request::is('hardware*') ? ' active' : '') }}">
                             <a href="#"><i class="fa fa-barcode" aria-hidden="true"></i>
-                                <span>{{ trans('general.assets') }}</span>
-                                ({{ \App\Models\Asset::count() }})
+                                <span>{{ trans('general.assets') }}
+                                    ({{ \App\Models\Asset::count() }})</span>
                                 <i class="fa fa-angle-left pull-right"></i>
                             </a>
                             <ul class="treeview-menu">
@@ -637,8 +637,8 @@
                         <li {!! (Request::is('licenses*') ? ' class="active"' : '' ) !!}>
                             <a href="{{ route('licenses.index') }}">
                                 <i class="fa fa-floppy-o"></i>
-                                <span>{{ trans('general.licenses') }}</span>
-                                ({{ \App\Models\License::count() }})
+                                <span>{{ trans('general.licenses') }}
+                                    ({{ \App\Models\License::count() }})</span>
                             </a>
                         </li>
                         @endcan
@@ -646,8 +646,8 @@
                         <li {!! (Request::is('accessories*') ? ' class="active"' : '' ) !!}>
                             <a href="{{ route('accessories.index') }}">
                                 <i class="fa fa-keyboard-o"></i>
-                                <span>{{ trans('general.accessories') }}</span>
-                                ({{ \App\Models\Accessory::count() }})
+                                <span>{{ trans('general.accessories') }}
+                                    ({{ \App\Models\Accessory::count() }})</span>
                             </a>
                         </li>
                         @endcan
@@ -655,8 +655,8 @@
                         <li {!! (Request::is('consumables*') ? ' class="active"' : '' ) !!}>
                             <a href="{{ url('consumables') }}">
                                 <i class="fa fa-tint"></i>
-                                <span>{{ trans('general.consumables') }}</span>
-                                ({{ \App\Models\Consumable::count() }})
+                                <span>{{ trans('general.consumables') }}
+                                    ({{ \App\Models\Consumable::count() }})</span>
                             </a>
                         </li>
                         @endcan
@@ -664,8 +664,8 @@
                         <li {!! (Request::is('components*') ? ' class="active"' : '' ) !!}>
                             <a href="{{ route('components.index') }}">
                                 <i class="fa fa-hdd-o"></i>
-                                <span>{{ trans('general.components') }}</span>
-                                ({{ \App\Models\Component::count() }})
+                                <span>{{ trans('general.components') }}
+                                    ({{ \App\Models\Component::count() }})</span>
                             </a>
                         </li>
                         @endcan
@@ -673,8 +673,8 @@
                         <li {!! (Request::is('kits') ? ' class="active"' : '' ) !!}>
                             <a href="{{ route('kits.index') }}">
                                 <i class="fa fa-object-group"></i>
-                                <span>{{ trans('general.kits') }}</span>
-                                ({{ \App\Models\PredefinedKit::count() }})
+                                <span>{{ trans('general.kits') }}
+                                    ({{ \App\Models\PredefinedKit::count() }})</span>
                             </a>
                         </li>
                         @endcan
@@ -683,8 +683,8 @@
                         <li {!! (Request::is('users*') ? ' class="active"' : '' ) !!}>
                             <a href="{{ route('users.index') }}">
                                 <i class="fa fa-users"></i>
-                                <span>{{ trans('general.people') }}</span>
-                                ({{ \App\Models\User::count() }})
+                                <span>{{ trans('general.people') }}
+                                    ({{ \App\Models\User::count() }})</span>
                             </a>
                         </li>
                         @endcan

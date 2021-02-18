@@ -853,7 +853,7 @@ class AssetsController extends Controller
         $asset = Asset::findOrFail($id);
         $user = ($asset->assignedType() == 'user') ? $asset->assignedTo : null;
         $pdf = PDF::loadView('hardware/generate-pdf', compact('asset', 'user'))->setPaper('a4', 'landscape');
-        // return $pdf->stream();
-        return $pdf->download(str_replace('/', '_', $asset->asset_tag) . '.pdf');
+        return $pdf->stream('RESPONSIBILITY FORM ' . $asset->asset_tag . '.pdf');
+        // return $pdf->download('RESPONSIBILITY FORM ' . $asset->asset_tag . '.pdf');
     }
 }

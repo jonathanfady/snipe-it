@@ -5,7 +5,7 @@
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
 
-        <title>{{str_replace('/', '_', $asset->asset_tag)}}</title>
+        <title>RESPONSIBILITY FORM {{$asset->asset_tag}}</title>
 
         <meta name="generator" content="LibreOffice 5.4.7.2 (Linux)">
         <meta name="author" content="itsol">
