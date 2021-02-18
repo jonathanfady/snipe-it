@@ -765,8 +765,6 @@ class Asset extends Depreciable
         return $this->belongsTo('\App\Models\Location', 'location_id');
     }
 
-
-
     /**
      * Get the next autoincremented asset tag
      *

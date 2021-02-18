@@ -11,7 +11,6 @@ use App\Models\Asset;
 use App\Models\AssetModel;
 use App\Models\CheckoutRequest;
 use App\Models\Company;
-use App\Models\Location;
 use App\Models\Setting;
 use App\Models\User;
 use Auth;
@@ -24,6 +23,7 @@ use League\Csv\Reader;
 use Redirect;
 use Response;
 use View;
+use PDF;
 
 /**
  * This class controls all actions related to assets for
@@ -846,5 +846,14 @@ class AssetsController extends Controller
         $requestedItems = $requestedItems->orderBy('created_at', 'desc')->get();
 
         return view('hardware/requested', compact('requestedItems'));
+    }
+
+    public function generatePDF($id)
+    {
+        $asset = Asset::findOrFail($id);
+        $user = ($asset->assignedType() == 'user') ? $asset->assignedTo : null;
+        $pdf = PDF::loadView('hardware/generate-pdf', compact('asset', 'user'))->setPaper('a4', 'landscape');
+        // return $pdf->stream();
+        return $pdf->download(str_replace('/', '_', $asset->asset_tag) . '.pdf');
     }
 }

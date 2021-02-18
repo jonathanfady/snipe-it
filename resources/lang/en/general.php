@@ -243,5 +243,6 @@ return [
     'i_accept'              => 'I accept',
     'i_decline'             => 'I decline',
     'sign_tos'              => 'Sign below to indicate that you agree to the terms of service:',
-    'clear_signature'       => 'Clear Signature'
+    'clear_signature'       => 'Clear Signature',
+    'generate_pdf'          => 'Generate PDF'
 ];

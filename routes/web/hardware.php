@@ -8,11 +8,13 @@
 |
 */
 Route::group(
-    ['prefix' => 'hardware',
-    'middleware' => ['auth']],
+    [
+        'prefix' => 'hardware',
+        'middleware' => ['auth']
+    ],
     function () {
 
-        Route::get( 'bulkaudit',  [
+        Route::get('bulkaudit',  [
             'as' => 'assets.bulkaudit',
             'uses' => 'Assets\AssetsController@quickScan'
         ]);
@@ -22,7 +24,7 @@ Route::group(
             'parameters' => ['maintenance' => 'maintenance_id', 'asset' => 'asset_id']
         ]);
 
-        Route::get('requested', [ 'as' => 'assets.requested', 'uses' => 'Assets\AssetsController@getRequestedIndex']);
+        Route::get('requested', ['as' => 'assets.requested', 'uses' => 'Assets\AssetsController@getRequestedIndex']);
 
         Route::get('scan', [
             'as' => 'asset.scan',
@@ -80,14 +82,16 @@ Route::group(
             'uses' => 'Assets\AssetsController@postImportHistory'
         ]);
 
-        Route::get('bytag/{any?}',
+        Route::get(
+            'bytag/{any?}',
             [
                 'as'   => 'findbytag/hardware',
                 'uses' => 'Assets\AssetsController@getAssetByTag'
             ]
         )->where('any', '.*');
 
-        Route::get('byserial/{any?}',
+        Route::get(
+            'byserial/{any?}',
             [
                 'as'   => 'findbyserial/hardware',
                 'uses' => 'Assets\AssetsController@getAssetBySerial'
@@ -129,12 +133,18 @@ Route::group(
             'as' => 'hardware.view',
             'uses' => 'Assets\AssetsController@show'
         ]);
-        Route::get('{assetId}/qr_code', [ 'as' => 'qr_code/hardware', 'uses' => 'Assets\AssetsController@getQrCode' ]);
-        Route::get('{assetId}/barcode', [ 'as' => 'barcode/hardware', 'uses' => 'Assets\AssetsController@getBarCode' ]);
+        Route::get('{assetId}/qr_code', ['as' => 'qr_code/hardware', 'uses' => 'Assets\AssetsController@getQrCode']);
+        Route::get('{assetId}/barcode', ['as' => 'barcode/hardware', 'uses' => 'Assets\AssetsController@getBarCode']);
         Route::get('{assetId}/restore', [
             'as' => 'restore/hardware',
             'uses' => 'Assets\AssetsController@getRestore'
         ]);
+
+        Route::get('{assetId}/generate-pdf', [
+            'as' => 'asset.generate-pdf',
+            'uses' => 'Assets\AssetsController@generatePDF'
+        ]);
+
         Route::post('{assetId}/upload', [
             'as' => 'upload/asset',
             'uses' => 'Assets\AssetFilesController@store'
@@ -174,19 +184,16 @@ Route::group(
         );
 
         # Bulk checkout / checkin
-         Route::get( 'bulkcheckout',  [
-                 'as' => 'hardware/bulkcheckout',
-                 'uses' => 'Assets\BulkAssetsController@showCheckout'
-         ]);
-        Route::post( 'bulkcheckout',  [
+        Route::get('bulkcheckout',  [
+            'as' => 'hardware/bulkcheckout',
+            'uses' => 'Assets\BulkAssetsController@showCheckout'
+        ]);
+        Route::post('bulkcheckout',  [
             'as' => 'hardware/bulkcheckout',
             'uses' => 'Assets\BulkAssetsController@storeCheckout'
         ]);
-
-
-
-
-});
+    }
+);
 
 
 Route::resource('hardware', 'Assets\AssetsController', [

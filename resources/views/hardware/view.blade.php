@@ -58,6 +58,13 @@
             </a>
         </li>
         @endcan
+
+        <li role="menuitem">
+            <a href="{{ route('asset.generate-pdf', $asset->id)  }}">
+                {{ trans('general.generate_pdf') }}
+            </a>
+        </li>
+
     </ul>
 </div>
 @endcan

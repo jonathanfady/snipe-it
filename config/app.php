@@ -164,8 +164,8 @@ return [
     | Logging Detail
     |--------------------------------------------------------------------------
     |
-    | By default, Laravel writes all log levels to storage. However, in your 
-    | production environment, you may wish to configure the minimum severity that 
+    | By default, Laravel writes all log levels to storage. However, in your
+    | production environment, you may wish to configure the minimum severity that
     | should be logged by editing your APP_LOG_LEVEL env config.
     |
     | Laravel will log all levels greater than or equal to the specified severity.
@@ -176,7 +176,7 @@ return [
     | "debug", "info", "notice", "warning", "error", "critical", "alert", "emergency"
     |
     */
-    
+
     'log_level' => env('APP_LOG_LEVEL', 'error'),
 
 
@@ -193,7 +193,7 @@ return [
     |
     */
 
-    'private_uploads' => storage_path().'/private_uploads',
+    'private_uploads' => storage_path() . '/private_uploads',
 
 
     /*
@@ -336,6 +336,7 @@ return [
         //Schuppo\PasswordStrength\PasswordStrengthServiceProvider::class,
         Tightenco\Ziggy\ZiggyServiceProvider::class, // Laravel routes in vue
         Eduardokum\LaravelMailAutoEmbed\ServiceProvider::class,
+        Barryvdh\DomPDF\ServiceProvider::class,
 
         /*
         * Application Service Providers...
@@ -410,6 +411,7 @@ return [
         // 'Debugbar' => Barryvdh\Debugbar\Facade::class, //autodiscover should handle this
         'Image'     => Intervention\Image\ImageServiceProvider::class,
         'Carbon' => Carbon\Carbon::class,
+        'PDF' => Barryvdh\DomPDF\Facade::class,
 
 
     ],
