@@ -1,0 +1,45 @@
+version: "3.8"
+
+services:
+  app:
+    image: sisolis/snipe-it
+    container_name: snipe-app
+    restart: always
+    env_file: .env
+    ports:
+      - 80:80
+      - 443:443
+    volumes:
+      - snipe:/var/lib/snipeit
+    networks:
+      - snipe
+
+  mysql:
+    image: mysql:5.6
+    container_name: snipe-mysql
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
+      MYSQL_DATABASE: ${DB_DATABASE}
+      MYSQL_USER: ${DB_USERNAME}
+      MYSQL_PASSWORD: ${DB_PASSWORD}
+    volumes:
+      - mysqldata:/var/lib/mysql
+    networks:
+      - snipe
+
+  adminer:
+    image: adminer
+    container_name: snipe-adminer
+    restart: always
+    ports:
+      - 8080:8080
+    networks:
+      - snipe
+
+volumes:
+  snipe:
+  mysqldata:
+
+networks:
+  snipe:
