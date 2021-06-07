@@ -2,7 +2,7 @@
 
 {{-- Page title --}}
 @section('title')
-{{ trans('general.depreciation_report') }} 
+{{ trans('general.depreciation_report') }}
 @parent
 @stop
 
@@ -121,7 +121,9 @@
 
                 @if ($asset->purchase_cost > 0)
                   <td class="align-right">
-                    @if ($asset->location && $asset->location->currency)
+                    @if ($asset->currency)
+                    {{ $asset->currency }}
+                    @elseif ($asset->location && $asset->location->currency)
                     {{ $asset->location->currency }}
                     @else
                     {{ $snipeSettings->default_currency }}
@@ -129,7 +131,9 @@
                     {{ \App\Helpers\Helper::formatCurrencyOutput($asset->purchase_cost) }}
                   </td>
                   <td class="align-right">
-                    @if ($asset->location && $asset->location->currency)
+                    @if ($asset->currency)
+                    {{ $asset->currency }}
+                    @elseif ($asset->location && $asset->location->currency)
                     {{ $asset->location->currency }}
                     @else
                     {{ $snipeSettings->default_currency }}
@@ -139,7 +143,9 @@
                   </td>
                   <td class="align-right">
                     @if ($asset->model->depreciation)
-                      @if ($asset->location && $asset->location->currency)
+                      @if ($asset->currency)
+                      {{ $asset->currency }}
+                      @elseif ($asset->location && $asset->location->currency)
                       {{ $asset->location->currency }}
                       @else
                       {{ $snipeSettings->default_currency }}
@@ -149,7 +155,9 @@
                     @endif
                   </td>
                   <td class="align-right">
-                    @if ($asset->location && $asset->location->currency)
+                    @if ($asset->currency)
+                    {{ $asset->currency }}
+                    @elseif ($asset->location && $asset->location->currency)
                     {{ $asset->location->currency }}
                     @else
                     {{ $snipeSettings->default_currency }}

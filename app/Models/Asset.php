@@ -142,6 +142,7 @@ class Asset extends Depreciable
         'last_checkout',
         'expected_checkin',
         'focal_point_id',
+        'currency',
     ];
 
     use Searchable;

@@ -479,9 +479,9 @@
                                         </strong>
                                     </div>
                                     <div class="col-md-6">
-                                        @if (($asset->id) && ($asset->location))
-                                        {{ $asset->location->currency }}
-                                        @elseif (($asset->id) && ($asset->location))
+                                        @if ($asset->currency)
+                                        {{ $asset->currency }}
+                                        @elseif (($asset->location) && ($asset->location->currency))
                                         {{ $asset->location->currency }}
                                         @else
                                         {{ $snipeSettings->default_currency }}

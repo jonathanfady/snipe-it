@@ -101,7 +101,9 @@
           <div class="col-md-2">
             <div class="input-group">
               <span class="input-group-addon">
-                @if (($item->asset) && ($item->asset->location) && ($item->asset->location->currency!=''))
+                @if (($item->asset) && ($item->asset->currency))
+                  {{ $item->asset->currency }}
+                @elseif (($item->asset) && ($item->asset->location) && ($item->asset->location->currency!=''))
                   {{ $item->asset->location->currency }}
                 @else
                   {{ $snipeSettings->default_currency }}

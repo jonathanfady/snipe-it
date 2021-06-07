@@ -108,11 +108,25 @@
                             {{ trans('admin/hardware/form.cost') }}
                         </label>
                         <div class="input-group col-md-3">
-                            <span class="input-group-addon">{{ $snipeSettings->default_currency }}</span>
+                            {{-- <span class="input-group-addon">{{ $snipeSettings->default_currency }}</span> --}}
                             <input type="text" class="form-control" maxlength="10"
                                 placeholder="{{ trans('admin/hardware/form.cost') }}" name="purchase_cost"
                                 id="purchase_cost" value="{{ old('purchase_cost') }}">
                             {!! $errors->first('purchase_cost', '<span class="alert-msg" aria-hidden="true"><i
+                                    class="fa fa-times" aria-hidden="true"></i> :message</span>') !!}
+                        </div>
+                    </div>
+
+                    <!-- Currency -->
+                    <div class="form-group {{ $errors->has('currency') ? ' has-error' : '' }}">
+                        <label for="currency" class="col-md-3 control-label">
+                            {{ trans('admin/hardware/form.currency') }}
+                        </label>
+                        <div class="input-group col-md-2">
+                            <input type="text" class="form-control" maxlength="10"
+                                placeholder="{{ trans('admin/hardware/form.currency') }}" name="currency" id="currency"
+                                value="{{ old('currency') }}">
+                            {!! $errors->first('currency', '<span class="alert-msg" aria-hidden="true"><i
                                     class="fa fa-times" aria-hidden="true"></i> :message</span>') !!}
                         </div>
                     </div>

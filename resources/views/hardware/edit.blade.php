@@ -72,7 +72,7 @@ trans('admin/hardware/form.serial')])
 
 <!-- Focal Point -->
 @include ('partials.forms.edit.user-select', ['fieldname' => 'focal_point_id',
-'translated_name' => trans('admin/hardware/form.focal_point'), 'activated_users_only' => 'true'])
+'translated_name' => trans('admin/hardware/form.focal_point'), 'required' => 'true', 'activated_users_only' => 'true'])
 
 @include ('partials.forms.edit.status', ['required' => 'true'])
 
@@ -94,12 +94,16 @@ trans('admin/hardware/form.serial')])
 'supplier_id'])
 @include ('partials.forms.edit.order_number')
 <?php
-    $currency_type=null;
-    if ($item->id && $item->location) {
+    if ($item->currency) {
+        $currency_type = $item->currency;
+    } elseif ($item->id && $item->location) {
         $currency_type = $item->location->currency;
+    } else {
+        $currency_type= $snipeSettings->default_currency;
     }
     ?>
-@include ('partials.forms.edit.purchase_cost', ['currency_type' => $currency_type])
+@include ('partials.forms.edit.purchase_cost')
+@include ('partials.forms.edit.currency')
 @include ('partials.forms.edit.warranty')
 <!-- Notes -->
 <div class="form-group {{ $errors->has('notes') ? ' has-error' : '' }}">

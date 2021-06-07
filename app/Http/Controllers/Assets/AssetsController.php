@@ -136,6 +136,7 @@ class AssetsController extends Controller
             $asset->status_id               = request('status_id', 0);
             $asset->warranty_months         = request('warranty_months', null);
             $asset->purchase_cost           = Helper::ParseFloat($request->get('purchase_cost'));
+            $asset->currency                = request('currency', null);
             $asset->purchase_date           = request('purchase_date', null);
             // $asset->assigned_to             = request('assigned_to', null);
             $asset->supplier_id             = request('supplier_id', 0);
@@ -251,15 +252,15 @@ class AssetsController extends Controller
                 ->where('item_type', '=', Asset::class)
                 ->orderBy('created_at', 'DESC')->first();
 
-            if ($asset->location) {
-                $use_currency = $asset->location->currency;
-            } else {
-                if ($settings->default_currency != '') {
-                    $use_currency = $settings->default_currency;
-                } else {
-                    $use_currency = trans('general.currency');
-                }
-            }
+            // if ($asset->location) {
+            //     $use_currency = $asset->location->currency;
+            // } else {
+            //     if ($settings->default_currency != '') {
+            //         $use_currency = $settings->default_currency;
+            //     } else {
+            //         $use_currency = trans('general.currency');
+            //     }
+            // }
 
             $qr_code = (object) array(
                 'display' => $settings->qr_code == '1',
@@ -267,7 +268,8 @@ class AssetsController extends Controller
             );
 
             return view('hardware/view', compact('asset', 'qr_code', 'settings'))
-                ->with('use_currency', $use_currency)->with('audit_log', $audit_log);
+                // ->with('use_currency', $use_currency)
+                ->with('audit_log', $audit_log);
         }
 
         return redirect()->route('hardware.index')->with('error', trans('admin/hardware/message.does_not_exist'));
@@ -295,6 +297,7 @@ class AssetsController extends Controller
         $asset->status_id = $request->input('status_id', null);
         $asset->warranty_months = $request->input('warranty_months', null);
         $asset->purchase_cost = Helper::ParseFloat($request->input('purchase_cost', null));
+        $asset->currency = $request->input('currency', null);
         $asset->purchase_date = $request->input('purchase_date', null);
         $asset->supplier_id = $request->input('supplier_id', null);
         $asset->expected_checkin = $request->input('expected_checkin', null);

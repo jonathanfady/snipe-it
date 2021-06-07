@@ -42,4 +42,5 @@ return array(
     'years'                => 'years',
     'current_company' => 'Current Donor',
     'focal_point' => 'Focal Point',
+    'currency' => 'Currency',
 );

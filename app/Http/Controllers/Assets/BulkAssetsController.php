@@ -80,6 +80,7 @@ class BulkAssetsController extends Controller
         if (($request->filled('purchase_date'))
             || ($request->filled('expected_checkin'))
             || ($request->filled('purchase_cost'))
+            || ($request->filled('currency'))
             || ($request->filled('supplier_id'))
             || ($request->filled('order_number'))
             || ($request->filled('warranty_months'))
@@ -102,7 +103,8 @@ class BulkAssetsController extends Controller
                 ->conditionallyAddItem('status_id')
                 ->conditionallyAddItem('supplier_id')
                 ->conditionallyAddItem('warranty_months')
-                ->conditionallyAddItem('focal_point_id');
+                ->conditionallyAddItem('focal_point_id')
+                ->conditionallyAddItem('currency');
 
             if ($request->filled('purchase_cost')) {
                 $this->update_array['purchase_cost'] =  Helper::ParseFloat($request->input('purchase_cost'));
