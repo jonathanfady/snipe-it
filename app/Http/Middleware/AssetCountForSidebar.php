@@ -24,9 +24,7 @@ class AssetCountForSidebar
         if ($user = Auth::user()) {
             if (!$user->isSuperUser() && !$user->isAdmin()) {
                 // limit view for non-admin users
-                $assets = Asset::where('assets.focal_point_id', '=', $user->id)
-                    ->orWhere('assets.location_id', '=', $user->location_id)
-                    ->orWhere('assets.rtd_location_id', '=', $user->rtd_location_id);
+                $assets = Asset::where('assets.focal_point_id', '=', $user->id);
             }
         }
 

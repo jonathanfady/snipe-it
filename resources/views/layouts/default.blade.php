@@ -507,9 +507,7 @@
                                     @can('admin')
                                     ({{ \App\Models\Asset::count() }})
                                     @else
-                                    ({{ \App\Models\Asset::where('focal_point_id', '=', Auth::user()->id)
-                                    ->orWhere('location_id', '=', Auth::user()->location_id)
-                                    ->orWhere('rtd_location_id', '=', Auth::user()->rtd_location_id)->count() }})
+                                    ({{ \App\Models\Asset::where('focal_point_id', '=', Auth::user()->id)->count() }})
                                     @endcan
                                 </span>
                                 <i class="fa fa-angle-left pull-right"></i>
@@ -522,9 +520,7 @@
                                         @can('admin')
                                         ({{ \App\Models\Asset::count() }})
                                         @else
-                                        ({{ \App\Models\Asset::where('focal_point_id', '=', Auth::user()->id)
-                                        ->orWhere('location_id', '=', Auth::user()->location_id)
-                                        ->orWhere('rtd_location_id', '=', Auth::user()->rtd_location_id)->count() }})
+                                        ({{ \App\Models\Asset::where('focal_point_id', '=', Auth::user()->id)->count() }})
                                         @endcan
                                     </a>
                                 </li>
