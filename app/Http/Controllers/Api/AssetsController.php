@@ -97,6 +97,14 @@ class AssetsController extends Controller
                 'focal_point'
             );
 
+        // check for user rights
+        $user = Auth::user();
+        if (!$user->isSuperUser() && !$user->isAdmin()) {
+            // limit view for non-admin users
+            $assets->where('assets.focal_point_id', '=', $user->id)
+                ->orWhere('assets.location_id', '=', $user->location_id)
+                ->orWhere('assets.rtd_location_id', '=', $user->rtd_location_id);
+        }
 
         // These are used by the API to query against specific ID numbers.
         // They are also used by the individual searches on detail pages like

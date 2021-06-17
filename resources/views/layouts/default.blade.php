@@ -504,7 +504,14 @@
                         <li class="treeview{{ (Request::is('hardware*') ? ' active' : '') }}">
                             <a href="#"><i class="fa fa-barcode" aria-hidden="true"></i>
                                 <span>{{ trans('general.assets') }}
-                                    ({{ \App\Models\Asset::count() }})</span>
+                                    @can('admin')
+                                    ({{ \App\Models\Asset::count() }})
+                                    @else
+                                    ({{ \App\Models\Asset::where('focal_point_id', '=', Auth::user()->id)
+                                    ->orWhere('location_id', '=', Auth::user()->location_id)
+                                    ->orWhere('rtd_location_id', '=', Auth::user()->rtd_location_id)->count() }})
+                                    @endcan
+                                </span>
                                 <i class="fa fa-angle-left pull-right"></i>
                             </a>
                             <ul class="treeview-menu">
@@ -512,7 +519,13 @@
                                     <a href="{{ url('hardware') }}">
                                         <i class="fa fa-circle-o text-grey" aria-hidden="true"></i>
                                         {{ trans('general.all') }}
+                                        @can('admin')
                                         ({{ \App\Models\Asset::count() }})
+                                        @else
+                                        ({{ \App\Models\Asset::where('focal_point_id', '=', Auth::user()->id)
+                                        ->orWhere('location_id', '=', Auth::user()->location_id)
+                                        ->orWhere('rtd_location_id', '=', Auth::user()->rtd_location_id)->count() }})
+                                        @endcan
                                     </a>
                                 </li>
 

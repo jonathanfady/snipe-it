@@ -5,6 +5,8 @@ namespace App\Http\Middleware;
 use App\Models\Asset;
 use App\Models\Setting;
 use Closure;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class AssetCountForSidebar
 {
@@ -17,57 +19,68 @@ class AssetCountForSidebar
      */
     public function handle($request, Closure $next)
     {
+        // check for user rights
+        $user = Auth::user();
+        if (!$user->isSuperUser() && !$user->isAdmin()) {
+            // limit view for non-admin users
+            $assets = Asset::where('assets.focal_point_id', '=', $user->id)
+                ->orWhere('assets.location_id', '=', $user->location_id)
+                ->orWhere('assets.rtd_location_id', '=', $user->rtd_location_id);
+        } else {
+            $assets = resolve(Asset::class);
+        }
+
         try {
-            $total_deployed_sidebar = Asset::Deployed()->count();
+            $total_deployed_sidebar = $assets->Deployed()->count();
             view()->share('total_deployed_sidebar', $total_deployed_sidebar);
         } catch (\Exception $e) {
             \Log::debug($e);
         }
 
         try {
-            $total_rtd_sidebar = Asset::RTD()->count();
+            $total_rtd_sidebar = $assets->RTD()->count();
             view()->share('total_rtd_sidebar', $total_rtd_sidebar);
         } catch (\Exception $e) {
             \Log::debug($e);
         }
 
         try {
-            $total_pending_sidebar = Asset::Pending()->count();
+            $total_pending_sidebar = $assets->Pending()->count();
             view()->share('total_pending_sidebar', $total_pending_sidebar);
         } catch (\Exception $e) {
             \Log::debug($e);
         }
 
         try {
-            $total_undeployable_sidebar = Asset::Undeployable()->count();
+            $total_undeployable_sidebar = $assets->Undeployable()->count();
             view()->share('total_undeployable_sidebar', $total_undeployable_sidebar);
         } catch (\Exception $e) {
             \Log::debug($e);
         }
 
         try {
-            $total_archived_sidebar = Asset::Archived()->count();
+            $total_archived_sidebar = $assets->Archived()->count();
             view()->share('total_archived_sidebar', $total_archived_sidebar);
         } catch (\Exception $e) {
             \Log::debug($e);
         }
 
         try {
-            $total_requestable_sidebar = Asset::RequestableAssets()->count();
+            $total_requestable_sidebar = $assets->RequestableAssets()->count();
             view()->share('total_requestable_sidebar', $total_requestable_sidebar);
         } catch (\Exception $e) {
             \Log::debug($e);
         }
 
         try {
-            $total_dueforaudit_sidebar = Asset::DueForAudit(Setting::getSettings())->count();
+            $total_dueforaudit_sidebar = $assets->DueForAudit(Setting::getSettings())->count();
             view()->share('total_dueforaudit_sidebar', $total_dueforaudit_sidebar);
         } catch (\Exception $e) {
             \Log::debug($e);
         }
 
         try {
-            $total_overdueforaudit_sidebar = Asset::OverdueForAudit()->count();
+            $total_overdueforaudit_sidebar = $assets->OverdueForAudit()->count();
             view()->share('total_overdueforaudit_sidebar', $total_overdueforaudit_sidebar);
         } catch (\Exception $e) {
             \Log::debug($e);
