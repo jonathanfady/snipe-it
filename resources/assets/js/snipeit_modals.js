@@ -159,6 +159,138 @@ $(function () {
   });
 });
 
+$(function () {
+
+    //handle modal-add-interstitial calls
+    var model, select, refreshSelector;
+  
+    if($('#createSubModal').length == 0) {
+      $('body').append('<div class="modal fade" id="createSubModal"></div><!-- /.modal -->');
+    }
+  
+    $('#createSubModal').on("show.bs.modal", function (event) {
+        var link = $(event.relatedTarget);
+        model = link.data("dependency");
+        select = link.data("select");
+        refreshSelector = link.data("refresh");
+        
+        $('#createSubModal').load(link.attr('href'),function () {
+          //do we need to re-select2 this, after load? Probably.
+          $('#createSubModal').find('select.select2').select2();
+          // Initialize the ajaxy select2 with images.
+          // This is a copy/paste of the code from snipeit.js, would be great to only have this in one place.
+          $('.js-data-ajax').each( function (i,item) {
+              var link = $(item);
+              var endpoint = link.data("endpoint");
+              var select = link.data("select");
+  
+              link.select2({
+                  ajax: {
+  
+                      // the baseUrl includes a trailing slash
+                      url: Ziggy.baseUrl + 'api/v1/' + endpoint + '/selectlist',
+                      dataType: 'json',
+                      delay: 250,
+                      headers: {
+                          "X-Requested-With": 'XMLHttpRequest',
+                          "X-CSRF-TOKEN": $('meta[name="csrf-token"]').attr('content')
+                      },
+                      data: function (params) {
+                          var data = {
+                              search: params.term,
+                              page: params.page || 1,
+                              assetStatusType: link.data("asset-status-type"),
+                          };
+                          return data;
+                      },
+                      processResults: function (data, params) {
+  
+                          params.page = params.page || 1;
+  
+                          var answer =  {
+                              results: data.items,
+                              pagination: {
+                                  more: data.pagination.more
+                              }
+                          };
+  
+                          return answer;
+                      },
+                      cache: true
+                  },
+                  escapeMarkup: function (markup) { return markup; }, // let our custom formatter work
+                  templateResult: formatDatalist,
+                  templateSelection: formatDataSelection
+              });
+          });
+        });
+  
+    });
+  
+   
+  
+    $('#createSubModal').on('click','#submodal-save', function () {
+      $.ajax({
+          type: 'POST',
+          url: $('.submodal-body form').attr('action'),
+          headers: {
+              "X-Requested-With": 'XMLHttpRequest',
+              "X-CSRF-TOKEN": $('meta[name="csrf-token"]').attr('content')
+          },
+  
+          data: $('.submodal-body form').serialize(),
+          success: function (result) {
+  
+              if(result.status == "error") {
+                  var error_message="";
+                  for(var field in result.messages) {
+                      error_message += "<li>Problem(s) with field <i><strong>" + field + "</strong></i>: " + result.messages[field];
+  
+                  }
+                  $('#submodal_error_msg').html(error_message).show();
+                  return false;
+              }
+              var id = result.payload.id;
+              var name = result.payload.name || (result.payload.first_name + " " + result.payload.last_name);
+              if(!id || !name) {
+                  console.error("Could not find resulting name or ID from modal-create. Name: "+name+", id: "+id);
+                  return false;
+              }
+              $('#createSubModal').modal('hide');
+              $('#createSubModal').html("");
+  
+              var refreshTable = $('#' + refreshSelector);
+  
+              if(refreshTable.length > 0) {
+                  refreshTable.bootstrapTable('refresh');
+              }
+  
+              // "select" is the original drop-down menu that someone
+              // clicked 'add' on to add a new 'thing'
+              // this code adds the newly created object to that select
+              var selector = document.getElementById(select);
+  
+              if(!selector) {
+                  return false;
+              }
+  
+              selector.options[selector.length] = new Option(name, id);
+              selector.selectedIndex = selector.length - 1;
+              $(selector).trigger("change");
+              if(window.fetchCustomFields) {
+                  fetchCustomFields();
+              }
+  
+          },
+          error: function (result) {
+              msg = result.responseJSON.messages || result.responseJSON.error;
+              $('#submodal_error_msg').html("Server Error: "+msg).show();
+          }
+  
+      });
+    });
+});
+
 function formatDatalist (datalist) {
     var loading_markup = '<i class="fa fa-spinner fa-spin" aria-hidden="true"></i> Loading...';
     if (datalist.loading) {
