@@ -7,7 +7,7 @@
         </div>
         <div class="modal-body">
             <form action="{{ route('api.locations.store') }}" onsubmit="return false">
-                    <div class="alert alert-danger" id="modal_error_msg" style="display:none">
+                <div class="alert alert-danger" id="modal_error_msg" style="display:none">
                 </div>
                 <div class="dynamic-form-row">
                     <div class="col-md-4 col-xs-12"><label for="modal-name">{{ trans('general.name') }}:
@@ -17,7 +17,7 @@
 
                 <div class="dynamic-form-row">
                     <div class="col-md-4 col-xs-12"><label for="modal-city">{{ trans('general.city') }}:</label></div>
-                    <div class="col-md-8 col-xs-12 required"><input type='text' name="city" id='modal-city' class="form-control"></div>
+                    <div class="col-md-8 col-xs-12"><input type='text' name="city" id='modal-city' class="form-control"></div>
                 </div>
 
                 <div class="dynamic-form-row">
