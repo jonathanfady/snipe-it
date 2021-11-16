@@ -419,7 +419,14 @@ class User extends SnipeModel implements AuthenticatableContract, AuthorizableCo
      */
     public function managedLocations()
     {
-        return $this->hasMany('\App\Models\Location', 'manager_id');
+        // return $this->hasMany('\App\Models\Location', 'manager_id');
+        if ($this->isSuperUser()) {
+            return \App\Models\Location::query();
+        } else if ($this->isAdmin()) {
+            return $this->hasMany('\App\Models\Location', 'manager_id');
+        } else {
+            return $this->hasManyThrough('App\Models\Location', 'App\Models\Asset', 'focal_point_id', 'id', 'id', 'location_id');
+        }
     }
 
     /**

@@ -613,6 +613,14 @@ Route::group(['prefix' => 'v1', 'namespace' => 'Api', 'middleware' => 'auth:api'
         //     'as' => 'api.locations.children',
         //     'uses' => 'LocationsController@children'
         // ]);
+
+        Route::get(
+            'assetsbylocation',
+            [
+                'as' => 'api.locations.assets.bylocation',
+                'uses' => 'LocationsController@getAssetCountByLocation'
+            ]
+        );
     }); // Locations group
 
 

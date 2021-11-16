@@ -9,6 +9,7 @@ use App\Http\Transformers\StatuslabelsTransformer;
 use App\Models\Asset;
 use App\Models\Statuslabel;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class StatuslabelsController extends Controller
 {
@@ -165,24 +166,21 @@ class StatuslabelsController extends Controller
     {
         $this->authorize('view', Statuslabel::class);
 
-
-        $statuslabels = Statuslabel::with('undeployed_assets')
-            ->withCount('undeployed_assets as assets_count')
-            ->get();
+        $statuslabels = Statuslabel::get();
 
         $labels = [];
         $points = [];
 
         foreach ($statuslabels as $statuslabel) {
-            if ($statuslabel->assets_count > 0) {
-
-                $labels[] = $statuslabel->name . ' (' . number_format($statuslabel->assets_count) . ')';
-                $points[] = $statuslabel->assets_count;
+            $asset_count = Auth::user()->managedAssets()->where('status_id', $statuslabel->id)->count();
+            if ($asset_count > 0) {
+                $labels[] = $statuslabel->name . ' (' . number_format($asset_count) . ')';
+                $points[] = $asset_count;
                 $colors_array[] = $statuslabel->getStatuslabelColor();
             }
         }
 
-        $deployed_assets_count = Asset::Deployed()->count();
+        $deployed_assets_count = Auth::user()->managedAssets()->Deployed()->count();
         $labels[] = 'Deployed (' . number_format($deployed_assets_count) . ')';
         $points[] = $deployed_assets_count;
         $colors_array[] = '#0073b7'; //blue dark

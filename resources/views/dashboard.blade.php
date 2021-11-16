@@ -194,6 +194,36 @@
         </div> <!-- /.box -->
     </div>
     <div class="col-md-6">
+        <!-- Status -->
+        <div class="box box-default">
+            <div class="box-header with-border">
+                <h2 class="box-title">{{ trans('general.assets') }} by Location</h2>
+                <div class="box-tools pull-right">
+                    <button type="button" class="btn btn-box-tool" data-widget="collapse" aria-hidden="true">
+                        <i class="fa fa-minus" aria-hidden="true"></i>
+                        <span class="sr-only">Collapse</span>
+                    </button>
+                </div>
+            </div>
+            <!-- /.box-header -->
+            <div class="box-body">
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="chart-responsive">
+                            <canvas id="locationPieChart" height="216"></canvas>
+                        </div> <!-- ./chart-responsive -->
+                    </div> <!-- /.col -->
+                </div> <!-- /.row -->
+            </div><!-- /.box-body -->
+        </div> <!-- /.box -->
+    </div>
+</div>
+
+
+
+<!--/row-->
+<div class="row">
+    <div class="col-md-6">
         <!-- Categories -->
         <div class="box box-default">
             <div class="box-header with-border">
@@ -255,19 +285,14 @@
                         </div>
                     </div> <!-- /.col -->
                     <div class="col-md-12 text-center" style="padding-top: 10px;">
-                        <a href="{{ route('categories.index') }}" class="btn btn-primary btn-sm"
-                            style="width: 100%">{{ trans('general.viewall') }}</a>
+                        <a href="{{ route('categories.index') }}" class="btn btn-primary btn-sm" style="width: 100%">{{
+                            trans('general.viewall') }}</a>
                     </div>
                 </div> <!-- /.row -->
 
             </div><!-- /.box-body -->
         </div> <!-- /.box -->
     </div>
-</div>
-
-
-<!--/row-->
-<div class="row">
     <div class="col-md-6">
         <!-- Models -->
         <div class="box box-default">
@@ -315,14 +340,16 @@
                         </div>
                     </div> <!-- /.col -->
                     <div class="col-md-12 text-center" style="padding-top: 10px;">
-                        <a href="{{ route('models.index') }}" class="btn btn-primary btn-sm"
-                            style="width: 100%">{{ trans('general.viewall') }}</a>
+                        <a href="{{ route('models.index') }}" class="btn btn-primary btn-sm" style="width: 100%">{{
+                            trans('general.viewall') }}</a>
                     </div>
                 </div> <!-- /.row -->
 
             </div><!-- /.box-body -->
         </div> <!-- /.box -->
     </div>
+</div>
+<div class="row">
     <div class="col-md-6">
         <!-- Location -->
         <div class="box box-default">
@@ -369,8 +396,8 @@
                         </div>
                     </div> <!-- /.col -->
                     <div class="col-md-12 text-center" style="padding-top: 10px;">
-                        <a href="{{ route('locations.index') }}" class="btn btn-primary btn-sm"
-                            style="width: 100%">{{ trans('general.viewall') }}</a>
+                        <a href="{{ route('locations.index') }}" class="btn btn-primary btn-sm" style="width: 100%">{{
+                            trans('general.viewall') }}</a>
                     </div>
                 </div> <!-- /.row -->
 
@@ -413,9 +440,11 @@
                                         <th class="col-sm-2" data-visible="true" data-field="action_type">
                                             {{ trans('general.action') }}</th>
                                         <th class="col-sm-3" data-visible="true" data-field="item"
-                                            data-formatter="polymorphicItemFormatter">{{ trans('general.item') }}</th>
+                                            data-formatter="polymorphicItemFormatter">{{ trans('general.item') }}
+                                        </th>
                                         <th class="col-sm-2" data-visible="true" data-field="target"
-                                            data-formatter="polymorphicItemFormatter">{{ trans('general.target') }}</th>
+                                            data-formatter="polymorphicItemFormatter">{{ trans('general.target') }}
+                                        </th>
                                     </tr>
                                 </thead>
                             </table>
@@ -425,8 +454,8 @@
                         </div><!-- /.responsive -->
                     </div><!-- /.col -->
                     <div class="col-md-12 text-center" style="padding-top: 10px;">
-                        <a href="{{ route('reports.activity') }}" class="btn btn-primary btn-sm"
-                            style="width: 100%">{{ trans('general.viewall') }}</a>
+                        <a href="{{ route('reports.activity') }}" class="btn btn-primary btn-sm" style="width: 100%">{{
+                            trans('general.viewall') }}</a>
                     </div>
                 </div><!-- /.row -->
             </div><!-- ./box-body -->
@@ -448,38 +477,67 @@
 
 
 <script nonce="{{ csrf_token() }}">
+
+    var pieOptions = {
+        legend: {
+            position: 'top',
+            responsive: true,
+            maintainAspectRatio: true,
+        }
+    };
+
     // ---------------------------
     // - ASSET STATUS CHART -
     // ---------------------------
-      var pieChartCanvas = $("#statusPieChart").get(0).getContext("2d");
-      var pieChart = new Chart(pieChartCanvas);
-      var ctx = document.getElementById("statusPieChart");
-      var pieOptions = {
-              legend: {
-                  position: 'top',
-                  responsive: true,
-                  maintainAspectRatio: true,
-              }
-          };
+    var statusPieChartCanvas = $("#statusPieChart").get(0).getContext("2d");
+    var statusPieChart = new Chart(statusPieChartCanvas);
+    var ctx1 = document.getElementById("statusPieChart");
 
-      $.ajax({
-          type: 'GET',
-          url: '{{  route('api.statuslabels.assets.bytype') }}',
-          headers: {
-              "X-Requested-With": 'XMLHttpRequest',
-              "X-CSRF-TOKEN": $('meta[name="csrf-token"]').attr('content')
-          },
-          dataType: 'json',
-          success: function (data) {
-              var myPieChart = new Chart(ctx,{
-                  type   : 'doughnut',
-                  data   : data,
-                  options: pieOptions
-              });
-          },
-          error: function (data) {
-             // window.location.reload(true);
-          }
-      });
+    $.ajax({
+        type: 'GET',
+        url: '{{  route('api.statuslabels.assets.bytype') }}',
+        headers: {
+            "X-Requested-With": 'XMLHttpRequest',
+            "X-CSRF-TOKEN": $('meta[name="csrf-token"]').attr('content')
+        },
+        dataType: 'json',
+        success: function (data) {
+            var myPieChart = new Chart(ctx1, {
+                type: 'doughnut',
+                data: data,
+                options: pieOptions
+            });
+        },
+        error: function (data) {
+            // window.location.reload(true);
+        }
+    });
+
+    // ---------------------------
+    // - ASSET LOCATION CHART -
+    // ---------------------------
+    var locationPieChartCanvas = $("#locationPieChart").get(0).getContext("2d");
+    var locationPieChart = new Chart(locationPieChartCanvas);
+    var ctx2 = document.getElementById("locationPieChart");
+
+    $.ajax({
+        type: 'GET',
+        url: '{{  route('api.locations.assets.bylocation') }}',
+        headers: {
+            "X-Requested-With": 'XMLHttpRequest',
+            "X-CSRF-TOKEN": $('meta[name="csrf-token"]').attr('content')
+        },
+        dataType: 'json',
+        success: function (data) {
+            var myPieChart = new Chart(ctx2, {
+                type: 'doughnut',
+                data: data,
+                options: pieOptions
+            });
+        },
+        error: function (data) {
+            // window.location.reload(true);
+        }
+    });
 </script>
 @endpush

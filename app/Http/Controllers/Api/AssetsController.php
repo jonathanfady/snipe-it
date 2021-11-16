@@ -82,7 +82,8 @@ class AssetsController extends Controller
             $allowed_columns[] = $field->db_column_name();
         }
 
-        $assets = Company::scopeCompanyables(Asset::select('assets.*'), "company_id", "assets")
+        // Company::scopeCompanyables(Asset::select('assets.*'), "company_id", "assets")
+        $assets = Auth::user()->managedAssets()->select('assets.*')
             ->with(
                 'location',
                 'assetstatus',
@@ -96,13 +97,6 @@ class AssetsController extends Controller
                 'supplier',
                 'focal_point'
             );
-
-        // check for user rights
-        $user = Auth::user();
-        if (!$user->isSuperUser() && !$user->isAdmin()) {
-            // limit view for non-admin users
-            $assets->where('assets.focal_point_id', '=', $user->id);
-        }
 
         // These are used by the API to query against specific ID numbers.
         // They are also used by the individual searches on detail pages like

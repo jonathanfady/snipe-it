@@ -10,6 +10,7 @@ use App\Http\Transformers\LocationsTransformer;
 use App\Http\Transformers\SelectlistTransformer;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Auth;
 
 class LocationsController extends Controller
 {
@@ -29,7 +30,7 @@ class LocationsController extends Controller
             'assigned_assets_count', 'users_count', 'assets_count', 'currency', 'ldap_ou'
         ];
 
-        $locations = Location::with('parent', 'manager', 'children')->select([
+        $locations = Auth::user()->managedLocations()->with('parent', 'manager', 'children')->select([
             'locations.id',
             'locations.name',
             'locations.address',
@@ -278,5 +279,44 @@ class LocationsController extends Controller
 
         //return [];
         return (new SelectlistTransformer)->transformSelectlist($paginated_results);
+    }
+
+    /**
+     * Show a count of assets by location for pie chart
+     *
+     * @author [A. Gianotto] [<snipe@snipe.net>]
+     * @since [v3.0]
+     * @return \Illuminate\Http\Response
+     */
+
+    public function getAssetCountByLocation()
+    {
+        $this->authorize('view', Location::class);
+
+        $locations = Auth::user()->managedLocations()->get();
+
+        $labels = [];
+        $points = [];
+        $default_color_count = 0;
+
+        foreach ($locations as $location) {
+            $asset_count = Auth::user()->managedAssets()->where('location_id', $location->id)->count();
+            if ($asset_count > 0) {
+                $labels[] = $location->name . ' (' . number_format($asset_count) . ')';
+                $points[] = $asset_count;
+                $colors_array[] = Helper::defaultChartColors($default_color_count);
+                $default_color_count++;
+            }
+        }
+
+        $result = [
+            "labels" => $labels,
+            "datasets" => [[
+                "data" => $points,
+                "backgroundColor" => $colors_array,
+                "hoverBackgroundColor" =>  $colors_array
+            ]]
+        ];
+        return $result;
     }
 }
