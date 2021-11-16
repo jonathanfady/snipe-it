@@ -5,7 +5,6 @@ namespace App\Models;
 use App\Http\Traits\UniqueUndeletedTrait;
 use App\Models\Traits\Searchable;
 use App\Presenters\Presentable;
-use DB;
 use Illuminate\Auth\Authenticatable;
 use Illuminate\Auth\Passwords\CanResetPassword;
 use Illuminate\Contracts\Auth\Access\Authorizable as AuthorizableContract;
@@ -16,6 +15,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\Access\Authorizable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Facades\DB;
 use Laravel\Passport\HasApiTokens;
 use Watson\Validating\ValidatingTrait;
 
@@ -420,6 +420,27 @@ class User extends SnipeModel implements AuthenticatableContract, AuthorizableCo
     public function managedLocations()
     {
         return $this->hasMany('\App\Models\Location', 'manager_id');
+    }
+
+    /**
+     * Establishes the user -> managed assets relationship
+     * get all assets for super user
+     * get all assets from location for admin
+     * get all assets by focal point for user
+     * 
+     * @author A. Gianotto <snipe@snipe.net>
+     * @since [v1.0]
+     * @return \Illuminate\Database\Eloquent\Relations\Relation
+     */
+    public function managedAssets()
+    {
+        if ($this->isSuperUser()) {
+            return \App\Models\Asset::query();
+        } else if ($this->isAdmin()) {
+            return $this->hasManyThrough('App\Models\Asset', 'App\Models\Location', 'manager_id');
+        } else {
+            return $this->hasMany('App\Models\Asset', 'focal_point_id');
+        }
     }
 
     /**

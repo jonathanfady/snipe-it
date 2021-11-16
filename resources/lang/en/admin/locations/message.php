@@ -15,7 +15,8 @@ return array(
 
     'update' => array(
         'error'   => 'Location was not updated, please try again',
-        'success' => 'Location updated successfully.'
+        'success' => 'Location updated successfully.',
+        'nothing_updated'    =>  'No fields were selected, so nothing was updated.'
     ),
 
     'delete' => array(

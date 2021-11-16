@@ -2,7 +2,7 @@
 
 {{-- Page title --}}
 @section('title')
-{{ trans('admin/hardware/form.update') }}
+{{ trans('admin/hardware/form.bulk_update') }}
 @parent
 @stop
 

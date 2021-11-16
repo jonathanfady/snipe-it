@@ -1,10 +1,12 @@
 <?php
-namespace App\Http\Controllers;
 
+namespace App\Http\Controllers;
 
 use App\Http\Requests\ImageUploadRequest;
 use App\Models\Location;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 
 /**
@@ -180,8 +182,8 @@ class LocationsController extends Controller
         }
 
         if ($location->image) {
-            try  {
-                Storage::disk('public')->delete('locations/'.$location->image);
+            try {
+                Storage::disk('public')->delete('locations/' . $location->image);
             } catch (\Exception $e) {
                 \Log::error($e);
             }
@@ -192,13 +194,13 @@ class LocationsController extends Controller
 
 
     /**
-    * Returns a view that invokes the ajax tables which actually contains
-    * the content for the locations detail page.
-    *
-    * @author [A. Gianotto] [<snipe@snipe.net>]
-    * @param int $id
-    * @since [v1.0]
-    * @return \Illuminate\Contracts\View\View
+     * Returns a view that invokes the ajax tables which actually contains
+     * the content for the locations detail page.
+     *
+     * @author [A. Gianotto] [<snipe@snipe.net>]
+     * @param int $id
+     * @since [v1.0]
+     * @return \Illuminate\Contracts\View\View
      */
     public function show($id = null)
     {
@@ -211,4 +213,96 @@ class LocationsController extends Controller
         return redirect()->route('locations.index')->with('error', trans('admin/locations/message.does_not_exist'));
     }
 
+    /**
+     * Display the bulk edit page.
+     *
+     * @author [A. Gianotto] [<snipe@snipe.net>]
+     * @return View
+     * @internal param int $assetId
+     * @since [v2.0]
+     * @throws \Illuminate\Auth\Access\AuthorizationException
+     */
+    public function bulkedit(Request $request)
+    {
+        $this->authorize('update', Location::class);
+
+        if (!$request->filled('ids')) {
+            return redirect()->back()->with('error', 'No locations selected');
+        }
+
+        if ($request->filled('bulk_actions')) {
+            switch ($request->input('bulk_actions')) {
+                case 'edit':
+                    return view('locations/bulk')
+                        ->with('locations', request('ids'));
+            }
+        }
+        return redirect()->back()->with('error', 'No action selected');
+    }
+
+    /**
+     * Save bulk edits
+     *
+     * @author [A. Gianotto] [<snipe@snipe.net>]
+     * @return Redirect
+     * @internal param array $assets
+     * @since [v2.0]
+     */
+    public function bulkupdate(Request $request)
+    {
+        $this->authorize('update', Location::class);
+
+        \Log::debug($request->input('ids'));
+
+        if (!$request->filled('ids') || count($request->input('ids')) <= 0) {
+            return redirect()->route("locations.index")->with('warning', trans('No locations selected, so nothing was updated.'));
+        }
+
+        $locations = array_keys($request->input('ids'));
+
+        if (($request->filled('manager_id'))
+            || ($request->filled('currency'))
+            || ($request->filled('city'))
+            || ($request->filled('state'))
+            || ($request->filled('country'))
+        ) {
+
+            $this->update_array = [];
+
+            $this->conditionallyAddItem('manager_id')
+                ->conditionallyAddItem('currency')
+                ->conditionallyAddItem('city')
+                ->conditionallyAddItem('state')
+                ->conditionallyAddItem('country');
+
+            foreach ($locations as $locationId) {
+                DB::table('locations')
+                    ->where('id', $locationId)
+                    ->update($this->update_array);
+            } // endforeach
+
+            return redirect()->route("locations.index")->with('success', trans('admin/locations/message.update.success'));
+            // no values given, nothing to update
+        }
+        return redirect()->route("locations.index")->with('warning', trans('admin/locations/message.update.nothing_updated'));
+    }
+
+    /**
+     * Array to store update data per item
+     * @var Array
+     */
+    private $update_array;
+
+    /**
+     * Adds parameter to update array for an item if it exists in request
+     * @param  String $field field name
+     * @return BulkAssetsController Model for Chaining
+     */
+    protected function conditionallyAddItem($field)
+    {
+        if (request()->filled($field)) {
+            $this->update_array[$field] = request()->input($field);
+        }
+        return $this;
+    }
 }

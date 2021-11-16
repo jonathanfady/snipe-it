@@ -16,7 +16,10 @@ class LocationPresenter extends Presenter
     public static function dataTableLayout()
     {
         $layout = [
-
+            [
+                "field" => "checkbox",
+                "checkbox" => true,
+            ],
             [
                 "field" => "id",
                 "searchable" => false,
