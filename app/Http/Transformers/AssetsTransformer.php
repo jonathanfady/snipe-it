@@ -7,6 +7,7 @@ use App\Models\Asset;
 use App\Models\Setting;
 use Gate;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Support\Facades\Auth;
 
 class AssetsTransformer
 {
@@ -90,12 +91,16 @@ class AssetsTransformer
                 'id' => (int) $asset->focal_point->id,
                 'name' => e($asset->focal_point->getFullNameAttribute())
             ] : null,
-            'qr_code' => (Setting::getSettings()->qr_code == '1') ?  [
-                'name' => e(config('app.url') . '/hardware/' . $asset->id . '/qr_code')
-            ] : null,
-            'barcode' => (Setting::getSettings()->alt_barcode_enabled == '1') ? [
-                'name' => e(config('app.url') . '/hardware/' . $asset->id . '/barcode')
-            ] : null,
+            'qr_code' => (Setting::getSettings()->qr_code == '1') ?
+                ((Auth::user()->isSuperUser() || Auth::user()->isAdmin()) ?
+                    ['name' => e(config('app.url') . '/hardware/' . $asset->id . '/qr_code')]
+                    : null)
+                : null,
+            'barcode' => (Setting::getSettings()->alt_barcode_enabled == '1') ?
+                ((Auth::user()->isSuperUser() || Auth::user()->isAdmin()) ?
+                    ['name' => e(config('app.url') . '/hardware/' . $asset->id . '/barcode')]
+                    : null)
+                : null,
         ];
 
 

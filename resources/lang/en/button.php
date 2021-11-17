@@ -1,17 +1,17 @@
 <?php
 
 return array(
-    'actions' 	                => 'Actions',
-    'add'    	                => 'Add New',
+    'actions'                     => 'Actions',
+    'add'                        => 'Add New',
     'cancel'                    => 'Cancel',
-    'checkin_and_delete'  	    => 'Checkin & Delete User',
-    'delete'  	                => 'Delete',
-    'edit'    	                => 'Edit',
-    'restore' 	                => 'Restore',
+    'checkin_and_delete'          => 'Checkin & Delete User',
+    'delete'                      => 'Delete',
+    'edit'                        => 'Edit',
+    'restore'                     => 'Restore',
     'request'                   => 'Request',
-    'submit'  	                => 'Submit',
+    'submit'                      => 'Submit',
     'upload'                    => 'Upload',
-	'select_file'				=> 'Select File...',
-    'select_files'				=> 'Select Files...',
-    'generate_labels'           => '{1} Generate Label|[2,*] Generate Labels',
+    'select_file'                => 'Select File...',
+    'select_files'                => 'Select Files...',
+    'generate_labels'           => 'Generate Labels',
 );

@@ -412,6 +412,9 @@ class User extends SnipeModel implements AuthenticatableContract, AuthorizableCo
 
     /**
      * Establishes the user -> managed locations relationship
+     * get all locations for super user
+     * get managed locations for admin
+     * get locations from assets by focal points for regular user
      *
      * @author A. Gianotto <snipe@snipe.net>
      * @since [v4.0]
@@ -432,8 +435,8 @@ class User extends SnipeModel implements AuthenticatableContract, AuthorizableCo
     /**
      * Establishes the user -> managed assets relationship
      * get all assets for super user
-     * get all assets from location for admin
-     * get all assets by focal point for user
+     * get assets from managed locations for admin
+     * get all assets by focal point for regular user
      * 
      * @author A. Gianotto <snipe@snipe.net>
      * @since [v1.0]
@@ -447,6 +450,27 @@ class User extends SnipeModel implements AuthenticatableContract, AuthorizableCo
             return $this->hasManyThrough('App\Models\Asset', 'App\Models\Location', 'manager_id');
         } else {
             return $this->hasMany('App\Models\Asset', 'focal_point_id');
+        }
+    }
+
+    /**
+     * Establishes the user -> managed users relationship
+     * get all users for super user
+     * get assets from managed locations for admin
+     * get all users from assets by focal points for regular user
+     * 
+     * @author A. Gianotto <snipe@snipe.net>
+     * @since [v1.0]
+     * @return \Illuminate\Database\Eloquent\Relations\Relation
+     */
+    public function managedUsers()
+    {
+        if ($this->isSuperUser()) {
+            return \App\Models\User::query();
+        } else if ($this->isAdmin()) {
+            return $this->hasManyThrough('App\Models\User', 'App\Models\Location', 'manager_id');
+        } else {
+            return $this->hasManyThrough('App\Models\User', 'App\Models\Asset', 'focal_point_id', 'id', 'id', 'assigned_to');
         }
     }
 

@@ -117,7 +117,7 @@ class AuthServiceProvider extends ServiceProvider
 
         // Can the user import CSVs?
         Gate::define('import', function ($user) {
-            if ($user->hasAccess('import') ) {
+            if ($user->hasAccess('import')) {
                 return true;
             }
         });
@@ -141,15 +141,15 @@ class AuthServiceProvider extends ServiceProvider
             }
         });
 
-        Gate::define('self.api', function($user) {
+        Gate::define('self.api', function ($user) {
             return $user->hasAccess('self.api');
         });
 
-        Gate::define('self.edit_location', function($user) {
+        Gate::define('self.edit_location', function ($user) {
             return $user->hasAccess('self.edit_location');
         });
 
-        Gate::define('self.checkout_assets', function($user) {
+        Gate::define('self.checkout_assets', function ($user) {
             return $user->hasAccess('self.checkout_assets');
         });
 
@@ -164,7 +164,7 @@ class AuthServiceProvider extends ServiceProvider
                 || $user->can('view', Company::class)
                 || $user->can('view', Manufacturer::class)
                 || $user->can('view', CustomField::class)
-                || $user->can('view', CustomFieldset::class)                
+                || $user->can('view', CustomFieldset::class)
                 || $user->can('view', Depreciation::class);
         });
     }

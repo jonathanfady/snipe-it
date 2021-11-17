@@ -679,7 +679,7 @@
                         <a href="{{ route('users.index') }}">
                             <i class="fa fa-users"></i>
                             <span>{{ trans('general.people') }}
-                                ({{ \App\Models\User::count() }})</span>
+                                ({{ $total_people_sidebar }})</span>
                         </a>
                     </li>
                     @endcan

@@ -232,8 +232,8 @@
                                         <strong>{{ trans('general.company') }}</strong>
                                     </div>
                                     <div class="col-md-6">
-                                        <a
-                                            href="{{ url('/companies/' . $asset->company->id) }}">{{ $asset->company->name }}</a>
+                                        <a href="{{ url('/companies/' . $asset->company->id) }}">{{
+                                            $asset->company->name }}</a>
                                     </div>
                                 </div>
                                 @endif
@@ -255,7 +255,7 @@
                                         <strong>{{ trans('admin/hardware/form.serial') }}</strong>
                                     </div>
                                     <div class="col-md-6">
-                                        {{ $asset->serial  }}
+                                        {{ $asset->serial }}
                                     </div>
                                 </div>
                                 @endif
@@ -280,9 +280,11 @@
                                         </strong>
                                     </div>
                                     <div class="col-md-6">
-                                        {{ \App\Helpers\Helper::getFormattedDateObject($audit_log->created_at, 'date', false) }}
+                                        {{ \App\Helpers\Helper::getFormattedDateObject($audit_log->created_at, 'date',
+                                        false) }}
                                         (by
-                                        {{ link_to_route('users.show', $audit_log->user->present()->fullname(), [$audit_log->user->id]) }})
+                                        {{ link_to_route('users.show', $audit_log->user->present()->fullname(),
+                                        [$audit_log->user->id]) }})
                                     </div>
                                 </div>
                                 @endif
@@ -295,7 +297,8 @@
                                         </strong>
                                     </div>
                                     <div class="col-md-6">
-                                        {{ \App\Helpers\Helper::getFormattedDateObject($asset->next_audit_date, 'date', false) }}
+                                        {{ \App\Helpers\Helper::getFormattedDateObject($asset->next_audit_date, 'date',
+                                        false) }}
                                     </div>
                                 </div>
                                 @endif
@@ -436,9 +439,11 @@
                                         @can('superuser')
                                         @if (($field->format=='URL') && ($asset->{$field->db_column_name()}!=''))
                                         <a href="{{ \App\Helpers\Helper::gracefulDecrypt($field, $asset->{$field->db_column_name()}) }}"
-                                            target="_new">{{ \App\Helpers\Helper::gracefulDecrypt($field, $asset->{$field->db_column_name()}) }}</a>
+                                            target="_new">{{ \App\Helpers\Helper::gracefulDecrypt($field,
+                                            $asset->{$field->db_column_name()}) }}</a>
                                         @else
-                                        {{ \App\Helpers\Helper::gracefulDecrypt($field, $asset->{$field->db_column_name()}) }}
+                                        {{ \App\Helpers\Helper::gracefulDecrypt($field,
+                                        $asset->{$field->db_column_name()}) }}
                                         @endif
                                         @else
                                         {{ strtoupper(trans('admin/custom_fields/general.encrypted')) }}
@@ -446,8 +451,8 @@
 
                                         @else
                                         @if (($field->format=='URL') && ($asset->{$field->db_column_name()}!=''))
-                                        <a href="{{ $asset->{$field->db_column_name()} }}"
-                                            target="_new">{{ $asset->{$field->db_column_name()} }}</a>
+                                        <a href="{{ $asset->{$field->db_column_name()} }}" target="_new">{{
+                                            $asset->{$field->db_column_name()} }}</a>
                                         @else
                                         {!! nl2br(e($asset->{$field->db_column_name()})) !!}
                                         @endif
@@ -466,7 +471,8 @@
                                         </strong>
                                     </div>
                                     <div class="col-md-6">
-                                        {{ \App\Helpers\Helper::getFormattedDateObject($asset->purchase_date, 'date', false) }}
+                                        {{ \App\Helpers\Helper::getFormattedDateObject($asset->purchase_date, 'date',
+                                        false) }}
                                     </div>
                                 </div>
                                 @endif
@@ -623,7 +629,8 @@
                                         </strong>
                                     </div>
                                     <div class="col-md-6">
-                                        {{ \App\Helpers\Helper::getFormattedDateObject($asset->expected_checkin, 'date', false) }}
+                                        {{ \App\Helpers\Helper::getFormattedDateObject($asset->expected_checkin, 'date',
+                                        false) }}
                                     </div>
                                 </div>
                                 @endif
@@ -685,7 +692,8 @@
                                         </strong>
                                     </div>
                                     <div class="col-md-6">
-                                        {{ \App\Helpers\Helper::getFormattedDateObject($asset->created_at, 'datetime', false) }}
+                                        {{ \App\Helpers\Helper::getFormattedDateObject($asset->created_at, 'datetime',
+                                        false) }}
                                     </div>
                                 </div>
                                 @endif
@@ -698,7 +706,8 @@
                                         </strong>
                                     </div>
                                     <div class="col-md-6">
-                                        {{ \App\Helpers\Helper::getFormattedDateObject($asset->updated_at, 'datetime', false) }}
+                                        {{ \App\Helpers\Helper::getFormattedDateObject($asset->updated_at, 'datetime',
+                                        false) }}
                                     </div>
                                 </div>
                                 @endif
@@ -710,7 +719,8 @@
                                         </strong>
                                     </div>
                                     <div class="col-md-6">
-                                        {{ \App\Helpers\Helper::getFormattedDateObject($asset->last_checkout, 'datetime', false) }}
+                                        {{ \App\Helpers\Helper::getFormattedDateObject($asset->last_checkout,
+                                        'datetime', false) }}
                                     </div>
                                 </div>
                                 @endif
@@ -770,12 +780,14 @@
                             </div>
                             @endif
 
+                            @can('admin')
                             @if ($snipeSettings->qr_code=='1')
                             <img src="{{ config('app.url') }}/hardware/{{ $asset->id }}/qr_code"
                                 class="img-thumbnail pull-right"
                                 style="height: 100px; width: 100px; margin-right: 10px;"
                                 alt="QR code for {{ $asset->getDisplayNameAttribute() }}">
                             @endif
+                            @endcan
 
                             @if (($asset->assignedTo) && ($asset->deleted_at==''))
                             <h2>{{ trans('admin/hardware/form.checkedout_to') }}</h2>
@@ -824,6 +836,7 @@
                             @endif
                         </div> <!-- div.col-md-4 -->
 
+                        @can('admin')
                         @if ($snipeSettings->alt_barcode_enabled=='1')
                         <div class="col-md-4">
                             <img src="{{ config('app.url') }}/hardware/{{ $asset->id }}/barcode"
@@ -832,6 +845,7 @@
                                 alt="Bar code for {{ $asset->getDisplayNameAttribute() }}">
                         </div> <!-- div.col-md-4 -->
                         @endif
+                        @endcan
 
                     </div><!-- /row -->
                 </div><!-- /.tab-pane asset details -->
@@ -845,8 +859,8 @@
                                 <thead>
                                     <tr>
                                         <th class="col-md-4">{{ trans('general.name') }}</th>
-                                        <th class="col-md-4"><span
-                                                class="line"></span>{{ trans('admin/licenses/form.license_key') }}</th>
+                                        <th class="col-md-4"><span class="line"></span>{{
+                                            trans('admin/licenses/form.license_key') }}</th>
                                         <th class="col-md-1"><span class="line"></span>{{ trans('table.actions') }}</th>
                                     </tr>
                                 </thead>
@@ -854,8 +868,8 @@
                                     @foreach ($asset->licenseseats as $seat)
                                     @if ($seat->license)
                                     <tr>
-                                        <td><a
-                                                href="{{ route('licenses.show', $seat->license->id) }}">{{ $seat->license->name }}</a>
+                                        <td><a href="{{ route('licenses.show', $seat->license->id) }}">{{
+                                                $seat->license->name }}</a>
                                         </td>
                                         <td>
                                             @can('viewKeys', $seat->license)
@@ -866,8 +880,8 @@
                                         </td>
                                         <td>
                                             <a href="{{ route('licenses.checkin', $seat->id) }}"
-                                                class="btn btn-sm bg-purple"
-                                                data-tooltip="true">{{ trans('general.checkin') }}</a>
+                                                class="btn btn-sm bg-purple" data-tooltip="true">{{
+                                                trans('general.checkin') }}</a>
                                         </td>
                                     </tr>
                                     @endif
@@ -904,8 +918,8 @@
                                     @if (is_null($component->deleted_at))
                                     <tr>
                                         <td>
-                                            <a
-                                                href="{{ route('components.show', $component->id) }}">{{ $component->name }}</a>
+                                            <a href="{{ route('components.show', $component->id) }}">{{ $component->name
+                                                }}</a>
                                         </td>
                                         <td>{{ $component->pivot->assigned_qty }}</td>
                                         <td>{{ $component->purchase_cost }}</td>
@@ -943,10 +957,10 @@
 
 
                             {{ Form::open([
-                                              'method' => 'POST',
-                                              'route' => ['hardware/bulkedit'],
-                                              'class' => 'form-inline',
-                                               'id' => 'bulkForm']) }}
+                            'method' => 'POST',
+                            'route' => ['hardware/bulkedit'],
+                            'class' => 'form-inline',
+                            'id' => 'bulkForm']) }}
                             <div id="toolbar">
                                 <label for="bulk_actions"><span class="sr-only">Bulk Actions</span></label>
                                 <select name="bulk_actions" class="form-control select2" style="width: 150px;"
@@ -969,9 +983,9 @@
                                     class="table table-striped snipe-table"
                                     data-url="{{route('api.assets.index',['assigned_to' => $asset->id, 'assigned_type' => 'App\Models\Asset']) }}"
                                     data-export-options='{
-                              "fileName": "export-assets-{{ str_slug($asset->name) }}-assets-{{ date('Y-m-d') }}",
-                              "ignoreColumn": ["actions","image","change","checkbox","checkincheckout","icon"]
-                              }'>
+                              "fileName": "export-assets-{{ str_slug($asset->name) }}-assets-{{ date(' Y-m-d')
+                                    }}", "ignoreColumn" :
+                                    ["actions","image","change","checkbox","checkincheckout","icon"] }'>
 
                                 </table>
 
@@ -1126,7 +1140,8 @@
 
                                         <td>
                                             @if ($file->created_at)
-                                            {{ \App\Helpers\Helper::getFormattedDateObject($asset->last_checkout, 'datetime', false) }}
+                                            {{ \App\Helpers\Helper::getFormattedDateObject($asset->last_checkout,
+                                            'datetime', false) }}
                                             @endif
                                         </td>
 

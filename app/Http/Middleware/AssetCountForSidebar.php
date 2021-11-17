@@ -49,6 +49,9 @@ class AssetCountForSidebar
 
             $total_overdueforaudit_sidebar = $user->managedAssets()->OverdueForAudit()->count();
             view()->share('total_overdueforaudit_sidebar', $total_overdueforaudit_sidebar);
+
+            $total_people_sidebar = $user->managedUsers()->count();
+            view()->share('total_people_sidebar', $total_people_sidebar);
         }
 
         return $next($request);
