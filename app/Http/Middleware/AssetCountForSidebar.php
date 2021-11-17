@@ -21,59 +21,58 @@ class AssetCountForSidebar
     {
         // check for user rights
         if ($user = Auth::user()) {
-            $assets = $user->managedAssets();
 
             try {
-                $total_deployed_sidebar = $assets->Deployed()->count();
+                $total_deployed_sidebar = $user->managedAssets()->Deployed()->count();
                 view()->share('total_deployed_sidebar', $total_deployed_sidebar);
             } catch (\Exception $e) {
                 \Log::debug($e);
             }
 
             try {
-                $total_rtd_sidebar = $assets->RTD()->count();
+                $total_rtd_sidebar = $user->managedAssets()->RTD()->count();
                 view()->share('total_rtd_sidebar', $total_rtd_sidebar);
             } catch (\Exception $e) {
                 \Log::debug($e);
             }
 
             try {
-                $total_pending_sidebar = $assets->Pending()->count();
+                $total_pending_sidebar = $user->managedAssets()->Pending()->count();
                 view()->share('total_pending_sidebar', $total_pending_sidebar);
             } catch (\Exception $e) {
                 \Log::debug($e);
             }
 
             try {
-                $total_undeployable_sidebar = $assets->Undeployable()->count();
+                $total_undeployable_sidebar = $user->managedAssets()->Undeployable()->count();
                 view()->share('total_undeployable_sidebar', $total_undeployable_sidebar);
             } catch (\Exception $e) {
                 \Log::debug($e);
             }
 
             try {
-                $total_archived_sidebar = $assets->Archived()->count();
+                $total_archived_sidebar = $user->managedAssets()->Archived()->count();
                 view()->share('total_archived_sidebar', $total_archived_sidebar);
             } catch (\Exception $e) {
                 \Log::debug($e);
             }
 
             try {
-                $total_requestable_sidebar = $assets->RequestableAssets()->count();
+                $total_requestable_sidebar = $user->managedAssets()->RequestableAssets()->count();
                 view()->share('total_requestable_sidebar', $total_requestable_sidebar);
             } catch (\Exception $e) {
                 \Log::debug($e);
             }
 
             try {
-                $total_dueforaudit_sidebar = $assets->DueForAudit(Setting::getSettings())->count();
+                $total_dueforaudit_sidebar = $user->managedAssets()->DueForAudit(Setting::getSettings())->count();
                 view()->share('total_dueforaudit_sidebar', $total_dueforaudit_sidebar);
             } catch (\Exception $e) {
                 \Log::debug($e);
             }
 
             try {
-                $total_overdueforaudit_sidebar = $assets->OverdueForAudit()->count();
+                $total_overdueforaudit_sidebar = $user->managedAssets()->OverdueForAudit()->count();
                 view()->share('total_overdueforaudit_sidebar', $total_overdueforaudit_sidebar);
             } catch (\Exception $e) {
                 \Log::debug($e);

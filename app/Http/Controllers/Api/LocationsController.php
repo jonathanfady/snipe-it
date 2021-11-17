@@ -293,7 +293,12 @@ class LocationsController extends Controller
     {
         $this->authorize('view', Location::class);
 
-        $locations = Auth::user()->managedLocations()->get();
+        if (Auth::user()->isSuperUser() ||  Auth::user()->isAdmin()) {
+            // add filter to limit view at admin and hq level
+            $locations = Auth::user()->managedLocations()->whereNull('parent_id')->get();
+        } else {
+            $locations = Auth::user()->managedLocations()->get();
+        }
 
         $labels = [];
         $points = [];
