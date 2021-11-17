@@ -171,8 +171,9 @@ class StatuslabelsController extends Controller
         $labels = [];
         $points = [];
 
+        // undeployed assets
         foreach ($statuslabels as $statuslabel) {
-            $asset_count = Auth::user()->managedAssets()->where('status_id', $statuslabel->id)->count();
+            $asset_count = Auth::user()->managedAssets()->whereNull('assigned_to')->where('status_id', $statuslabel->id)->count();
             if ($asset_count > 0) {
                 $labels[] = $statuslabel->name . ' (' . number_format($asset_count) . ')';
                 $points[] = $asset_count;
