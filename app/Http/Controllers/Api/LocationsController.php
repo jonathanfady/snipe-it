@@ -293,19 +293,21 @@ class LocationsController extends Controller
     {
         $this->authorize('view', Location::class);
 
+        $locations = Auth::user()->managedLocations()->get();
+
         if (Auth::user()->isSuperUser() ||  Auth::user()->isAdmin()) {
             // add filter to limit view at admin and hq level
-            $locations = Auth::user()->managedLocations()->whereNull('parent_id')->get();
-        } else {
-            $locations = Auth::user()->managedLocations()->get();
+            $locations = $locations->whereNull('parent_id');
         }
 
         $labels = [];
         $points = [];
         $default_color_count = 0;
 
+        $assets = Auth::user()->managedAssets()->get();
+
         foreach ($locations as $location) {
-            $asset_count = Auth::user()->managedAssets()->where('location_id', $location->id)->count();
+            $asset_count = $assets->where('location_id', $location->id)->count();
             if ($asset_count > 0) {
                 $labels[] = $location->name . ' (' . number_format($asset_count) . ')';
                 $points[] = $asset_count;

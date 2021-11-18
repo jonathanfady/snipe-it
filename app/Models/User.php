@@ -426,9 +426,12 @@ class User extends SnipeModel implements AuthenticatableContract, AuthorizableCo
         if ($this->isSuperUser()) {
             return \App\Models\Location::query();
         } else if ($this->isAdmin()) {
-            return $this->hasMany('\App\Models\Location', 'manager_id');
+            return \App\Models\Location::join('users', 'users.id', 'locations.manager_id')
+                ->where('locations.manager_id', $this->id)
+                ->orWhere('users.manager_id', $this->id)
+                ->select('locations.*');
         } else {
-            return $this->hasManyThrough('App\Models\Location', 'App\Models\Asset', 'focal_point_id', 'id', 'id', 'location_id');
+            return $this->hasMany('App\Models\Location', 'manager_id');
         }
     }
 
@@ -447,7 +450,10 @@ class User extends SnipeModel implements AuthenticatableContract, AuthorizableCo
         if ($this->isSuperUser()) {
             return \App\Models\Asset::query();
         } else if ($this->isAdmin()) {
-            return $this->hasManyThrough('App\Models\Asset', 'App\Models\Location', 'manager_id');
+            return \App\Models\Asset::join('users', 'users.id', 'assets.focal_point_id')
+                ->where('assets.focal_point_id', $this->id)
+                ->orWhere('users.manager_id', $this->id)
+                ->select('assets.*');
         } else {
             return $this->hasMany('App\Models\Asset', 'focal_point_id');
         }
@@ -468,9 +474,12 @@ class User extends SnipeModel implements AuthenticatableContract, AuthorizableCo
         if ($this->isSuperUser()) {
             return \App\Models\User::query();
         } else if ($this->isAdmin()) {
-            return $this->hasManyThrough('App\Models\User', 'App\Models\Location', 'manager_id');
+            return \App\Models\User::join('users as managers', 'managers.id', 'users.manager_id')
+                ->where('users.manager_id', $this->id)
+                ->orWhere('managers.manager_id', $this->id)
+                ->select('users.*');
         } else {
-            return $this->hasManyThrough('App\Models\User', 'App\Models\Asset', 'focal_point_id', 'id', 'id', 'assigned_to');
+            return $this->hasMany('App\Models\User', 'manager_id');
         }
     }
 
