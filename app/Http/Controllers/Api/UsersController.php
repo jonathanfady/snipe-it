@@ -32,7 +32,7 @@ class UsersController extends Controller
     {
         $this->authorize('view', User::class);
 
-        $users = User::select([
+        $users = Auth::user()->managedUsers()->select([
             'users.activated',
             'users.address',
             'users.avatar',
@@ -158,7 +158,7 @@ class UsersController extends Controller
     public function selectlist(Request $request)
     {
 
-        $users = User::select(
+        $users = Auth::user()->managedUsers()->select(
             [
                 'users.id',
                 'users.username',
@@ -169,21 +169,21 @@ class UsersController extends Controller
                 'users.avatar',
                 'users.email',
             ]
-        )->where('show_in_list', '=', '1');
+        )->where('users.show_in_list', '=', '1');
 
         $users = Company::scopeCompanyables($users);
 
         if ($request->filled('userActivated') && $request->input('userActivated') === '1') {
-            $users = $users->where('activated', 1);
+            $users = $users->where('users.activated', 1);
         }
 
         if ($request->filled('search')) {
             $users = $users->SimpleNameSearch($request->get('search'))
-                ->orWhere('username', 'LIKE', '%' . $request->get('search') . '%')
-                ->orWhere('employee_num', 'LIKE', '%' . $request->get('search') . '%');
+                ->orWhere('users.username', 'LIKE', '%' . $request->get('search') . '%')
+                ->orWhere('users.employee_num', 'LIKE', '%' . $request->get('search') . '%');
         }
 
-        $users = $users->orderBy('last_name', 'asc')->orderBy('first_name', 'asc');
+        $users = $users->orderBy('users.last_name', 'asc')->orderBy('users.first_name', 'asc');
         $users = $users->paginate(50);
 
         foreach ($users as $user) {

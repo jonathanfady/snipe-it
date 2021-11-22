@@ -413,8 +413,8 @@ class User extends SnipeModel implements AuthenticatableContract, AuthorizableCo
     /**
      * Establishes the user -> managed locations relationship
      * get all locations for super user
-     * get managed locations for admin
-     * get locations from assets by focal points for regular user
+     * get locations managed by user or by managed users for admin
+     * get managed locations for regular user
      *
      * @author A. Gianotto <snipe@snipe.net>
      * @since [v4.0]
@@ -424,11 +424,13 @@ class User extends SnipeModel implements AuthenticatableContract, AuthorizableCo
     {
         // return $this->hasMany('\App\Models\Location', 'manager_id');
         if ($this->isSuperUser()) {
-            return \App\Models\Location::query();
+            return \App\Models\Location::select('locations.*');
         } else if ($this->isAdmin()) {
-            return \App\Models\Location::join('users', 'users.id', 'locations.manager_id')
-                ->where('locations.manager_id', $this->id)
-                ->orWhere('users.manager_id', $this->id)
+            return \App\Models\Location::leftJoin('users', 'users.id', 'locations.manager_id')
+                ->where(function ($query) {
+                    $query->where('locations.manager_id', $this->id)
+                        ->orWhere('users.manager_id', $this->id);
+                })
                 ->select('locations.*');
         } else {
             return $this->hasMany('App\Models\Location', 'manager_id');
@@ -438,8 +440,8 @@ class User extends SnipeModel implements AuthenticatableContract, AuthorizableCo
     /**
      * Establishes the user -> managed assets relationship
      * get all assets for super user
-     * get assets from managed locations for admin
-     * get all assets by focal point for regular user
+     * get assets managed by user (focal point), or by managed locations, or by managed users for admin
+     * get managed assets (focal point) for regular user
      * 
      * @author A. Gianotto <snipe@snipe.net>
      * @since [v1.0]
@@ -448,11 +450,15 @@ class User extends SnipeModel implements AuthenticatableContract, AuthorizableCo
     public function managedAssets()
     {
         if ($this->isSuperUser()) {
-            return \App\Models\Asset::query();
+            return \App\Models\Asset::select('assets.*');
         } else if ($this->isAdmin()) {
-            return \App\Models\Asset::join('users', 'users.id', 'assets.focal_point_id')
-                ->where('assets.focal_point_id', $this->id)
-                ->orWhere('users.manager_id', $this->id)
+            return \App\Models\Asset::leftJoin('users', 'users.id', 'assets.focal_point_id')
+                ->leftJoin('locations', 'locations.id', 'assets.location_id')
+                ->where(function ($query) {
+                    $query->where('assets.focal_point_id', $this->id)
+                        ->orWhere('users.manager_id', $this->id)
+                        ->orWhere('locations.manager_id', $this->id);
+                })
                 ->select('assets.*');
         } else {
             return $this->hasMany('App\Models\Asset', 'focal_point_id');
@@ -462,8 +468,8 @@ class User extends SnipeModel implements AuthenticatableContract, AuthorizableCo
     /**
      * Establishes the user -> managed users relationship
      * get all users for super user
-     * get assets from managed locations for admin
-     * get all users from assets by focal points for regular user
+     * get users managed by user, or by managed users, or by managed locations for admin
+     * get managed users for regular user
      * 
      * @author A. Gianotto <snipe@snipe.net>
      * @since [v1.0]
@@ -472,14 +478,46 @@ class User extends SnipeModel implements AuthenticatableContract, AuthorizableCo
     public function managedUsers()
     {
         if ($this->isSuperUser()) {
-            return \App\Models\User::query();
+            return \App\Models\User::select('users.*');
         } else if ($this->isAdmin()) {
-            return \App\Models\User::join('users as managers', 'managers.id', 'users.manager_id')
-                ->where('users.manager_id', $this->id)
-                ->orWhere('managers.manager_id', $this->id)
+            return \App\Models\User::leftJoin('users as managers', 'managers.id', 'users.manager_id')
+                ->leftJoin('locations', 'locations.id', 'users.location_id')
+                ->where(function ($query) {
+                    $query->where('users.manager_id', $this->id)
+                        ->orWhere('managers.manager_id', $this->id)
+                        ->orWhere('locations.manager_id', $this->id);
+                })
                 ->select('users.*');
         } else {
             return $this->hasMany('App\Models\User', 'manager_id');
+        }
+    }
+
+    /**
+     * Establishes the user -> managed departments relationship
+     * get all departments for super user
+     * get departments managed by user, or by manged user, or by managed location for admin
+     * get managed departments for regular user
+     * 
+     * @author A. Gianotto <snipe@snipe.net>
+     * @since [v1.0]
+     * @return \Illuminate\Database\Eloquent\Relations\Relation
+     */
+    public function managedDepartments()
+    {
+        if ($this->isSuperUser()) {
+            return \App\Models\Department::select('departments.*');
+        } else if ($this->isAdmin()) {
+            return \App\Models\Department::leftJoin('users', 'users.id', 'departments.manager_id')
+                ->leftJoin('locations', 'locations.id', 'departments.location_id')
+                ->where(function ($query) {
+                    $query->where('departments.manager_id', $this->id)
+                        ->orWhere('users.manager_id', $this->id)
+                        ->orWhere('locations.manager_id', $this->id);
+                })
+                ->select('departments.*');
+        } else {
+            return $this->hasMany('App\Models\Department', 'manager_id');
         }
     }
 

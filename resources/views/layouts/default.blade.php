@@ -765,7 +765,7 @@
                                 <a href="{{ route('departments.index') }}" {{ (Request::is('/departments')
                                     ? ' class="active"' : '' ) }}>
                                     {{ trans('general.departments') }}
-                                    ({{ \App\Models\Department::count() }})
+                                    ({{ $total_departments_sidebar }})
                                 </a>
                             </li>
                             @endcan
@@ -775,7 +775,7 @@
                                 <a href="{{ route('locations.index') }}" {{ (Request::is('/locations')
                                     ? ' class="active"' : '' ) }}>
                                     {{ trans('general.locations') }}
-                                    ({{ \App\Models\Location::count() }})
+                                    ({{ $total_locations_sidebar }})
                                 </a>
                             </li>
                             @endcan

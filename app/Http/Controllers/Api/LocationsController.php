@@ -241,7 +241,7 @@ class LocationsController extends Controller
     public function selectlist(Request $request)
     {
 
-        $locations = Location::select([
+        $locations = Auth::user()->managedLocations()->select([
             'locations.id',
             'locations.name',
             'locations.parent_id',
@@ -257,7 +257,7 @@ class LocationsController extends Controller
             $locations = $locations->where('locations.name', 'LIKE', '%' . $request->input('search') . '%');
         }
 
-        $locations = $locations->orderBy('name', 'ASC')->get();
+        $locations = $locations->orderBy('locations.name', 'ASC')->get();
 
         $locations_with_children = [];
 
@@ -293,21 +293,19 @@ class LocationsController extends Controller
     {
         $this->authorize('view', Location::class);
 
-        $locations = Auth::user()->managedLocations()->get();
-
         if (Auth::user()->isSuperUser() ||  Auth::user()->isAdmin()) {
             // add filter to limit view at admin and hq level
-            $locations = $locations->whereNull('parent_id');
+            $locations = Auth::user()->managedLocations()->whereNull('locations.parent_id')->get();
+        } else {
+            $locations = Auth::user()->managedLocations()->get();
         }
 
         $labels = [];
         $points = [];
         $default_color_count = 0;
 
-        $assets = Auth::user()->managedAssets()->get();
-
         foreach ($locations as $location) {
-            $asset_count = $assets->where('location_id', $location->id)->count();
+            $asset_count = Auth::user()->managedAssets()->where('assets.location_id', $location->id)->count();
             if ($asset_count > 0) {
                 $labels[] = $location->name . ' (' . number_format($asset_count) . ')';
                 $points[] = $asset_count;

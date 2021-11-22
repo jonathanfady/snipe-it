@@ -52,6 +52,12 @@ class AssetCountForSidebar
 
             $total_people_sidebar = $user->managedUsers()->count();
             view()->share('total_people_sidebar', $total_people_sidebar);
+
+            $total_departments_sidebar = $user->managedDepartments()->count();
+            view()->share('total_departments_sidebar', $total_departments_sidebar);
+
+            $total_locations_sidebar = $user->managedLocations()->count();
+            view()->share('total_locations_sidebar', $total_locations_sidebar);
         }
 
         return $next($request);
