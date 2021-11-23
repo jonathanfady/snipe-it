@@ -362,7 +362,7 @@
         item_destination = 'locations';
         item_icon = 'fa-map-marker';
         if (value.length == 1) {
-            return '<nobr><a href="{{ url('/') }}/' + item_destination +'/' + value[0].id + '" data-tooltip="true" title="child"><i class="fa ' + item_icon + ' text-{{ $snipeSettings->skin!='' ? $snipeSettings->skin : 'blue' }} "></i> ' + value[0].name + '</a></nobr>';
+            return '<a href="{{ url('/') }}/' + item_destination +'/' + value[0].id + '" data-tooltip="true" title="child"><i class="fa ' + item_icon + ' text-{{ $snipeSettings->skin!='' ? $snipeSettings->skin : 'blue' }} "></i> ' + value[0].name + '</a>';
         } else if (value.length > 1) {
             children_links = '';
             for (var i in value) {

@@ -25,36 +25,30 @@ class LocationsController extends Controller
     {
         $this->authorize('view', Location::class);
         $allowed_columns = [
-            'id', 'name', 'address', 'address2', 'city', 'state', 'country', 'zip', 'created_at',
-            'updated_at', 'manager_id', 'image',
-            'assigned_assets_count', 'users_count', 'assets_count', 'currency', 'ldap_ou'
+            'id', 'name', 'address', 'city', 'state', 'country', 'parent_id', 'manager_id', 'created_at',
+            'assets_count', 'assigned_assets_count', 'users_count'
         ];
 
-        $locations = Auth::user()->managedLocations()->with('parent', 'manager', 'children')->select([
-            'locations.id',
-            'locations.name',
-            'locations.address',
-            'locations.address2',
-            'locations.city',
-            'locations.state',
-            'locations.zip',
-            'locations.country',
-            'locations.parent_id',
-            'locations.manager_id',
-            'locations.created_at',
-            'locations.updated_at',
-            'locations.image',
-            'locations.ldap_ou',
-            'locations.currency'
-        ])->withCount('assignedAssets as assigned_assets_count')
+        $locations = Auth::user()->managedLocations()->with('parent', 'manager')
+            ->with(['children' => function ($query) {
+                $query->orderBy('name');
+            }])->select([
+                'locations.id',
+                'locations.name',
+                'locations.address',
+                'locations.city',
+                'locations.state',
+                'locations.country',
+                'locations.parent_id',
+                'locations.manager_id',
+                'locations.created_at',
+            ])->withCount('assignedAssets as assigned_assets_count')
             ->withCount('assets as assets_count')
             ->withCount('users as users_count');
 
         if ($request->filled('search')) {
             $locations = $locations->TextSearch($request->input('search'));
         }
-
-
 
         $offset = (($locations) && (request('offset') > $locations->count())) ? 0 : request('offset', 0);
 
@@ -75,7 +69,6 @@ class LocationsController extends Controller
                 $locations->orderBy($sort, $order);
                 break;
         }
-
 
         $total = $locations->count();
         $locations = $locations->skip($offset)->take($limit)->get();

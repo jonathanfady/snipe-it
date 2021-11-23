@@ -278,8 +278,7 @@ class LocationsController extends Controller
                 ->conditionallyAddItem('country');
 
             foreach ($locations as $locationId) {
-                DB::table('locations')
-                    ->where('id', $locationId)
+                Location::find($locationId)
                     ->update($this->update_array);
             } // endforeach
 

@@ -37,15 +37,6 @@ class LocationPresenter extends Presenter
                 "formatter" => "locationsLinkFormatter"
             ],
             [
-                "field" => "image",
-                "searchable" => false,
-                "sortable" => true,
-                "switchable" => true,
-                "title" => trans('general.image'),
-                "visible" => true,
-                "formatter" => "imageFormatter"
-            ],
-            [
                 "field" => "parent",
                 "searchable" => false,
                 "sortable" => true,
@@ -54,7 +45,6 @@ class LocationPresenter extends Presenter
                 "visible" => true,
                 "formatter" => "locationsLinkObjFormatter"
             ],
-
             [
                 "field" => "children",
                 "searchable" => false,
@@ -64,7 +54,6 @@ class LocationPresenter extends Presenter
                 "visible" => true,
                 'formatter' => 'childrenLinkFormatter'
             ],
-
             [
                 "field" => "assets_count",
                 "searchable" => false,
@@ -90,20 +79,12 @@ class LocationPresenter extends Presenter
                 "visible" => true,
             ],
             [
-                "field" => "currency",
-                "searchable" => true,
-                "sortable" => true,
-                "switchable" => true,
-                "title" =>  trans('general.currency'),
-                "visible" => true,
-            ],
-            [
                 "field" => "address",
                 "searchable" => true,
                 "sortable" => true,
                 "switchable" => true,
                 "title" =>  trans('admin/locations/table.address'),
-                "visible" => true,
+                "visible" => false,
             ],
             [
                 "field" => "city",
@@ -111,7 +92,7 @@ class LocationPresenter extends Presenter
                 "sortable" => true,
                 "switchable" => true,
                 "title" =>  trans('admin/locations/table.city'),
-                "visible" => true,
+                "visible" => false,
             ],
             [
                 "field" => "state",
@@ -119,14 +100,6 @@ class LocationPresenter extends Presenter
                 "sortable" => true,
                 "switchable" => true,
                 "title" =>  trans('admin/locations/table.state'),
-                "visible" => true,
-            ],
-            [
-                "field" => "zip",
-                "searchable" => true,
-                "sortable" => true,
-                "switchable" => true,
-                "title" =>  trans('admin/locations/table.zip'),
                 "visible" => false,
             ],
             [
@@ -138,23 +111,14 @@ class LocationPresenter extends Presenter
                 "visible" => false,
             ],
             [
-                "field" => "ldap_ou",
-                "searchable" => true,
-                "sortable" => true,
-                "switchable" => true,
-                "title" =>  trans('admin/locations/table.ldap_ou'),
-                "visible" => false,
-            ],
-            [
                 "field" => "manager",
                 "searchable" => false,
                 "sortable" => true,
                 "switchable" => true,
                 "title" =>  trans('admin/users/table.manager'),
-                "visible" => false,
+                "visible" => true,
                 "formatter" => 'usersLinkObjFormatter'
             ],
-
             [
                 "field" => "created_at",
                 "searchable" => true,
@@ -164,7 +128,6 @@ class LocationPresenter extends Presenter
                 "visible" => false,
                 'formatter' => 'dateDisplayFormatter'
             ],
-
             [
                 "field" => "actions",
                 "searchable" => false,
