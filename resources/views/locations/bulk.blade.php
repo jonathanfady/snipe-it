@@ -31,6 +31,11 @@
             <div class="box box-default">
                 <div class="box-body">
 
+                    <!-- Parent -->
+                    @include ('partials.forms.edit.location-select', ['translated_name' =>
+                    trans('admin/locations/table.parent'),
+                    'fieldname' => 'parent_id'])
+
                     <!-- Manager-->
                     @include ('partials.forms.edit.user-select', ['fieldname' => 'manager_id',
                     'translated_name' => trans('admin/users/table.manager'), 'activated_users_only' => 'true'])

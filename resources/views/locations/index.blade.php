@@ -25,15 +25,13 @@
         'id' => 'bulkForm']) }}
         <div class="row">
           <div class="col-md-12">
-            @if (Request::get('status')!='Deleted')
             <div id="toolbar">
               <label for="bulk_actions"><span class="sr-only">Bulk Actions</span></label>
               <select name="bulk_actions" class="form-control" aria-label="bulk_actions">
                 <option value="edit">{{ trans('button.edit') }}</option>
               </select>
-              <button class="btn btn-primary" id="bulkEdit">Go</button>
+              <button class="btn btn-primary" id="bulkEdit" disabled>Go</button>
             </div>
-            @endif
             <div class="table-responsive">
 
               <table data-columns="{{ \App\Presenters\LocationPresenter::dataTableLayout() }}"

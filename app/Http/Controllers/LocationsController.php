@@ -260,7 +260,8 @@ class LocationsController extends Controller
 
         $locations = array_keys($request->input('ids'));
 
-        if (($request->filled('manager_id'))
+        if (($request->filled('parent_id'))
+            || ($request->filled('manager_id'))
             || ($request->filled('currency'))
             || ($request->filled('city'))
             || ($request->filled('state'))
@@ -269,7 +270,8 @@ class LocationsController extends Controller
 
             $this->update_array = [];
 
-            $this->conditionallyAddItem('manager_id')
+            $this->conditionallyAddItem('parent_id')
+                ->conditionallyAddItem('manager_id')
                 ->conditionallyAddItem('currency')
                 ->conditionallyAddItem('city')
                 ->conditionallyAddItem('state')

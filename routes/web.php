@@ -80,6 +80,22 @@ Route::group(['middleware' => 'auth'], function () {
     Route::resource('departments', 'DepartmentsController', [
         'parameters' => ['department' => 'department_id']
     ]);
+
+    Route::post(
+        'departments/bulkedit',
+        [
+            'as' => 'departments/bulkedit',
+            'uses' => 'DepartmentsController@bulkedit'
+        ]
+    );
+
+    Route::post(
+        'departments/bulksave',
+        [
+            'as' => 'departments/bulksave',
+            'uses' => 'DepartmentsController@bulkupdate'
+        ]
+    );
 });
 
 

@@ -6,6 +6,7 @@ use App\Http\Requests\ImageUploadRequest;
 use App\Models\Department;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 
 class DepartmentsController extends Controller
@@ -53,7 +54,7 @@ class DepartmentsController extends Controller
         $department = new Department;
         $department->fill($request->all());
         $department->user_id = Auth::user()->id;
-        $department->manager_id = ($request->filled('manager_id' ) ? $request->input('manager_id') : null);
+        $department->manager_id = ($request->filled('manager_id') ? $request->input('manager_id') : null);
 
         $department = $request->handleImages($department);
 
@@ -125,8 +126,8 @@ class DepartmentsController extends Controller
         }
 
         if ($department->image) {
-            try  {
-                Storage::disk('public')->delete('departments'.'/'.$department->image);
+            try {
+                Storage::disk('public')->delete('departments' . '/' . $department->image);
             } catch (\Exception $e) {
                 \Log::debug($e);
             }
@@ -134,7 +135,6 @@ class DepartmentsController extends Controller
         $department->delete();
 
         return redirect()->back()->with('success', trans('admin/departments/message.delete.success'));
-
     }
 
     /**
@@ -158,7 +158,8 @@ class DepartmentsController extends Controller
         return view('departments/edit', compact('item'));
     }
 
-    public function update(ImageUploadRequest $request, $id) {
+    public function update(ImageUploadRequest $request, $id)
+    {
 
         if (is_null($department = Department::find($id))) {
             return redirect()->route('departments.index')->with('error', trans('admin/departments/message.does_not_exist'));
@@ -167,13 +168,102 @@ class DepartmentsController extends Controller
         $this->authorize('update', $department);
 
         $department->fill($request->all());
-        $department->manager_id = ($request->filled('manager_id' ) ? $request->input('manager_id') : null);
+        $department->manager_id = ($request->filled('manager_id') ? $request->input('manager_id') : null);
 
         $department = $request->handleImages($department);
-        
+
         if ($department->save()) {
             return redirect()->route("departments.index")->with('success', trans('admin/departments/message.update.success'));
         }
         return redirect()->back()->withInput()->withErrors($department->getErrors());
+    }
+
+
+
+    /**
+     * Display the bulk edit page.
+     *
+     * @author [A. Gianotto] [<snipe@snipe.net>]
+     * @return View
+     * @internal param int $assetId
+     * @since [v2.0]
+     * @throws \Illuminate\Auth\Access\AuthorizationException
+     */
+    public function bulkedit(Request $request)
+    {
+        $this->authorize('update', Department::class);
+
+        if (!$request->filled('ids')) {
+            return redirect()->back()->with('error', 'No departments selected');
+        }
+
+        if ($request->filled('bulk_actions')) {
+            switch ($request->input('bulk_actions')) {
+                case 'edit':
+                    return view('departments/bulk')
+                        ->with('departments', request('ids'));
+            }
+        }
+        return redirect()->back()->with('error', 'No action selected');
+    }
+
+    /**
+     * Save bulk edits
+     *
+     * @author [A. Gianotto] [<snipe@snipe.net>]
+     * @return Redirect
+     * @internal param array $assets
+     * @since [v2.0]
+     */
+    public function bulkupdate(Request $request)
+    {
+        $this->authorize('update', Department::class);
+
+        \Log::debug($request->input('ids'));
+
+        if (!$request->filled('ids') || count($request->input('ids')) <= 0) {
+            return redirect()->route("departments.index")->with('warning', trans('No departments selected, so nothing was updated.'));
+        }
+
+        $departments = array_keys($request->input('ids'));
+
+        if (($request->filled('manager_id'))
+            || ($request->filled('location_id'))
+        ) {
+
+            $this->update_array = [];
+
+            $this->conditionallyAddItem('manager_id')
+                ->conditionallyAddItem('location_id');
+
+            foreach ($departments as $departmentId) {
+                DB::table('departments')
+                    ->where('id', $departmentId)
+                    ->update($this->update_array);
+            } // endforeach
+
+            return redirect()->route("departments.index")->with('success', trans('admin/departments/message.update.success'));
+            // no values given, nothing to update
+        }
+        return redirect()->route("departments.index")->with('warning', trans('admin/departments/message.update.nothing_updated'));
+    }
+
+    /**
+     * Array to store update data per item
+     * @var Array
+     */
+    private $update_array;
+
+    /**
+     * Adds parameter to update array for an item if it exists in request
+     * @param  String $field field name
+     * @return BulkAssetsController Model for Chaining
+     */
+    protected function conditionallyAddItem($field)
+    {
+        if (request()->filled($field)) {
+            $this->update_array[$field] = request()->input($field);
+        }
+        return $this;
     }
 }

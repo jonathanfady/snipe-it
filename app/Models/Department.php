@@ -4,10 +4,13 @@ namespace App\Models;
 
 use App\Http\Traits\UniqueUndeletedTrait;
 use App\Models\Traits\Searchable;
+use App\Presenters\Presentable;
 use Watson\Validating\ValidatingTrait;
 
 class Department extends SnipeModel
 {
+    protected $presenter = 'App\Presenters\DepartmentPresenter';
+    use Presentable;
     /**
      * Whether the model should inject it's identifier to the unique
      * validation rules before attempting validation. If this property
@@ -47,7 +50,7 @@ class Department extends SnipeModel
     ];
 
     use Searchable;
-    
+
     /**
      * The attributes that should be included when searching the model.
      * 
@@ -111,7 +114,7 @@ class Department extends SnipeModel
     {
         return $this->belongsTo('\App\Models\Location', 'location_id');
     }
-    
+
     /**
      * Query builder scope to order on location name
      *
@@ -137,6 +140,4 @@ class Department extends SnipeModel
     {
         return $query->leftJoin('users as department_user', 'departments.manager_id', '=', 'department_user.id')->orderBy('department_user.first_name', $order)->orderBy('department_user.last_name', $order);
     }
-
-
 }
