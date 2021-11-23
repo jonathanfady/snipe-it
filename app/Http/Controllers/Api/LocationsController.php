@@ -286,9 +286,16 @@ class LocationsController extends Controller
     {
         $this->authorize('view', Location::class);
 
-        if (Auth::user()->isSuperUser() ||  Auth::user()->isAdmin()) {
-            // add filter to limit view at admin and hq level
+        if (Auth::user()->isSuperUser()) {
+            // get top level locations
             $locations = Auth::user()->managedLocations()->whereNull('locations.parent_id')->get();
+        } else if (Auth::user()->isAdmin()) {
+            // get top level locations of current scope
+            $locationIds = Auth::user()->managedLocations()->pluck('locations.id');
+            $locations = Auth::user()->managedLocations()
+                ->whereNull('locations.parent_id')
+                ->orWhereNotIn('locations.parent_id', $locationIds)
+                ->get();
         } else {
             $locations = Auth::user()->managedLocations()->get();
         }
