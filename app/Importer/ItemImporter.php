@@ -54,10 +54,10 @@ class ItemImporter extends Importer
             $this->item['supplier_id'] = $this->createOrFetchSupplier($item_supplier);
         }
 
-        $item_department = $this->findCsvMatch($row, "department");
-        if ($this->shouldUpdateField($item_department)) {
-            $this->item['department_id'] = $this->createOrFetchDepartment($item_department);
-        }
+        // $item_department = $this->findCsvMatch($row, "department");
+        // if ($this->shouldUpdateField($item_department)) {
+        //     $this->item['department_id'] = $this->createOrFetchDepartment($item_department);
+        // }
 
         $item_manager_first_name = $this->findCsvMatch($row, "manage_first_name");
         $item_manager_last_name = $this->findCsvMatch($row, "manage_last_name");
