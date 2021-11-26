@@ -51,10 +51,10 @@ class ObjectImportCommand extends Command
         $classString = "App\\Importer\\{$class}Importer";
         $importer = new $classString($filename);
         $importer->setCallbacks([$this, 'log'], [$this, 'progress'], [$this, 'errorCallback'])
-            ->setUserId($this->option('user_id'))
-            ->setUpdating($this->option('update'))
-            ->setShouldNotify($this->option('send-welcome'))
-            ->setUsernameFormat($this->option('username_format'));
+            ->setUserId($this->option('user_id'));
+        // ->setUpdating($this->option('update'))
+        // ->setShouldNotify($this->option('send-welcome'))
+        // ->setUsernameFormat($this->option('username_format'));
 
 
         // This $logFile/useFiles() bit is currently broken, so commenting it out for now

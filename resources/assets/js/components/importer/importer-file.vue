@@ -154,7 +154,7 @@ export default {
           { id: "focal_point_first_name", text: "Focal Point (First Name)" },
           { id: "focal_point_last_name", text: "Focal Point (Last Name)" },
           { id: "status", text: "Status" },
-          { id: "item_name", text: "Asset Name" },
+          { id: "name", text: "Asset Name" },
           { id: "purchase_date", text: "Invoice Date" },
           { id: "supplier", text: "Supplier" },
           { id: "order_number", text: "IOF Number" },
@@ -162,6 +162,10 @@ export default {
           { id: "notes", text: "Notes" },
           { id: "current_company", text: "Current Donor" },
           { id: "location", text: "Location" },
+          { id: "location_parent", text: "Location Parent" },
+          { id: "location_manager_email", text: "Location Manager (Email)" },
+          { id: "location_manager_first_name", text: "Location Manager (First Name)" },
+          { id: "location_manager_last_name", text: "Location Manager (Last Name)" },
           { id: "last_audit_date", text: "Last Audit Date" },
           // {id: 'checkout_class', text: 'Checkout Type' },
           { id: "checkout_user_email", text: "Checkout To User (Email)" },
@@ -285,6 +289,8 @@ export default {
         })
         .then(
           (response) => {
+            console.log("success");
+            console.log(response);
             this.statusType = "success";
             this.statusText = this.options.importType + " successfully imported.";
           },

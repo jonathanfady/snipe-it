@@ -3,132 +3,164 @@
 namespace App\Importer;
 
 use App\Models\Asset;
-use App\Models\Statuslabel;
+use App\Models\Location;
 use App\Models\User;
+use Illuminate\Support\Facades\Log;
 
 class AssetImporter extends ItemImporter
 {
-    protected $defaultStatusLabelId;
-
     public function __construct($filename)
     {
         parent::__construct($filename);
-        $this->defaultStatusLabelId = Statuslabel::first()->id;
     }
 
     protected function handle($row)
     {
-        // ItemImporter handles the general fetching.
         parent::handle($row);
 
-        if ($this->customFields) {
+        // Check if all required data is provided
+        if (($this->findCsvMatch($row, 'company'))
+            && ($this->findCsvMatch($row, 'model'))
+            && ($this->findCsvMatch($row, 'manufacturer'))
+            && ($this->findCsvMatch($row, 'category'))
+            && ($this->findCsvMatch($row, 'supplier'))
+            && ($this->findCsvMatch($row, 'asset_tag'))
+            && ($this->findCsvMatch($row, 'serial'))
+            && ($this->findCsvMatch($row, 'purchase_cost'))
+            && ($this->findCsvMatch($row, 'purchase_date'))
+            && ($this->findCsvMatch($row, 'order_number'))
+            && (($this->findCsvMatch($row, 'focal_point_email'))
+                || (($this->findCsvMatch($row, 'focal_point_first_name'))
+                    && ($this->findCsvMatch($row, 'focal_point_last_name'))))
+        ) {
 
-            foreach ($this->customFields as $customField) {
-                $customFieldValue = $this->array_smart_custom_field_fetch($row, $customField);
 
-                if ($customFieldValue) {
+            // Pull the records from the CSV to determine their values
+            $this->item['asset_tag'] = $this->findCsvMatch($row, 'asset_tag');
+            $this->item['serial'] = $this->findCsvMatch($row, 'serial');
+            $this->item['name'] = $this->findCsvMatch($row, 'name');
+            $this->item['purchase_date'] = $this->findCsvMatch($row, 'purchase_date');
+            $this->item['order_number'] = $this->findCsvMatch($row, 'order_number');
+            $this->item['purchase_cost'] = $this->findCsvMatch($row, 'purchase_cost');
+            $this->item['notes'] = $this->findCsvMatch($row, 'notes');
+            $this->item['last_audit_date'] = $this->findCsvMatch($row, 'last_audit_date');
 
-                    if ($customField->field_encrypted == 1) {
-                        $this->item['custom_fields'][$customField->db_column_name()] = \Crypt::encrypt($customFieldValue);
-                        $this->log('Custom Field ' . $customField->name . ': ' . \Crypt::encrypt($customFieldValue));
-                    } else {
-                        $this->item['custom_fields'][$customField->db_column_name()] = $customFieldValue;
-                        $this->log('Custom Field ' . $customField->name . ': ' . $customFieldValue);
-                    }
-                } else {
-                    // Clear out previous data.
-                    $this->item['custom_fields'][$customField->db_column_name()] = null;
+            $this->item['company_id'] = $this->createOrFetchCompany($this->findCsvMatch($row, 'company'));
+            $this->item["manufacturer_id"] = $this->createOrFetchManufacturer($this->findCsvMatch($row, 'manufacturer'));
+            $this->item["category_id"] = $this->createOrFetchCategory($this->findCsvMatch($row, 'category'));
+            $this->item['status_id'] = $this->fetchStatusLabel($this->findCsvMatch($row, 'status'));
+            $this->item['supplier_id'] = $this->createOrFetchSupplier($this->findCsvMatch($row, 'supplier'));
+            $this->item['current_company_id'] = $this->createOrFetchCompany($this->findCsvMatch($row, 'current_company'));
+
+
+
+            // Handle model
+            $this->item['model_id'] = $this->createOrFetchModel(
+                [
+                    'name' => $this->findCsvMatch($row, 'model'),
+                    'manufacturer_id' => $this->item["manufacturer_id"],
+                    'category_id' => $this->item["category_id"],
+                ]
+            );
+
+
+
+            // Handle focal point
+            $asset_focal_point = [];
+            if ($asset_focal_point_email = $this->findCsvMatch($row, 'focal_point_email')) {
+                $asset_focal_point += ['email' => $asset_focal_point_email];
+            }
+            if (
+                $asset_focal_point_first_name = $this->findCsvMatch($row, 'focal_point_first_name')
+                && $asset_focal_point_last_name = $this->findCsvMatch($row, 'focal_point_last_name')
+            ) {
+                $asset_focal_point += [
+                    'first_name' => $asset_focal_point_first_name,
+                    'last_name' => $asset_focal_point_last_name
+                ];
+            }
+            $this->item['focal_point_id'] = $this->createOrFetchUser($asset_focal_point);
+
+
+
+            // Handle location
+            if ($asset_location = $this->findCsvMatch($row, 'location')) {
+                // Location parent
+                $asset_location_parent_id = $this->createOrFetchLocation($this->findCsvMatch($row, 'location_parent'));
+
+                // Location manager
+                $asset_location_manager = [];
+                if ($asset_location_manager_email = $this->findCsvMatch($row, 'location_manager_email')) {
+                    $asset_location_manager += ['email' => $asset_location_manager_email];
                 }
+                if (
+                    $asset_location_manager_first_name = $this->findCsvMatch($row, 'location_manager_first_name')
+                    && $asset_location_manager_last_name = $this->findCsvMatch($row, 'location_manager_last_name')
+                ) {
+                    $asset_location_manager += [
+                        'first_name' => $asset_location_manager_first_name,
+                        'last_name' => $asset_location_manager_last_name
+                    ];
+                }
+                $asset_location_manager_id = $this->createOrFetchUser($asset_location_manager);
+
+                $this->item["location_id"] = $this->createOrFetchLocation(
+                    $asset_location,
+                    [
+                        'parent_id' => $asset_location_parent_id,
+                        'manager_id' => $asset_location_manager_id,
+                    ]
+                );
+            } else {
+                $this->item['location_id'] = null;
             }
-        }
+            // Set Ready To Deploy location as well
+            $this->item['rtd_location_id'] = $this->item['location_id'];
 
-
-        $this->createAssetIfNotExists($row);
-    }
-
-    /**
-     * Create the asset if it does not exist.
-     *
-     * @author Daniel Melzter
-     * @since 3.0
-     * @param array $row
-     * @return Asset|mixed|null
-     */
-    public function createAssetIfNotExists(array $row)
-    {
-        $editingAsset = false;
-        $asset_tag = $this->findCsvMatch($row, "asset_tag");
-        $asset = Asset::where(['asset_tag' => $asset_tag])->first();
-        if ($asset) {
-            if (!$this->updating) {
-                $this->log('A matching Asset ' . $asset_tag . ' already exists');
-                return;
+            // Update or create asset
+            $asset = Asset::where(['asset_tag' => $this->item['asset_tag']])->first();
+            if ($asset) {
+                $this->log("Updating Asset");
+                $asset->update($this->item);
+                $this->log("Asset " . $asset->asset_tag . " with serial number " . $asset->serial . " was updated");
+            } else {
+                $this->log("No Matching Asset, creating one");
+                $asset = Asset::create($this->item);
+                $asset->logCreate('Imported using csv file.');
+                $this->log("Asset " . $asset->asset_tag . " with serial number " . $asset->serial . " was created");
             }
 
-            $this->log("Updating Asset");
-            $editingAsset = true;
+
+
+            // Handle checkout
+            if (($this->findCsvMatch($row, 'checkout_user_email'))
+                || ($this->findCsvMatch($row, 'checkout_user_first_name')
+                    && $this->findCsvMatch($row, 'checkout_user_last_name'))
+            ) {
+                $asset_checkout_user = [];
+                if ($asset_checkout_user_email = $this->findCsvMatch($row, 'checkout_user_email')) {
+                    $asset_checkout_user += ['email' => $asset_checkout_user_email];
+                }
+                if (
+                    $asset_checkout_user_first_name = $this->findCsvMatch($row, 'checkout_user_first_name')
+                    && $asset_checkout_user_last_name = $this->findCsvMatch($row, 'checkout_user_last_name')
+                ) {
+                    $asset_checkout_user += [
+                        'first_name' => $asset_checkout_user_first_name,
+                        'last_name' => $asset_checkout_user_last_name
+                    ];
+                }
+                $target = User::find($this->createOrFetchUser($asset_checkout_user));
+            } else if ($asset_checkout_location = $this->findCsvMatch($row, "checkout_location")) {
+                $target = Location::find($this->createOrFetchLocation($asset_checkout_location));
+            } else {
+                $target = null;
+            }
+            $asset->checkOut($target);
         } else {
-            $this->log("No Matching Asset, Creating a new one");
-            $asset = new Asset;
+            $this->log("Can't handle Asset " . print_r($row, true) . "Some information is missing.");
         }
 
-        // $this->item['image'] = $this->findCsvMatch($row, "image");
-        // $this->item['requestable'] = $this->fetchHumanBoolean($this->findCsvMatch($row, "requestable"));;
-        // $asset->requestable =  $this->fetchHumanBoolean($this->findCsvMatch($row, "requestable"));
-        // $this->item['warranty_months'] = intval($this->findCsvMatch($row, "warranty_months"));
-        $this->item['model_id'] = $this->createOrFetchAssetModel($row);
-        if ($this->createOrFetchUser($this->findCsvMatch($row, "focal_point")))
-            $this->item['focal_point_id'] = $this->createOrFetchUser($this->findCsvMatch($row, "focal_point"))->id;
-        else
-            $this->item['focal_point_id'] = User::first()->id;
-
-        // If no status ID is found
-        if (!array_key_exists('status_id', $this->item) && !$editingAsset) {
-            $this->log("No status field found, defaulting to first status.");
-            $this->item['status_id'] = $this->defaultStatusLabelId;
-        }
-
-        $this->item['asset_tag'] = $asset_tag;
-
-        // We need to save the user if it exists so that we can checkout to user later.
-        // Sanitizing the item will remove it.
-        if (array_key_exists('checkout_target', $this->item)) {
-            $target = $this->item['checkout_target'];
-        }
-        $item = $this->sanitizeItemForStoring($asset, $editingAsset);
-        // The location id fetched by the csv reader is actually the rtd_location_id.
-        // This will also set location_id, but then that will be overridden by the
-        // checkout method if necessary below.
-        if (isset($this->item["location_id"])) {
-            $item['rtd_location_id'] = $this->item['location_id'];
-        }
-
-
-        if ($editingAsset) {
-            $asset->update($item);
-        } else {
-            $asset->fill($item);
-        }
-
-        // If we're updating, we don't want to overwrite old fields.
-        if (array_key_exists('custom_fields', $this->item)) {
-            foreach ($this->item['custom_fields'] as $custom_field => $val) {
-                $asset->{$custom_field} = $val;
-            }
-        }
-        //FIXME: this disables model validation.  Need to find a way to avoid double-logs without breaking everything.
-        // $asset->unsetEventDispatcher();
-        if ($asset->save()) {
-            $asset->logCreate('Imported using csv importer');
-            $this->log('Asset ' . $this->item["name"] . ' with serial number ' . $this->item['serial'] . ' was created');
-
-            // If we have a target to checkout to, lets do so.
-            if (isset($target)) {
-                $asset->fresh()->checkOut($target);
-            }
-            return;
-        }
-        $this->log('Asset was not created');
         return;
     }
 }
