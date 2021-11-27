@@ -45,8 +45,8 @@ class UserImporter extends ItemImporter
                 $user_manager += ['email' => $user_manager_email];
             }
             if (
-                $user_manager_first_name = $this->findCsvMatch($row, 'manager_first_name')
-                && $user_manager_last_name = $this->findCsvMatch($row, 'manager_last_name')
+                ($user_manager_first_name = $this->findCsvMatch($row, 'manager_first_name'))
+                && ($user_manager_last_name = $this->findCsvMatch($row, 'manager_last_name'))
             ) {
                 $user_manager += [
                     'first_name' => $user_manager_first_name,
@@ -68,8 +68,8 @@ class UserImporter extends ItemImporter
                     $user_location_manager += ['email' => $user_location_manager_email];
                 }
                 if (
-                    $user_location_manager_first_name = $this->findCsvMatch($row, 'location_manager_first_name')
-                    && $user_location_manager_last_name = $this->findCsvMatch($row, 'location_manager_last_name')
+                    ($user_location_manager_first_name = $this->findCsvMatch($row, 'location_manager_first_name'))
+                    && ($user_location_manager_last_name = $this->findCsvMatch($row, 'location_manager_last_name'))
                 ) {
                     $user_location_manager += [
                         'first_name' => $user_location_manager_first_name,
@@ -100,8 +100,8 @@ class UserImporter extends ItemImporter
                     $user_department_manager += ['email' => $user_department_manager_email];
                 }
                 if (
-                    $user_department_manager_first_name = $this->findCsvMatch($row, 'department_manager_first_name')
-                    && $user_department_manager_last_name = $this->findCsvMatch($row, 'department_manager_last_name')
+                    ($user_department_manager_first_name = $this->findCsvMatch($row, 'department_manager_first_name'))
+                    && ($user_department_manager_last_name = $this->findCsvMatch($row, 'department_manager_last_name'))
                 ) {
                     $user_department_manager += [
                         'first_name' => $user_department_manager_first_name,
@@ -160,7 +160,10 @@ class UserImporter extends ItemImporter
                 }
             }
         } else {
-            $this->log("Can't handle User " . print_r($row, true) . "Some information is missing.");
+            $this->logError(
+                "User " . $this->findCsvMatch($row, 'first_name') . " " . $this->findCsvMatch($row, 'first_name'),
+                "Some required data is missing"
+            );
         }
 
         return;

@@ -5,7 +5,6 @@ namespace App\Importer;
 use App\Models\Asset;
 use App\Models\Location;
 use App\Models\User;
-use Illuminate\Support\Facades\Log;
 
 class AssetImporter extends ItemImporter
 {
@@ -46,8 +45,6 @@ class AssetImporter extends ItemImporter
             $this->item['last_audit_date'] = $this->findCsvMatch($row, 'last_audit_date');
 
             $this->item['company_id'] = $this->createOrFetchCompany($this->findCsvMatch($row, 'company'));
-            $this->item["manufacturer_id"] = $this->createOrFetchManufacturer($this->findCsvMatch($row, 'manufacturer'));
-            $this->item["category_id"] = $this->createOrFetchCategory($this->findCsvMatch($row, 'category'));
             $this->item['status_id'] = $this->fetchStatusLabel($this->findCsvMatch($row, 'status'));
             $this->item['supplier_id'] = $this->createOrFetchSupplier($this->findCsvMatch($row, 'supplier'));
             $this->item['current_company_id'] = $this->createOrFetchCompany($this->findCsvMatch($row, 'current_company'));
@@ -58,8 +55,8 @@ class AssetImporter extends ItemImporter
             $this->item['model_id'] = $this->createOrFetchModel(
                 [
                     'name' => $this->findCsvMatch($row, 'model'),
-                    'manufacturer_id' => $this->item["manufacturer_id"],
-                    'category_id' => $this->item["category_id"],
+                    'manufacturer_id' => $this->createOrFetchManufacturer($this->findCsvMatch($row, 'manufacturer')),
+                    'category_id' => $this->createOrFetchCategory($this->findCsvMatch($row, 'category')),
                 ]
             );
 
@@ -71,8 +68,8 @@ class AssetImporter extends ItemImporter
                 $asset_focal_point += ['email' => $asset_focal_point_email];
             }
             if (
-                $asset_focal_point_first_name = $this->findCsvMatch($row, 'focal_point_first_name')
-                && $asset_focal_point_last_name = $this->findCsvMatch($row, 'focal_point_last_name')
+                ($asset_focal_point_first_name = $this->findCsvMatch($row, 'focal_point_first_name'))
+                && ($asset_focal_point_last_name = $this->findCsvMatch($row, 'focal_point_last_name'))
             ) {
                 $asset_focal_point += [
                     'first_name' => $asset_focal_point_first_name,
@@ -94,8 +91,8 @@ class AssetImporter extends ItemImporter
                     $asset_location_manager += ['email' => $asset_location_manager_email];
                 }
                 if (
-                    $asset_location_manager_first_name = $this->findCsvMatch($row, 'location_manager_first_name')
-                    && $asset_location_manager_last_name = $this->findCsvMatch($row, 'location_manager_last_name')
+                    ($asset_location_manager_first_name = $this->findCsvMatch($row, 'location_manager_first_name'))
+                    && ($asset_location_manager_last_name = $this->findCsvMatch($row, 'location_manager_last_name'))
                 ) {
                     $asset_location_manager += [
                         'first_name' => $asset_location_manager_first_name,
@@ -134,16 +131,16 @@ class AssetImporter extends ItemImporter
 
             // Handle checkout
             if (($this->findCsvMatch($row, 'checkout_user_email'))
-                || ($this->findCsvMatch($row, 'checkout_user_first_name')
-                    && $this->findCsvMatch($row, 'checkout_user_last_name'))
+                || (($this->findCsvMatch($row, 'checkout_user_first_name'))
+                    && ($this->findCsvMatch($row, 'checkout_user_last_name')))
             ) {
                 $asset_checkout_user = [];
                 if ($asset_checkout_user_email = $this->findCsvMatch($row, 'checkout_user_email')) {
                     $asset_checkout_user += ['email' => $asset_checkout_user_email];
                 }
                 if (
-                    $asset_checkout_user_first_name = $this->findCsvMatch($row, 'checkout_user_first_name')
-                    && $asset_checkout_user_last_name = $this->findCsvMatch($row, 'checkout_user_last_name')
+                    ($asset_checkout_user_first_name = $this->findCsvMatch($row, 'checkout_user_first_name'))
+                    && ($asset_checkout_user_last_name = $this->findCsvMatch($row, 'checkout_user_last_name'))
                 ) {
                     $asset_checkout_user += [
                         'first_name' => $asset_checkout_user_first_name,
@@ -158,7 +155,10 @@ class AssetImporter extends ItemImporter
             }
             $asset->checkOut($target);
         } else {
-            $this->log("Can't handle Asset " . print_r($row, true) . "Some information is missing.");
+            $this->logError(
+                "Asset " . $this->findCsvMatch($row, 'asset_tag') . " " . $this->findCsvMatch($row, 'serial'),
+                "Some required data is missing"
+            );
         }
 
         return;

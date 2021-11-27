@@ -5,6 +5,7 @@ namespace App\Http\Requests;
 use App\Models\Import;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 
 class ItemImportRequest extends FormRequest
 {
@@ -49,7 +50,7 @@ class ItemImportRequest extends FormRequest
 
                 if (is_null($fieldValue)) {
                     $errorMessage = trans('validation.import_field_empty');
-                    $this->errorCallback($import, $field, $errorMessage);
+                    $this->errorCallback("Import " . $import->file_path . " " . $field, $errorMessage);
 
                     return $this->errors;
                 }
@@ -72,7 +73,7 @@ class ItemImportRequest extends FormRequest
 
     public function log($string)
     {
-        \Log::Info($string);
+        Log::Info($string);
     }
 
     public function progress($count)
@@ -80,9 +81,9 @@ class ItemImportRequest extends FormRequest
         // Open for future
         return;
     }
-    public function errorCallback($item, $field, $errorString)
+    public function errorCallback($name, $errorString)
     {
-        $this->errors[$item->name][$field] = $errorString;
+        $this->errors[$name] = $errorString;
     }
 
     private $errors;

@@ -2,11 +2,6 @@
 
 namespace App\Importer;
 
-use App\Models\CustomField;
-use App\Models\Department;
-use App\Models\Setting;
-use App\Models\User;
-use Illuminate\Support\Facades\Auth;
 use ForceUTF8\Encoding;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
@@ -15,11 +10,19 @@ use League\Csv\Reader;
 abstract class Importer
 {
     protected $csv;
+
     /**
      * Id of User performing import
      * @var
      */
     protected $user_id;
+
+    /**
+     * Temporary password for activated new users
+     * @var
+     */
+    protected $tempPassword;
+
     /**
      * Are we updating items in the import
      * @var bool
@@ -86,23 +89,27 @@ abstract class Importer
      * @var array
      */
     protected $fieldMap = [];
+
     /**
      * @var callable
      */
     protected $logCallback;
-    protected $tempPassword;
     /**
      * @var callable
      */
-    protected $progressCallback;
-    /**
-     * @var null
-     */
-    protected $usernameFormat;
+    // protected $progressCallback;
     /**
      * @var callable
      */
     protected $errorCallback;
+
+    /**
+     * @var null
+     */
+    // protected $usernameFormat;
+
+
+
 
     /**
      * ObjectImporter constructor.
@@ -144,14 +151,13 @@ abstract class Importer
 
         DB::transaction(function () use (&$results) {
             Model::unguard();
-            $resultsCount = sizeof($results);
+            // $resultsCount = sizeof($results);
             foreach ($results as $row) {
-                $this->handle($row);
-                if ($this->progressCallback) {
-                    call_user_func($this->progressCallback, $resultsCount);
-                }
-
                 $this->log('------------- Action Summary ----------------');
+                $this->handle($row);
+                // if ($this->progressCallback) {
+                //     call_user_func($this->progressCallback, $resultsCount);
+                // }
             }
         });
     }
@@ -165,13 +171,11 @@ abstract class Importer
      * @since 3.0
      * @param $array array
      * @param $key string
-     * @param $default string
      * @return string
      */
     public function findCsvMatch(array $array, $key)
     {
         $val = null;
-        // $key = $this->lookupCustomKey($key);
         if (array_key_exists($key, $this->fieldMap)) {
             $key = $this->fieldMap[$key];
         }
@@ -221,10 +225,10 @@ abstract class Importer
         }
     }
 
-    protected function logError($item, $field)
+    protected function logError($name, $errorString)
     {
         if ($this->errorCallback) {
-            call_user_func($this->errorCallback, $item, $field, $item->getErrors());
+            call_user_func($this->errorCallback, $name, $errorString);
         }
     }
 
@@ -300,7 +304,7 @@ abstract class Importer
     public function setCallbacks(callable $logCallback, callable $progressCallback, callable $errorCallback)
     {
         $this->logCallback = $logCallback;
-        $this->progressCallback = $progressCallback;
+        // $this->progressCallback = $progressCallback;
         $this->errorCallback = $errorCallback;
 
         return $this;

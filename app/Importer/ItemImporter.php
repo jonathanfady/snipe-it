@@ -53,7 +53,7 @@ class ItemImporter extends Importer
         } else if ((array_key_exists('first_name', $user))
             && (array_key_exists('last_name', $user))
         ) {
-            User::firstOrCreate($user);
+            return User::firstOrCreate($user)->id;
         } else {
             return null;
         }

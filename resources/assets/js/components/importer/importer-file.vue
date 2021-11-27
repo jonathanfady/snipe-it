@@ -13,17 +13,17 @@
         </div>
       </div>
       <!-- /dynamic-form-row -->
-      <div class="dynamic-form-row">
+      <!-- <div class="dynamic-form-row">
         <div class="col-md-5 col-xs-12">
           <label for="import-update">Update Existing Values?:</label>
         </div>
         <div class="col-md-7 col-xs-12">
           <input type="checkbox" class="minimal" name="import-update" v-model="options.update" />
         </div>
-      </div>
+      </div> -->
       <!-- /dynamic-form-row -->
 
-      <div class="dynamic-form-row">
+      <div class="dynamic-form-row" v-if="options.importType == 'user'">
         <div class="col-md-5 col-xs-12">
           <label for="send-welcome">Send Welcome Email for new Users?</label>
         </div>
@@ -33,14 +33,14 @@
       </div>
       <!-- /dynamic-form-row -->
 
-      <div class="dynamic-form-row">
+      <!-- <div class="dynamic-form-row">
         <div class="col-md-5 col-xs-12">
           <label for="run-backup">Backup before importing?</label>
         </div>
         <div class="col-md-7 col-xs-12">
           <input type="checkbox" class="minimal" name="run-backup" v-model="options.run_backup" />
         </div>
-      </div>
+      </div> -->
       <!-- /dynamic-form-row -->
 
       <!-- <div class="alert col-md-8 col-md-offset-2" style="text-align:left"
@@ -91,9 +91,7 @@
     </div>
     <!-- /div row -->
     <div class="row">
-      <div class="alert col-md-8 col-md-offset-2" style="padding-top: 20px" :class="alertClass" v-if="statusText">
-        {{ this.statusText }}
-      </div>
+      <pre class="alert col-md-8 col-md-offset-2" :class="alertClass" v-if="statusText">{{ this.statusText }}</pre>
     </div>
     <!-- /div row -->
   </div>
@@ -111,7 +109,7 @@ export default {
       statusType: null,
       options: {
         importType: this.file.import_type,
-        update: false,
+        // update: false,
         importTypes: [
           { id: "asset", text: "Assets" },
           // { id: 'accessory', text: 'Accessories' },
@@ -227,11 +225,11 @@ export default {
   computed: {
     columns() {
       // function to sort objects by their display text.
-      function sorter(a, b) {
-        if (a.text < b.text) return -1;
-        if (a.text > b.text) return 1;
-        return 0;
-      }
+      // function sorter(a, b) {
+      //   if (a.text < b.text) return -1;
+      //   if (a.text > b.text) return 1;
+      //   return 0;
+      // }
       switch (this.options.importType) {
         case "asset":
           return this.columnOptions.assets;
@@ -281,10 +279,10 @@ export default {
       console.log("pending");
       this.$http
         .post(route("api.imports.importFile", this.file.id), {
-          "import-update": this.options.update,
+          // "import-update": this.options.update,
           "send-welcome": this.options.send_welcome,
           "import-type": this.options.importType,
-          "run-backup": this.options.run_backup,
+          // "run-backup": this.options.run_backup,
           "column-mappings": this.columnMappings,
         })
         .then(
@@ -298,7 +296,11 @@ export default {
             console.log("error");
             console.log(error);
             this.statusType = "error";
-            this.statusText = "Error " + error.status + ": " + error.statusText;
+            this.statusText = "Error " + error.status + ": " + error.statusText + "\n";
+            let messages = JSON.parse(error.bodyText).messages;
+            for (let message in messages) {
+              this.statusText += message + ": " + messages[message] + "\n";
+            }
           }
         );
     },
@@ -324,9 +326,9 @@ export default {
         this.processDetail = !this.processDetail;
       }
     },
-    updateModel(header, value) {
-      this.columnMappings[header] = value;
-    },
+    // updateModel(header, value) {
+    //   this.columnMappings[header] = value;
+    // },
   },
   components: {
     select2: require("../select2.vue"),

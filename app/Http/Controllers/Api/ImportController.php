@@ -7,12 +7,8 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\ItemImportRequest;
 use App\Http\Transformers\ImportsTransformer;
 use App\Models\Asset;
-use App\Models\Company;
 use App\Models\Import;
-use Artisan;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Request;
-use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Storage;
 use League\Csv\Reader;
 use Symfony\Component\HttpFoundation\File\Exception\FileException;
@@ -121,12 +117,12 @@ class ImportController extends Controller
         $this->authorize('import');
 
         // Run a backup immediately before processing
-        if ($request->has('run-backup')) {
-            Log::debug('Backup manually requested via importer');
-            Artisan::call('backup:run');
-        } else {
-            Log::debug('NO BACKUP requested via importer');
-        }
+        // if ($request->has('run-backup')) {
+        //     Log::debug('Backup manually requested via importer');
+        //     Artisan::call('backup:run');
+        // } else {
+        //     Log::debug('NO BACKUP requested via importer');
+        // }
 
         $errors = $request->import(Import::find($import_id));
         // $redirectTo = "imports.index";
@@ -153,10 +149,11 @@ class ImportController extends Controller
 
         if ($errors) { //Failure
             return response()->json(Helper::formatStandardApiResponse('import-errors', null, $errors), 500);
+        } else {
+            return response()->json(Helper::formatStandardApiResponse('success', null));
         }
         // //Flash message before the redirect
         // Session::flash('success', trans('admin/hardware/message.import.success'));
-        return response()->json(Helper::formatStandardApiResponse('success', null));
         // return back();
     }
 
