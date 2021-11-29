@@ -17,46 +17,54 @@ class AssetImporter extends ItemImporter
     {
         parent::handle($row);
 
+        // Pull the records from the CSV to determine their values
+        $this->item['asset_tag'] = $this->findCsvMatch($row, 'asset_tag');
+        $this->item['serial'] = $this->findCsvMatch($row, 'serial');
+        $this->item['purchase_cost'] = $this->findCsvMatch($row, 'purchase_cost');
+        $this->item['purchase_date'] = $this->findCsvMatch($row, 'purchase_date');
+        $this->item['order_number'] = $this->findCsvMatch($row, 'order_number');
+        $this->item['company'] = $this->findCsvMatch($row, 'company');
+        $this->item['model'] = $this->findCsvMatch($row, 'model');
+        $this->item['manufacturer'] = $this->findCsvMatch($row, 'manufacturer');
+        $this->item['category'] = $this->findCsvMatch($row, 'category');
+        $this->item['supplier'] = $this->findCsvMatch($row, 'supplier');
+        $this->item['focal_point_email'] = $this->findCsvMatch($row, 'focal_point_email');
+        $this->item['focal_point_first_name'] = $this->findCsvMatch($row, 'focal_point_first_name');
+        $this->item['focal_point_last_name'] = $this->findCsvMatch($row, 'focal_point_last_name');
+
         // Check if all required data is provided
-        if (($this->findCsvMatch($row, 'company'))
-            && ($this->findCsvMatch($row, 'model'))
-            && ($this->findCsvMatch($row, 'manufacturer'))
-            && ($this->findCsvMatch($row, 'category'))
-            && ($this->findCsvMatch($row, 'supplier'))
-            && ($this->findCsvMatch($row, 'asset_tag'))
-            && ($this->findCsvMatch($row, 'serial'))
-            && ($this->findCsvMatch($row, 'purchase_cost'))
-            && ($this->findCsvMatch($row, 'purchase_date'))
-            && ($this->findCsvMatch($row, 'order_number'))
-            && (($this->findCsvMatch($row, 'focal_point_email'))
-                || (($this->findCsvMatch($row, 'focal_point_first_name'))
-                    && ($this->findCsvMatch($row, 'focal_point_last_name'))))
+        if (($this->item['asset_tag'])
+            && ($this->item['serial'])
+            && ($this->item['purchase_cost'])
+            && ($this->item['purchase_date'])
+            && ($this->item['order_number'])
+            && ($this->item['company'])
+            && ($this->item['model'])
+            && ($this->item['manufacturer'])
+            && ($this->item['category'])
+            && ($this->item['supplier'])
+            && ($this->item['focal_point_email']
+                || ($this->item['focal_point_first_name']
+                    && $this->item['focal_point_last_name']))
         ) {
-
-
-            // Pull the records from the CSV to determine their values
-            $this->item['asset_tag'] = $this->findCsvMatch($row, 'asset_tag');
-            $this->item['serial'] = $this->findCsvMatch($row, 'serial');
             $this->item['name'] = $this->findCsvMatch($row, 'name');
-            $this->item['purchase_date'] = $this->findCsvMatch($row, 'purchase_date');
-            $this->item['order_number'] = $this->findCsvMatch($row, 'order_number');
-            $this->item['purchase_cost'] = $this->findCsvMatch($row, 'purchase_cost');
             $this->item['notes'] = $this->findCsvMatch($row, 'notes');
             $this->item['last_audit_date'] = $this->findCsvMatch($row, 'last_audit_date');
 
-            $this->item['company_id'] = $this->createOrFetchCompany($this->findCsvMatch($row, 'company'));
             $this->item['status_id'] = $this->fetchStatusLabel($this->findCsvMatch($row, 'status'));
-            $this->item['supplier_id'] = $this->createOrFetchSupplier($this->findCsvMatch($row, 'supplier'));
             $this->item['current_company_id'] = $this->createOrFetchCompany($this->findCsvMatch($row, 'current_company'));
+
+            $this->item['company_id'] = $this->createOrFetchCompany($this->item['company']);
+            $this->item['supplier_id'] = $this->createOrFetchSupplier($this->item['supplier']);
 
 
 
             // Handle model
             $this->item['model_id'] = $this->createOrFetchModel(
                 [
-                    'name' => $this->findCsvMatch($row, 'model'),
-                    'manufacturer_id' => $this->createOrFetchManufacturer($this->findCsvMatch($row, 'manufacturer')),
-                    'category_id' => $this->createOrFetchCategory($this->findCsvMatch($row, 'category')),
+                    'name' => $this->item['model'],
+                    'manufacturer_id' => $this->createOrFetchManufacturer($this->item['manufacturer']),
+                    'category_id' => $this->createOrFetchCategory($this->item['category']),
                 ]
             );
 
@@ -64,16 +72,13 @@ class AssetImporter extends ItemImporter
 
             // Handle focal point
             $asset_focal_point = [];
-            if ($asset_focal_point_email = $this->findCsvMatch($row, 'focal_point_email')) {
-                $asset_focal_point += ['email' => $asset_focal_point_email];
+            if ($this->item['focal_point_email']) {
+                $asset_focal_point += ['email' => $this->item['focal_point_email']];
             }
-            if (
-                ($asset_focal_point_first_name = $this->findCsvMatch($row, 'focal_point_first_name'))
-                && ($asset_focal_point_last_name = $this->findCsvMatch($row, 'focal_point_last_name'))
-            ) {
+            if ($this->item['focal_point_first_name'] && $this->item['focal_point_last_name']) {
                 $asset_focal_point += [
-                    'first_name' => $asset_focal_point_first_name,
-                    'last_name' => $asset_focal_point_last_name
+                    'first_name' => $this->item['focal_point_first_name'],
+                    'last_name' => $this->item['focal_point_last_name']
                 ];
             }
             $this->item['focal_point_id'] = $this->createOrFetchUser($asset_focal_point);
@@ -114,10 +119,14 @@ class AssetImporter extends ItemImporter
             // Set Ready To Deploy location as well
             $this->item['rtd_location_id'] = $this->item['location_id'];
 
+
+
             // Update or create asset
             $asset = Asset::where(['asset_tag' => $this->item['asset_tag']])->first();
             if ($asset) {
                 $this->log("Updating Asset");
+                // Filter the item down to the model's fillable fields
+                $this->item = collect($this->item)->only($asset->getFillable())->toArray();
                 $asset->update($this->item);
                 $this->log("Asset " . $asset->asset_tag . " with serial number " . $asset->serial . " was updated");
             } else {
@@ -155,9 +164,19 @@ class AssetImporter extends ItemImporter
             }
             $asset->checkOut($target);
         } else {
+            // Get missing data string from item array
+            if (
+                $this->item['focal_point_email']
+                || ($this->item['focal_point_first_name'] && $this->item['focal_point_last_name'])
+            ) {
+                $this->item = collect($this->item)->except(['focal_point_email', 'focal_point_first_name', 'focal_point_last_name']);
+            }
+            $missingData = collect($this->item)->filter(function ($value) {
+                return $value == null;
+            })->keys()->implode(', ');
             $this->logError(
-                "Asset " . $this->findCsvMatch($row, 'asset_tag') . " " . $this->findCsvMatch($row, 'serial'),
-                "Some required data is missing"
+                "Asset " . $this->item['asset_tag'],
+                "Missing " . $missingData
             );
         }
 

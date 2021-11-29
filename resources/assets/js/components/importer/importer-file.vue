@@ -141,9 +141,9 @@ export default {
           // {id: 'department', text: 'Department' },
         ],
         assets: [
-          { id: "company", text: "Donor" },
           { id: "asset_tag", text: "Log Code" },
           { id: "serial", text: "Serial" },
+          { id: "company", text: "Donor" },
           { id: "model", text: "Model" },
           { id: "manufacturer", text: "Manufacturer" },
           { id: "category", text: "Category" },

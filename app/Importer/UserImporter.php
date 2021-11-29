@@ -19,23 +19,24 @@ class UserImporter extends ItemImporter
     {
         parent::handle($row);
 
-        // Check if all required data is provided
-        if (($this->findCsvMatch($row, 'first_name'))
-            && ($this->findCsvMatch($row, 'last_name'))
-            && ($this->findCsvMatch($row, 'email'))
-        ) {
+        // Pull the records from the CSV to determine their values
+        $this->item['first_name'] = $this->findCsvMatch($row, 'first_name');
+        $this->item['last_name'] = $this->findCsvMatch($row, 'last_name');
+        $this->item['email'] = $this->findCsvMatch($row, 'email');
 
-            // Pull the records from the CSV to determine their values
-            $this->item['first_name'] = $this->findCsvMatch($row, 'first_name');
-            $this->item['last_name'] = $this->findCsvMatch($row, 'last_name');
-            $this->item['email'] = $this->findCsvMatch($row, 'email');
+        // Check if all required data is provided
+        if ((($this->item['first_name'])
+                && ($this->item['last_name']))
+            || ($this->item['email'])
+        ) {
+            $this->item['username'] = explode('@', $this->item['email'])[0];
+            $this->item['first_name'] = $this->item['first_name'] ?: $this->item['username'];
+            $this->item['last_name'] = $this->item['last_name'] ?: $this->item['username'];
+
             $this->item['jobtitle'] = $this->findCsvMatch($row, 'jobtitle');
             $this->item['phone'] = $this->findCsvMatch($row, 'phone_number');
             $this->item['notes'] = $this->findCsvMatch($row, 'notes');
             $this->item['activated'] =  (int)filter_var($this->findCsvMatch($row, 'activated'), FILTER_VALIDATE_BOOLEAN);
-
-            // Get username from email address
-            $this->item['username'] = $this->item['email'] ? explode('@', $this->item['email'])[0] : null;
 
 
 
@@ -136,6 +137,8 @@ class UserImporter extends ItemImporter
                 })->first();
             if ($user) {
                 $this->log('Updating User');
+                // Filter the item down to the model's fillable fields
+                $this->item = collect($this->item)->only($user->getFillable())->toArray();
                 $user->update($this->item);
                 $this->log("User " . $user->username . " was updated");
             } else {
@@ -161,8 +164,8 @@ class UserImporter extends ItemImporter
             }
         } else {
             $this->logError(
-                "User " . $this->findCsvMatch($row, 'first_name') . " " . $this->findCsvMatch($row, 'first_name'),
-                "Some required data is missing"
+                "User " . $this->item['email'] . " " . $this->item['first_name'] . " " . $this->item['last_name'],
+                "Missing data"
             );
         }
 

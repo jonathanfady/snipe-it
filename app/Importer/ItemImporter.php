@@ -14,6 +14,7 @@ use App\Models\User;
 class ItemImporter extends Importer
 {
     protected $item;
+
     public function __construct($filename)
     {
         parent::__construct($filename);
@@ -115,7 +116,6 @@ class ItemImporter extends Importer
     {
         return AssetModel::firstOrCreate($model)->id;
     }
-
 
     /**
      * Fetch an existing Supplier, or create it.
