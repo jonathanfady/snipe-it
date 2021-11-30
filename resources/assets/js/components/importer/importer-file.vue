@@ -290,14 +290,19 @@ export default {
             console.log("success");
             console.log(response);
             this.statusType = "success";
-            this.statusText = this.options.importType + " successfully imported.";
+            let bodyText = JSON.parse(response.bodyText);
+            this.statusText =
+              bodyText.messages.progress.success + " succeeded. " + bodyText.messages.progress.failure + " failed.\n";
           },
           (error) => {
             console.log("error");
             console.log(error);
             this.statusType = "error";
             this.statusText = "Error " + error.status + ": " + error.statusText + "\n";
-            let messages = JSON.parse(error.bodyText).messages;
+            let bodyText = JSON.parse(error.bodyText);
+            this.statusText +=
+              bodyText.messages.progress.success + " succeeded. " + bodyText.messages.progress.failure + " failed.\n";
+            let messages = bodyText.messages.error;
             for (let message in messages) {
               this.statusText += message + ": " + messages[message] + "\n";
             }

@@ -163,6 +163,8 @@ class AssetImporter extends ItemImporter
                 $target = null;
             }
             $asset->checkOut($target);
+
+            return true;
         } else {
             // Get missing data string from item array
             if (
@@ -178,8 +180,8 @@ class AssetImporter extends ItemImporter
                 "Asset " . $this->item['asset_tag'],
                 "Missing " . $missingData
             );
-        }
 
-        return;
+            return false;
+        }
     }
 }

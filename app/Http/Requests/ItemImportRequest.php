@@ -9,6 +9,8 @@ use Illuminate\Support\Facades\Log;
 
 class ItemImportRequest extends FormRequest
 {
+    protected $progress = ['success' => 0, 'failure' => 0];
+
     /**
      * Determine if the user is authorized to make this request.
      *
@@ -52,7 +54,7 @@ class ItemImportRequest extends FormRequest
                     $errorMessage = trans('validation.import_field_empty');
                     $this->errorCallback("Import " . $import->file_path . " " . $field, $errorMessage);
 
-                    return $this->errors;
+                    return ['error' => $this->errors, 'progress' => $this->progress];
                 }
             }
             // We submit as csv field: column, but the importer is happier if we flip it here.
@@ -68,7 +70,7 @@ class ItemImportRequest extends FormRequest
         // $logFile = storage_path('logs/importer.log');
         // \Log::useFiles($logFile);
         $importer->import();
-        return $this->errors;
+        return ['error' => $this->errors, 'progress' => $this->progress];
     }
 
     public function log($string)
@@ -76,10 +78,13 @@ class ItemImportRequest extends FormRequest
         Log::Info($string);
     }
 
-    public function progress($count)
+    public function progress($success)
     {
-        // Open for future
-        return;
+        if ($success) {
+            $this->progress['success']++;
+        } else {
+            $this->progress['failure']++;
+        }
     }
     public function errorCallback($name, $errorString)
     {

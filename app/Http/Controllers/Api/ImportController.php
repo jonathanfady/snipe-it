@@ -124,7 +124,7 @@ class ImportController extends Controller
         //     Log::debug('NO BACKUP requested via importer');
         // }
 
-        $errors = $request->import(Import::find($import_id));
+        $response = $request->import(Import::find($import_id));
         // $redirectTo = "imports.index";
         // switch ($request->get('import-type')) {
         //     case "asset":
@@ -147,10 +147,10 @@ class ImportController extends Controller
         //         break;
         // }
 
-        if ($errors) { //Failure
-            return response()->json(Helper::formatStandardApiResponse('import-errors', null, $errors), 422);
+        if ($response['error']) { //Failure
+            return response()->json(Helper::formatStandardApiResponse('import-errors', null, $response), 422);
         } else {
-            return response()->json(Helper::formatStandardApiResponse('success', null));
+            return response()->json(Helper::formatStandardApiResponse('success', null, $response));
         }
         // //Flash message before the redirect
         // Session::flash('success', trans('admin/hardware/message.import.success'));

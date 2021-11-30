@@ -162,14 +162,16 @@ class UserImporter extends ItemImporter
                     }
                 }
             }
+
+            return true;
         } else {
             $this->logError(
                 "User " . $this->item['email'] . " " . $this->item['first_name'] . " " . $this->item['last_name'],
                 "Missing data"
             );
-        }
 
-        return;
+            return false;
+        }
     }
 
     /**

@@ -97,7 +97,7 @@ abstract class Importer
     /**
      * @var callable
      */
-    // protected $progressCallback;
+    protected $progressCallback;
     /**
      * @var callable
      */
@@ -154,10 +154,10 @@ abstract class Importer
             // $resultsCount = sizeof($results);
             foreach ($results as $row) {
                 $this->log('------------- Action Summary ----------------');
-                $this->handle($row);
-                // if ($this->progressCallback) {
-                //     call_user_func($this->progressCallback, $resultsCount);
-                // }
+                $success = $this->handle($row);
+                if ($this->progressCallback) {
+                    call_user_func($this->progressCallback, $success);
+                }
             }
         });
     }
@@ -304,7 +304,7 @@ abstract class Importer
     public function setCallbacks(callable $logCallback, callable $progressCallback, callable $errorCallback)
     {
         $this->logCallback = $logCallback;
-        // $this->progressCallback = $progressCallback;
+        $this->progressCallback = $progressCallback;
         $this->errorCallback = $errorCallback;
 
         return $this;
