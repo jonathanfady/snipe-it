@@ -148,7 +148,7 @@ class ImportController extends Controller
         // }
 
         if ($errors) { //Failure
-            return response()->json(Helper::formatStandardApiResponse('import-errors', null, $errors), 500);
+            return response()->json(Helper::formatStandardApiResponse('import-errors', null, $errors), 422);
         } else {
             return response()->json(Helper::formatStandardApiResponse('success', null));
         }
