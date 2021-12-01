@@ -425,15 +425,15 @@ class User extends SnipeModel implements AuthenticatableContract, AuthorizableCo
         // return $this->hasMany('\App\Models\Location', 'manager_id');
         if ($this->isSuperUser()) {
             return \App\Models\Location::select('locations.*');
-        } else if ($this->isAdmin()) {
+            // } else if ($this->isAdmin()) {
+        } else {
             return \App\Models\Location::leftJoin('users', 'users.id', 'locations.manager_id')
                 ->where(function ($query) {
                     $query->where('locations.manager_id', $this->id)
                         ->orWhere('users.manager_id', $this->id);
                 })
                 ->select('locations.*');
-        } else {
-            return $this->hasMany('App\Models\Location', 'manager_id');
+            // return $this->hasMany('App\Models\Location', 'manager_id');
         }
     }
 
@@ -442,7 +442,7 @@ class User extends SnipeModel implements AuthenticatableContract, AuthorizableCo
      * get all assets for super user
      * get assets managed by user (focal point), or by managed locations, or by managed users for admin
      * get managed assets (focal point) for regular user
-     * 
+     *
      * @author A. Gianotto <snipe@snipe.net>
      * @since [v1.0]
      * @return \Illuminate\Database\Eloquent\Relations\Relation
@@ -451,7 +451,8 @@ class User extends SnipeModel implements AuthenticatableContract, AuthorizableCo
     {
         if ($this->isSuperUser()) {
             return \App\Models\Asset::select('assets.*');
-        } else if ($this->isAdmin()) {
+            // } else if ($this->isAdmin()) {
+        } else {
             return \App\Models\Asset::leftJoin('users', 'users.id', 'assets.focal_point_id')
                 ->leftJoin('locations', 'locations.id', 'assets.location_id')
                 ->where(function ($query) {
@@ -460,8 +461,7 @@ class User extends SnipeModel implements AuthenticatableContract, AuthorizableCo
                         ->orWhere('locations.manager_id', $this->id);
                 })
                 ->select('assets.*');
-        } else {
-            return $this->hasMany('App\Models\Asset', 'focal_point_id');
+            // return $this->hasMany('App\Models\Asset', 'focal_point_id');
         }
     }
 
@@ -470,7 +470,7 @@ class User extends SnipeModel implements AuthenticatableContract, AuthorizableCo
      * get all users for super user
      * get users managed by user, or by managed users, or by managed locations for admin
      * get managed users for regular user
-     * 
+     *
      * @author A. Gianotto <snipe@snipe.net>
      * @since [v1.0]
      * @return \Illuminate\Database\Eloquent\Relations\Relation
@@ -479,7 +479,8 @@ class User extends SnipeModel implements AuthenticatableContract, AuthorizableCo
     {
         if ($this->isSuperUser()) {
             return \App\Models\User::select('users.*');
-        } else if ($this->isAdmin()) {
+            // } else if ($this->isAdmin()) {
+        } else {
             return \App\Models\User::leftJoin('users as managers', 'managers.id', 'users.manager_id')
                 ->leftJoin('locations', 'locations.id', 'users.location_id')
                 ->where(function ($query) {
@@ -488,8 +489,7 @@ class User extends SnipeModel implements AuthenticatableContract, AuthorizableCo
                         ->orWhere('locations.manager_id', $this->id);
                 })
                 ->select('users.*');
-        } else {
-            return $this->hasMany('App\Models\User', 'manager_id');
+            // return $this->hasMany('App\Models\User', 'manager_id');
         }
     }
 
@@ -498,7 +498,7 @@ class User extends SnipeModel implements AuthenticatableContract, AuthorizableCo
      * get all departments for super user
      * get departments managed by user, or by manged user, or by managed location for admin
      * get managed departments for regular user
-     * 
+     *
      * @author A. Gianotto <snipe@snipe.net>
      * @since [v1.0]
      * @return \Illuminate\Database\Eloquent\Relations\Relation
@@ -507,7 +507,8 @@ class User extends SnipeModel implements AuthenticatableContract, AuthorizableCo
     {
         if ($this->isSuperUser()) {
             return \App\Models\Department::select('departments.*');
-        } else if ($this->isAdmin()) {
+            // } else if ($this->isAdmin()) {
+        } else {
             return \App\Models\Department::leftJoin('users', 'users.id', 'departments.manager_id')
                 ->leftJoin('locations', 'locations.id', 'departments.location_id')
                 ->where(function ($query) {
@@ -516,8 +517,7 @@ class User extends SnipeModel implements AuthenticatableContract, AuthorizableCo
                         ->orWhere('locations.manager_id', $this->id);
                 })
                 ->select('departments.*');
-        } else {
-            return $this->hasMany('App\Models\Department', 'manager_id');
+            // return $this->hasMany('App\Models\Department', 'manager_id');
         }
     }
 
