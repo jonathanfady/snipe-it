@@ -128,22 +128,22 @@ class AssetImporter extends ItemImporter
             $asset = Asset::where(['asset_tag' => $this->item['asset_tag']])->first();
             if ($asset) {
                 $this->log("Updating Asset");
-                $asset->update($this->item);
-                if ($asset->isDirty()) {
+                if ($asset->update($this->item)) {
+                    $this->log("Asset " . $asset->asset_tag . " with serial number " . $asset->serial . " was updated");
+                } else {
                     $this->logError(
                         "Asset " . $this->item['asset_tag'],
-                        "Incorrect data"
+                        collect($asset->getErrors()->all())->implode(' ')
                     );
                     return false;
                 }
-                $this->log("Asset " . $asset->asset_tag . " with serial number " . $asset->serial . " was updated");
             } else {
                 $this->log("No Matching Asset, creating one");
                 $asset = Asset::create($this->item);
                 if ($asset->isDirty()) {
                     $this->logError(
                         "Asset " . $this->item['asset_tag'],
-                        "Incorrect data"
+                        collect($asset->getErrors()->all())->implode(' ')
                     );
                     return false;
                 }

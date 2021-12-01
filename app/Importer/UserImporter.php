@@ -140,22 +140,22 @@ class UserImporter extends ItemImporter
                 })->first();
             if ($user) {
                 $this->log("Updating User " . $user->username);
-                $user->update($this->item);
-                if ($user->isDirty()) {
+                if ($user->update($this->item)) {
+                    $this->log("User " . $user->username . " was updated");
+                } else {
                     $this->logError(
                         "User " . $this->item['email'] . " " . $this->item['first_name'] . " " . $this->item['last_name'],
-                        "Incorrect data"
+                        collect($user->getErrors()->all())->implode(' ')
                     );
                     return false;
                 }
-                $this->log("User " . $user->username . " was updated");
             } else {
                 $this->log("No matching user, creating one");
                 $user = User::create($this->item);
                 if ($user->isDirty()) {
                     $this->logError(
                         "User " . $this->item['email'] . " " . $this->item['first_name'] . " " . $this->item['last_name'],
-                        "Incorrect data"
+                        collect($user->getErrors()->all())->implode(' ')
                     );
                     return false;
                 }
