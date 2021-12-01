@@ -129,10 +129,24 @@ class AssetImporter extends ItemImporter
             if ($asset) {
                 $this->log("Updating Asset");
                 $asset->update($this->item);
+                if ($asset->isDirty()) {
+                    $this->logError(
+                        "Asset " . $this->item['asset_tag'],
+                        "Incorrect data"
+                    );
+                    return false;
+                }
                 $this->log("Asset " . $asset->asset_tag . " with serial number " . $asset->serial . " was updated");
             } else {
                 $this->log("No Matching Asset, creating one");
                 $asset = Asset::create($this->item);
+                if ($asset->isDirty()) {
+                    $this->logError(
+                        "Asset " . $this->item['asset_tag'],
+                        "Incorrect data"
+                    );
+                    return false;
+                }
                 $asset->logCreate('Imported using csv file.');
                 $this->log("Asset " . $asset->asset_tag . " with serial number " . $asset->serial . " was created");
             }
@@ -164,8 +178,6 @@ class AssetImporter extends ItemImporter
                 $target = null;
             }
             $asset->fresh()->checkOut($target);
-
-            return true;
         } else {
             // Get missing data string from item array
             if (
@@ -184,5 +196,6 @@ class AssetImporter extends ItemImporter
 
             return false;
         }
+        return true;
     }
 }

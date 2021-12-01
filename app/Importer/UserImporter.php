@@ -139,12 +139,27 @@ class UserImporter extends ItemImporter
                         ->where('last_name', $this->item['last_name']);
                 })->first();
             if ($user) {
-                $this->log('Updating User');
+                $this->log("Updating User " . $user->username);
                 $user->update($this->item);
+                if ($user->isDirty()) {
+                    $this->logError(
+                        "User " . $this->item['email'] . " " . $this->item['first_name'] . " " . $this->item['last_name'],
+                        "Incorrect data"
+                    );
+                    return false;
+                }
                 $this->log("User " . $user->username . " was updated");
             } else {
                 $this->log("No matching user, creating one");
                 $user = User::create($this->item);
+                if ($user->isDirty()) {
+                    $this->logError(
+                        "User " . $this->item['email'] . " " . $this->item['first_name'] . " " . $this->item['last_name'],
+                        "Incorrect data"
+                    );
+                    return false;
+                }
+
                 $this->log("User " . $user->username . " was created");
                 if (($user->email) && ($user->activated == '1')) {
                     // add default password
@@ -163,8 +178,6 @@ class UserImporter extends ItemImporter
                     }
                 }
             }
-
-            return true;
         } else {
             $this->logError(
                 "User " . $this->item['email'] . " " . $this->item['first_name'] . " " . $this->item['last_name'],
@@ -173,6 +186,8 @@ class UserImporter extends ItemImporter
 
             return false;
         }
+
+        return true;
     }
 
     /**
