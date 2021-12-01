@@ -129,6 +129,9 @@ class UserImporter extends ItemImporter
 
 
 
+            // Filter the item down to the model's fillable fields
+            $this->item = collect($this->item)->only((new User())->getFillable())->toArray();
+
             // Update or create user
             $user = User::where('username', $this->item['username'])
                 ->orWhere(function ($query) {
@@ -137,8 +140,6 @@ class UserImporter extends ItemImporter
                 })->first();
             if ($user) {
                 $this->log('Updating User');
-                // Filter the item down to the model's fillable fields
-                $this->item = collect($this->item)->only($user->getFillable())->toArray();
                 $user->update($this->item);
                 $this->log("User " . $user->username . " was updated");
             } else {

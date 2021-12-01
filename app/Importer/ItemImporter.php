@@ -44,7 +44,7 @@ class ItemImporter extends Importer
 
         if (array_key_exists('email', $user)) {
             // Get username from email address
-            $username = explode('@', $user['email']);
+            $username = explode('@', $user['email'])[0];
 
             // Add First and Last names as temporary username values
             $user += !array_key_exists('first_name', $user) ? ['first_name' => $username] : [];

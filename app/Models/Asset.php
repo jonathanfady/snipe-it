@@ -182,7 +182,7 @@ class Asset extends Depreciable
         'model'              => ['name', 'model_number'],
         'model.category'     => ['name'],
         'model.manufacturer' => ['name'],
-        'focal_point'        => ['name'],
+        'focal_point'        => ['first_name', 'last_name'],
     ];
 
 
@@ -1457,7 +1457,8 @@ class Asset extends Depreciable
                 if ($fieldname == 'focal_point') {
                     $query->where(function ($query) use ($search_val) {
                         $query->whereHas('focal_point', function ($query) use ($search_val) {
-                            $query->where('users.name', 'LIKE', '%' . $search_val . '%');
+                            $query->where('users.first_name', 'LIKE', '%' . $search_val . '%')
+                                ->orWhere('users.last_name', 'LIKE', '%' . $search_val . '%');
                         });
                     });
                 }

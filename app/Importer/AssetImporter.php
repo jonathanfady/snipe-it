@@ -121,12 +121,13 @@ class AssetImporter extends ItemImporter
 
 
 
+            // Filter the item down to the model's fillable fields
+            $this->item = collect($this->item)->only((new Asset())->getFillable())->toArray();
+
             // Update or create asset
             $asset = Asset::where(['asset_tag' => $this->item['asset_tag']])->first();
             if ($asset) {
                 $this->log("Updating Asset");
-                // Filter the item down to the model's fillable fields
-                $this->item = collect($this->item)->only($asset->getFillable())->toArray();
                 $asset->update($this->item);
                 $this->log("Asset " . $asset->asset_tag . " with serial number " . $asset->serial . " was updated");
             } else {
@@ -162,7 +163,7 @@ class AssetImporter extends ItemImporter
             } else {
                 $target = null;
             }
-            $asset->checkOut($target);
+            $asset->fresh()->checkOut($target);
 
             return true;
         } else {
