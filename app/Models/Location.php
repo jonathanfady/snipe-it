@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Models;
 
 use App\Http\Traits\UniqueUndeletedTrait;
@@ -27,7 +28,7 @@ class Location extends SnipeModel
         'address'       => 'max:80|nullable',
         'address2'      => 'max:80|nullable',
         'zip'           => 'min:3|max:10|nullable',
-        'manager_id'    => 'exists:users,id|nullable',
+        'manager_id'    => 'required|exists:users,id',
         'parent_id'     => 'non_circular:locations,id'
     );
 
@@ -37,12 +38,12 @@ class Location extends SnipeModel
     ];
 
     /**
-    * Whether the model should inject it's identifier to the unique
-    * validation rules before attempting validation. If this property
-    * is not set in the model it will default to true.
-    *
-    * @var boolean
-    */
+     * Whether the model should inject it's identifier to the unique
+     * validation rules before attempting validation. If this property
+     * is not set in the model it will default to true.
+     *
+     * @var boolean
+     */
     protected $injectUniqueIdentifier = true;
     use ValidatingTrait;
     use UniqueUndeletedTrait;
@@ -70,29 +71,29 @@ class Location extends SnipeModel
     protected $hidden = ['user_id'];
 
     use Searchable;
-    
+
     /**
      * The attributes that should be included when searching the model.
-     * 
+     *
      * @var array
      */
     protected $searchableAttributes = ['name', 'address', 'city', 'state', 'zip', 'created_at', 'ldap_ou'];
 
     /**
      * The relations and their attributes that should be included when searching the model.
-     * 
+     *
      * @var array
      */
     protected $searchableRelations = [
-      'parent' => ['name']
+        'parent' => ['name']
     ];
 
     public function isDeletable()
     {
         return Gate::allows('delete', $this)
-                && ($this->assignedAssets()->count()===0)
-                && ($this->assets()->count()===0)
-                && ($this->users()->count()===0);
+            && ($this->assignedAssets()->count() === 0)
+            && ($this->assets()->count() === 0)
+            && ($this->users()->count() === 0);
     }
 
     public function users()
@@ -104,9 +105,9 @@ class Location extends SnipeModel
     {
         return $this->hasMany('\App\Models\Asset', 'location_id')
             ->whereHas('assetstatus', function ($query) {
-                    $query->where('status_labels.deployable', '=', 1)
-                        ->orWhere('status_labels.pending', '=', 1)
-                        ->orWhere('status_labels.archived', '=', 0);
+                $query->where('status_labels.deployable', '=', 1)
+                    ->orWhere('status_labels.pending', '=', 1)
+                    ->orWhere('status_labels.archived', '=', 0);
             });
     }
 
@@ -117,7 +118,7 @@ class Location extends SnipeModel
            definitely was setting fire to the query-planner. So don't do that.
 
            It is arguable that we should have a '...->whereNull('assigned_to')
-           bit in there, but that isn't always correct either (in the case 
+           bit in there, but that isn't always correct either (in the case
            where a user has no location, for example).
 
            In all likelyhood, we need to denorm an "effective_location" column
@@ -128,7 +129,7 @@ class Location extends SnipeModel
 
     public function parent()
     {
-        return $this->belongsTo('\App\Models\Location', 'parent_id','id')
+        return $this->belongsTo('\App\Models\Location', 'parent_id', 'id')
             ->with('parent');
     }
 
@@ -137,9 +138,12 @@ class Location extends SnipeModel
         return $this->belongsTo('\App\Models\User', 'manager_id');
     }
 
-    public function children() {
-        return $this->hasMany('\App\Models\Location','parent_id')
-            ->with('children');
+    public function children()
+    {
+        return $this->hasMany('\App\Models\Location', 'parent_id')
+            ->with(['children' => function ($query) {
+                $query->withCount('assets');
+            }]);
     }
 
     // I don't think we need this anymore since we de-normed location_id in assets?
@@ -153,7 +157,6 @@ class Location extends SnipeModel
         return $this->attributes['ldap_ou'] = empty($ldap_ou) ? null : $ldap_ou;
     }
 
-
     /**
      * Query builder scope to order on parent
      *
@@ -163,22 +166,23 @@ class Location extends SnipeModel
      * @return Illuminate\Database\Query\Builder          Modified query builder
      */
 
-    public static function indenter($locations_with_children, $parent_id = null, $prefix = '') {
-        $results = Array();
+    public static function indenter($locations_with_children, $parent_id = null, $prefix = '')
+    {
+        $results = array();
 
-        
+
         if (!array_key_exists($parent_id, $locations_with_children)) {
             return [];
         }
 
 
         foreach ($locations_with_children[$parent_id] as $location) {
-            $location->use_text = $prefix.' '.$location->name;
-            $location->use_image = ($location->image) ? url('/').'/uploads/locations/'.$location->image : null;
+            $location->use_text = $prefix . ' ' . $location->name;
+            $location->use_image = ($location->image) ? url('/') . '/uploads/locations/' . $location->image : null;
             $results[] = $location;
             //now append the children. (if we have any)
             if (array_key_exists($location->id, $locations_with_children)) {
-                $results = array_merge($results, Location::indenter($locations_with_children, $location->id,$prefix.'--'));
+                $results = array_merge($results, Location::indenter($locations_with_children, $location->id, $prefix . '--'));
             }
         }
         return $results;
@@ -188,16 +192,16 @@ class Location extends SnipeModel
 
 
     /**
-    * Query builder scope to order on parent
-    *
-    * @param  Illuminate\Database\Query\Builder  $query  Query builder instance
-    * @param  text                              $order       Order
-    *
-    * @return Illuminate\Database\Query\Builder          Modified query builder
-    */
+     * Query builder scope to order on parent
+     *
+     * @param  Illuminate\Database\Query\Builder  $query  Query builder instance
+     * @param  text                              $order       Order
+     *
+     * @return Illuminate\Database\Query\Builder          Modified query builder
+     */
     public function scopeOrderParent($query, $order)
     {
-      // Left join here, or it will only return results with parents
+        // Left join here, or it will only return results with parents
         return $query->leftJoin('locations as parent_loc', 'locations.parent_id', '=', 'parent_loc.id')->orderBy('parent_loc.name', $order);
     }
 

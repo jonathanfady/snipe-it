@@ -286,29 +286,45 @@ class LocationsController extends Controller
     {
         $this->authorize('view', Location::class);
 
+        $locations = Auth::user()->managedLocations();
+
         if (Auth::user()->isSuperUser()) {
-            // get top level locations
-            $locations = Auth::user()->managedLocations()->whereNull('locations.parent_id')->get();
+            // get top level locations with assets counts and children assets counts
+            $locations = $locations->whereNull('locations.parent_id')
+                ->withCount('assets')
+                ->with(['children' => function ($query) {
+                    $query->withCount('assets');
+                }])->get();
         } else if (Auth::user()->isAdmin()) {
-            // get top level locations of current scope
-            $locationIds = Auth::user()->managedLocations()->pluck('locations.id');
-            $locations = Auth::user()->managedLocations()
-                ->whereNull('locations.parent_id')
-                ->orWhereNotIn('locations.parent_id', $locationIds)
-                ->get();
+            // get top level location
+            $location = $locations->whereNull('locations.parent_id')->first();
+            // get direct children of top level location with assets counts
+            $locations = $location->children()
+                ->withCount('assets')
+                ->with(['children' => function ($query) {
+                    $query->withCount('assets');
+                }])->get();
         } else {
-            $locations = Auth::user()->managedLocations()->get();
+            $locations = $locations->withCount('assets')->get();
         }
 
         $labels = [];
         $points = [];
+        $colors_array = [];
         $default_color_count = 0;
 
         foreach ($locations as $location) {
-            $asset_count = Auth::user()->managedAssets()->where('assets.location_id', $location->id)->count();
-            if ($asset_count > 0) {
-                $labels[] = $location->name . ' (' . number_format($asset_count) . ')';
-                $points[] = $asset_count;
+            $array = $location->toArray();
+            $assets_count = 0;
+            // find all assets count keys recursively to get the total number
+            array_walk_recursive($array, function ($item, $key) use (&$assets_count) {
+                if ($key == 'assets_count') {
+                    $assets_count += $item;
+                }
+            });
+            if ($assets_count > 0) {
+                $labels[] = $location->name . ' (' . number_format($assets_count) . ')';
+                $points[] = $assets_count;
                 $colors_array[] = Helper::defaultChartColors($default_color_count);
                 $default_color_count++;
             }
