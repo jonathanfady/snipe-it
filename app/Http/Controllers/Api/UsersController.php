@@ -178,9 +178,11 @@ class UsersController extends Controller
         }
 
         if ($request->filled('search')) {
-            $users = $users->SimpleNameSearch($request->get('search'))
-                ->orWhere('users.username', 'LIKE', '%' . $request->get('search') . '%')
-                ->orWhere('users.employee_num', 'LIKE', '%' . $request->get('search') . '%');
+            $users = $users->where(function ($query) use ($request) {
+                $query->SimpleNameSearch($request->get('search'))
+                    ->orWhere('users.username', 'LIKE', '%' . $request->get('search') . '%')
+                    ->orWhere('users.employee_num', 'LIKE', '%' . $request->get('search') . '%');
+            });
         }
 
         $users = $users->orderBy('users.last_name', 'asc')->orderBy('users.first_name', 'asc');

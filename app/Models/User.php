@@ -748,8 +748,8 @@ class User extends SnipeModel implements AuthenticatableContract, AuthorizableCo
     public function scopeSimpleNameSearch($query,  $search)
     {
 
-        $query = $query->where('first_name', 'LIKE', '%' . $search . '%')
-            ->orWhere('last_name', 'LIKE', '%' . $search . '%')
+        $query = $query->where('users.first_name', 'LIKE', '%' . $search . '%')
+            ->orWhere('users.last_name', 'LIKE', '%' . $search . '%')
             ->orWhereRaw('CONCAT(' . DB::getTablePrefix() . 'users.first_name," ",' . DB::getTablePrefix() . 'users.last_name) LIKE ?', ["%$search%", "%$search%"]);
         return $query;
     }
