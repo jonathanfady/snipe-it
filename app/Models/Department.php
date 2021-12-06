@@ -30,9 +30,9 @@ class Department extends SnipeModel
 
     protected $rules = [
         'name'                  => 'required|max:255',
-        'location_id'           => 'numeric|nullable',
+        'location_id'           => 'required|exists:locations,id',
         'company_id'            => 'numeric|nullable',
-        'manager_id'            => 'numeric|nullable',
+        'manager_id'            => 'required|exists:users,id',
     ];
 
     /**
@@ -53,14 +53,14 @@ class Department extends SnipeModel
 
     /**
      * The attributes that should be included when searching the model.
-     * 
+     *
      * @var array
      */
     protected $searchableAttributes = ['name', 'notes'];
 
     /**
      * The relations and their attributes that should be included when searching the model.
-     * 
+     *
      * @var array
      */
     protected $searchableRelations = [];

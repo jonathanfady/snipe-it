@@ -18,7 +18,7 @@
 
     <div class="col-md-1 col-sm-1 text-left">
         @can('create', \App\Models\User::class)
-        <a href='{{ route('modal.show', 'user') }}' data-toggle="modal" data-target="#createModal"
+        <a href="{{ route('modal.show', 'user') }}" data-toggle="modal" data-target="#createModal"
             data-select='{{$fieldname}}_id_select' class="btn btn-sm btn-primary">New</a>
         @endcan
     </div>

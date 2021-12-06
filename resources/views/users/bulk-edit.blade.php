@@ -49,8 +49,9 @@ Bulk Edit
                     @endif
 
                     <!-- Manager -->
-                    @include ('partials.forms.edit.user-select', ['translated_name' =>
-                    trans('admin/users/table.manager'), 'fieldname' => 'manager_id'])
+                    @include ('partials.forms.edit.user-select',
+                    ['translated_name' => trans('admin/users/table.manager'), 'fieldname' => 'manager_id',
+                    'activated_users_only' => 'true'])
 
                     <!-- language -->
                     <div class="form-group {{ $errors->has('locale') ? 'has-error' : '' }}">
