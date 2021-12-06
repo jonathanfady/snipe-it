@@ -30,32 +30,35 @@
                 <div class="alert alert-danger" id="modal_error_msg" style="display:none">
                 </div>
                 <div class="dynamic-form-row">
-                    <div class="col-md-4 col-xs-12"><label
-                            for="modal-first_name">{{ trans('general.first_name') }}:</label></div>
+                    <div class="col-md-4 col-xs-12"><label for="modal-first_name">{{ trans('general.first_name')
+                            }}:</label></div>
                     <div
                         class="col-md-8 col-xs-12 @if(\App\Helpers\Helper::checkIfRequired(\App\Models\User::class, 'first_name')) required @endif">
-                        <input type='text' name="first_name" id='modal-first_name' class="form-control"></div>
+                        <input type='text' name="first_name" id='modal-first_name' class="form-control">
+                    </div>
                 </div>
 
                 <div class="dynamic-form-row">
-                    <div class="col-md-4 col-xs-12"><label
-                            for="modal-last_name">{{ trans('general.last_name') }}:</label></div>
+                    <div class="col-md-4 col-xs-12"><label for="modal-last_name">{{ trans('general.last_name')
+                            }}:</label></div>
                     <div
                         class="col-md-8 col-xs-12 @if(\App\Helpers\Helper::checkIfRequired(\App\Models\User::class, 'last_name')) required @endif">
-                        <input type='text' name="last_name" id='modal-last_name' class="form-control"> </div>
+                        <input type='text' name="last_name" id='modal-last_name' class="form-control">
+                    </div>
                 </div>
 
                 <div class="dynamic-form-row">
-                    <div class="col-md-4 col-xs-12"><label
-                            for="modal-username">{{ trans('admin/users/table.username') }}:</label></div>
+                    <div class="col-md-4 col-xs-12"><label for="modal-username">{{ trans('admin/users/table.username')
+                            }}:</label></div>
                     <div
                         class="col-md-8 col-xs-12 @if(\App\Helpers\Helper::checkIfRequired(\App\Models\User::class, 'username')) required @endif">
-                        <input type='text' name="username" id='modal-username' class="form-control"></div>
+                        <input type='text' name="username" id='modal-username' class="form-control">
+                    </div>
                 </div>
 
-                <div class="dynamic-form-row">
-                    <div class="col-md-4 col-xs-12"><label
-                            for="modal-password">{{ trans('admin/users/table.password') }}:</label></div>
+                <!-- <div class="dynamic-form-row">
+                    <div class="col-md-4 col-xs-12"><label for="modal-password">{{ trans('admin/users/table.password')
+                            }}:</label></div>
                     <div
                         class="col-md-8 col-xs-12 @if(\App\Helpers\Helper::checkIfRequired(\App\Models\User::class, 'password')) required @endif">
                         <input type='password' name="password" id='modal-password' class="form-control">
@@ -64,14 +67,52 @@
                 </div>
 
                 <div class="dynamic-form-row">
-                    <div class="col-md-4 col-xs-12"><label
-                            for="modal-password_confirmation">{{ trans('admin/users/table.password_confirm') }}:</label>
+                    <div class="col-md-4 col-xs-12"><label for="modal-password_confirmation">{{
+                            trans('admin/users/table.password_confirm') }}:</label>
                     </div>
                     <div
                         class="col-md-8 col-xs-12 @if(\App\Helpers\Helper::checkIfRequired(\App\Models\User::class, 'password')) required @endif">
                         <input type='password' name="password_confirmation" id='modal-password_confirmation'
                             class="form-control">
                         <div id="modal-generated-password"></div>
+                    </div>
+                </div> -->
+
+                <!--  Manager -->
+                <div class="dynamic-form-row">
+                    <div class="col-md-4 col-xs-12"><label for="modal-manager">{{
+                            trans('admin/users/table.manager')}}:</label></div>
+                    <div
+                        class="col-md-7 col-xs-12 @if(\App\Helpers\Helper::checkIfRequired(\App\Models\User::class, 'manager_id')) required @endif">
+                        <select class="js-data-ajax" data-endpoint="users"
+                            data-placeholder="{{ trans('general.select_user') }}" name="manager_id" style="width: 100%"
+                            id="modal-manager_id" aria-label="manager_id" data-user-activated="1"></select>
+                    </div>
+                </div>
+
+                <!--  Department -->
+                <div class="dynamic-form-row">
+                    <div class="col-md-4 col-xs-12">
+                        <label for="modal-department">{{ trans('general.department') }}:</label>
+                    </div>
+                    <div
+                        class="col-md-7 col-xs-12 @if(\App\Helpers\Helper::checkIfRequired(\App\Models\User::class, 'department_id')) required @endif">
+                        <select class="js-data-ajax" data-endpoint="departments"
+                            data-placeholder="{{ trans('general.select_department') }}" name="department_id"
+                            style="width: 100%" id="modal-department_id" aria-label="department_id"></select>
+                    </div>
+                </div>
+
+                <!-- Location -->
+                <div class="dynamic-form-row">
+                    <div class="col-md-4 col-xs-12">
+                        <label for="modal-location">{{ trans('general.location') }}:</label>
+                    </div>
+                    <div
+                        class="col-md-7 col-xs-12 @if(\App\Helpers\Helper::checkIfRequired(\App\Models\User::class, 'location_id')) required @endif">
+                        <select class="js-data-ajax" data-endpoint="locations"
+                            data-placeholder="{{ trans('general.select_location') }}" name="location_id"
+                            style="width: 100%" id="modal-location_id" aria-label="location_id"></select>
                     </div>
                 </div>
             </form>
