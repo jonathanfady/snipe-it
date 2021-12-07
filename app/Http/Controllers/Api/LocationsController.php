@@ -261,6 +261,13 @@ class LocationsController extends Controller
             $locations_with_children[$location->parent_id][] = $location;
         }
 
+        // handle case where no location of current scope has a null parent
+        if (!array_key_exists(null, $locations_with_children)) {
+            $locationIds = $locations->pluck('id');
+            // get top level locations of current scope
+            $locations_with_children[null] = $locations->whereNotIn('parent_id', $locationIds);
+        }
+
         if ($request->filled('search')) {
             $locations_formatted =  $locations;
         } else {
