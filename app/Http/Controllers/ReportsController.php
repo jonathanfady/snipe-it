@@ -459,6 +459,10 @@ class ReportsController extends Controller
                 $header[] = trans('admin/hardware/table.purchase_cost');
             }
 
+            if ($request->filled('currency')) {
+                $header[] = trans('admin/hardware/form.currency');
+            }
+
             if ($request->filled('eol')) {
                 $header[] = trans('admin/hardware/table.eol');
             }
@@ -684,6 +688,10 @@ class ReportsController extends Controller
 
                     if ($request->filled('purchase_cost')) {
                         $row[] = ($asset->purchase_cost) ? Helper::formatCurrencyOutput($asset->purchase_cost) : '';
+                    }
+
+                    if ($request->filled('currency')) {
+                        $row[] = ($asset->currency) ?: Setting::getSettings()->default_currency;
                     }
 
                     if ($request->filled('eol')) {

@@ -50,6 +50,7 @@ class AssetImporter extends ItemImporter
             $this->item['name'] = $this->findCsvMatch($row, 'name');
             $this->item['notes'] = $this->findCsvMatch($row, 'notes');
             $this->item['last_audit_date'] = $this->findCsvMatch($row, 'last_audit_date');
+            $this->item['currency'] = $this->findCsvMatch($row, 'currency');
 
             $this->item['status_id'] = $this->fetchStatusLabel($this->findCsvMatch($row, 'status'));
             $this->item['current_company_id'] = $this->createOrFetchCompany($this->findCsvMatch($row, 'current_company'));

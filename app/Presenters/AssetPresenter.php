@@ -150,6 +150,12 @@ class AssetPresenter extends Presenter
                 "formatter" => 'numberWithCommas',
                 "footerFormatter" => 'sumFormatter',
             ], [
+                "field" => "currency",
+                "searchable" => true,
+                "sortable" => false,
+                "title" => trans('admin/hardware/form.currency'),
+                "visible" => true,
+            ], [
                 "field" => "warranty_months",
                 "searchable" => true,
                 "sortable" => true,

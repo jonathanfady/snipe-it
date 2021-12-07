@@ -164,7 +164,8 @@ class Asset extends Depreciable
         'purchase_date',
         'expected_checkin',
         'next_audit_date',
-        'last_audit_date'
+        'last_audit_date',
+        'currency'
     ];
 
     /**

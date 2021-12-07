@@ -157,6 +157,7 @@ export default {
           { id: "supplier", text: "Supplier" },
           { id: "order_number", text: "IOF Number" },
           { id: "purchase_cost", text: "Purchase Cost" },
+          { id: "currency", text: "Currency" },
           { id: "notes", text: "Notes" },
           { id: "current_company", text: "Current Donor" },
           { id: "location", text: "Location" },
