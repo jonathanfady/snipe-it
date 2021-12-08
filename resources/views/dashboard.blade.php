@@ -89,7 +89,6 @@
 
     <div class="col-lg-3 col-xs-6">
         <!-- small box -->
-
         <a href="{{ route('consumables.index') }}">
             <div class="small-box bg-purple">
                 <div class="inner">
@@ -104,8 +103,8 @@
                         class="fa fa-arrow-circle-right" aria-hidden="true"></i></a>
                 @endcan
             </div>
+        </a>
     </div><!-- ./col -->
-</div>
 </div>
 
 @if ($counts['grand_total'] == 0)
