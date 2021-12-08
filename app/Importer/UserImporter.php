@@ -29,9 +29,9 @@ class UserImporter extends ItemImporter
                 && ($this->item['last_name']))
             || ($this->item['email'])
         ) {
-            $this->item['username'] = explode('@', $this->item['email'])[0];
-            $this->item['first_name'] = $this->item['first_name'] ?: $this->item['username'];
-            $this->item['last_name'] = $this->item['last_name'] ?: $this->item['username'];
+            // $this->item['username'] = explode('@', $this->item['email'])[0];
+            $this->item['first_name'] = $this->item['first_name'] ?: $this->item['email'];
+            $this->item['last_name'] = $this->item['last_name'] ?: $this->item['email'];
 
             $this->item['jobtitle'] = $this->findCsvMatch($row, 'jobtitle');
             $this->item['phone'] = $this->findCsvMatch($row, 'phone_number');
@@ -60,8 +60,34 @@ class UserImporter extends ItemImporter
 
             // Handle location
             if ($user_location = $this->findCsvMatch($row, 'location')) {
+
                 // Location parent
-                $user_location_parent_id = $this->createOrFetchLocation($this->findCsvMatch($row, 'location_parent'));
+                if ($user_location_parent = $this->findCsvMatch($row, 'location_parent')) {
+                    // Location parent manager
+                    $user_location_parent_manager = [];
+                    if ($user_location_parent_manager_email = $this->findCsvMatch($row, 'location_parent_manager_email')) {
+                        $user_location_parent_manager += ['email' => $user_location_parent_manager_email];
+                    }
+                    if (
+                        ($user_location_parent_manager_first_name = $this->findCsvMatch($row, 'location_parent_manager_first_name'))
+                        && ($user_location_parent_manager_last_name = $this->findCsvMatch($row, 'location_parent_manager_last_name'))
+                    ) {
+                        $user_location_parent_manager += [
+                            'first_name' => $user_location_parent_manager_first_name,
+                            'last_name' => $user_location_parent_manager_last_name
+                        ];
+                    }
+                    $user_location_parent_manager_id = $this->createOrFetchUser($user_location_parent_manager);
+
+                    $user_location_parent_id = $this->createOrFetchLocation(
+                        $user_location_parent,
+                        [
+                            'manager_id' => $user_location_parent_manager_id,
+                        ]
+                    );
+                } else {
+                    $user_location_parent_id = null;
+                }
 
                 // Location manager
                 $user_location_manager = [];
@@ -133,15 +159,18 @@ class UserImporter extends ItemImporter
             $this->item = collect($this->item)->only((new User())->getFillable())->toArray();
 
             // Update or create user
-            $user = User::where('username', $this->item['username'])
+            $user = User::where('first_name', $this->item['first_name'])
+                ->where('last_name', $this->item['last_name'])
                 ->orWhere(function ($query) {
-                    $query->where('first_name', $this->item['first_name'])
-                        ->where('last_name', $this->item['last_name']);
+                    $query->where('first_name', $this->item['email'])
+                        ->where('last_name', $this->item['email'])
+                        ->where('email', $this->item['email']);
                 })->first();
+
             if ($user) {
-                $this->log("Updating User " . $user->username);
+                $this->log("Updating User " . $user->full_name);
                 if ($user->update($this->item)) {
-                    $this->log("User " . $user->username . " was updated");
+                    $this->log("User " . $user->full_name . " was updated");
                 } else {
                     $this->logError(
                         "User " . $this->item['email'] . " " . $this->item['first_name'] . " " . $this->item['last_name'],
@@ -160,23 +189,23 @@ class UserImporter extends ItemImporter
                     return false;
                 }
 
-                $this->log("User " . $user->username . " was created");
-                if (($user->email) && ($user->activated == '1')) {
-                    // add default password
-                    $user->update(['pasword' => bcrypt($this->tempPassword)]);
-                    $this->log("User " . $user->username . " " . $this->tempPassword . " activated");
+                $this->log("User " . $user->full_name . " was created");
+                // if (($user->email) && ($user->activated == '1')) {
+                //     // add default password
+                //     $user->update(['pasword' => bcrypt($this->tempPassword)]);
+                //     $this->log("User " . $user->email . " " . $this->tempPassword . " activated");
 
-                    if ($this->send_welcome) {
-                        $data = [
-                            'email' => $user->email,
-                            'username' => $user->username,
-                            'first_name' => $user->first_name,
-                            'last_name' => $user->last_name,
-                            'password' => $this->tempPassword,
-                        ];
-                        $user->notify(new WelcomeNotification($data));
-                    }
-                }
+                //     if ($this->send_welcome) {
+                //         $data = [
+                //             'email' => $user->email,
+                //             'username' => $user->username,
+                //             'first_name' => $user->first_name,
+                //             'last_name' => $user->last_name,
+                //             'password' => $this->tempPassword,
+                //         ];
+                //         $user->notify(new WelcomeNotification($data));
+                //     }
+                // }
             }
         } else {
             $this->logError(

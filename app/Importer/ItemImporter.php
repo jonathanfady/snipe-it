@@ -42,18 +42,15 @@ class ItemImporter extends Importer
             return null;
         }
 
-        if (array_key_exists('email', $user)) {
-            // Get username from email address
-            $username = explode('@', $user['email'])[0];
-
-            // Add First and Last names as temporary username values
-            $user += !array_key_exists('first_name', $user) ? ['first_name' => $username] : [];
-            $user += !array_key_exists('last_name', $user) ? ['last_name' => $username] : [];
-
-            return User::firstOrCreate(['username' => $username], $user)->id;
-        } else if ((array_key_exists('first_name', $user))
+        if ((array_key_exists('first_name', $user))
             && (array_key_exists('last_name', $user))
         ) {
+            return User::firstOrCreate($user)->id;
+        } else if (array_key_exists('email', $user)) {
+            // Add First and Last names as temporary email values
+            $user['first_name'] = $user['email'];
+            $user['last_name'] = $user['email'];
+
             return User::firstOrCreate($user)->id;
         } else {
             return null;
