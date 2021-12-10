@@ -21,22 +21,43 @@
         <div class="box box-default">
 
             {{ Form::open([
-                  'method' => 'POST',
-                  'route' => ['asset.audit.store', $item->id],
-                  'files' => true,
-                  'class' => 'form-horizontal' ]) }}
+            'method' => 'POST',
+            'route' => ['asset.audit.store', $item->id],
+            'files' => true,
+            'class' => 'form-horizontal' ]) }}
 
             <div class="box-header with-border">
                 <h2 class="box-title"> {{ trans('admin/hardware/form.tag') }} {{ $item->asset_tag }}</h2>
             </div>
             <div class="box-body">
                 {{csrf_field()}}
-                @if ($item->model->name)
+                @if ($item->model)
                 <!-- Asset Model Name -->
-                <div class="form-group {{ $errors->has('name') ? 'error' : '' }}">
-                    {{ Form::label('name', trans('admin/hardware/form.model'), array('class' => 'col-md-3 control-label')) }}
+                <div class="form-group" style="margin-bottom: 0px">
+                    {{ Form::label('name', trans('admin/hardware/form.model'), array('class' => 'col-md-3
+                    control-label')) }}
                     <div class="col-md-8">
                         <p class="form-control-static">{{ $item->model->name }}</p>
+                    </div>
+                </div>
+                @endif
+                @if ($item->model && $item->model->category)
+                <!-- Asset Model Category -->
+                <div class="form-group" style="margin-bottom: 0px">
+                    {{ Form::label('name', trans('general.category'), array('class' => 'col-md-3
+                    control-label')) }}
+                    <div class="col-md-8">
+                        <p class="form-control-static">{{ $item->model->category->name }}</p>
+                    </div>
+                </div>
+                @endif
+                @if ($item->model && $item->model->manufacturer)
+                <!-- Asset Model Manufacturer -->
+                <div class="form-group">
+                    {{ Form::label('name', trans('general.manufacturer'), array('class' => 'col-md-3
+                    control-label')) }}
+                    <div class="col-md-8">
+                        <p class="form-control-static">{{ $item->model->manufacturer->name }}</p>
                     </div>
                 </div>
                 @endif
@@ -66,7 +87,8 @@
                 @endphp
                 @endif
                 <div class="form-group {{ $errors->has('next_audit_date') ? 'error' : '' }}">
-                    {{ Form::label('name', trans('general.next_audit_date'), array('class' => 'col-md-3 control-label')) }}
+                    {{ Form::label('name', trans('general.next_audit_date'), array('class' => 'col-md-3 control-label'))
+                    }}
                     <div class="col-md-9">
                         <div class="input-group date col-md-5" data-provide="datepicker" data-date-format="yyyy-mm-dd">
                             <input type="text" class="form-control" placeholder="{{ trans('general.next_audit_date') }}"
